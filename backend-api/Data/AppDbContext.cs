@@ -1,12 +1,12 @@
+// <copyright file="AppDbContext.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace ProjectNamespace.Data;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Models;
 
-namespace ProjectNamespace.Data
+public class AppDbContext(DbContextOptions<AppDbContext> options): DbContext(options)
 {
-    public class AppDbContext : DbContext
-    {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        public DbSet<Student> Students { get; set; }
-    }
+    public DbSet<Student> Students { get; set; }
 }

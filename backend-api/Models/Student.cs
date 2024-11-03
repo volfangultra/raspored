@@ -1,10 +1,16 @@
-namespace ProjectNamespace.Models
+// <copyright file="Student.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
+namespace ProjectNamespace.Models;
+
+public class Student
 {
-    public class Student
-    {
-        public required  int id { get; set; }
-        public required  string name { get; set; }
-        public required  string email { get; set; }
-        public required  string index_number { get; set; }
-    }
+    public required int Id { get; set; }
+
+    public required string Name { get; set; }
+
+    public required string Email { get; set; }
+
+    public required string IndexNumber { get; set; }
 }
