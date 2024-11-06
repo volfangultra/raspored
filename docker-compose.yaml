@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend-api
+    ports:
+      - "5255:5255"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - database
+    volumes:
+      - ./backend-api:/app
+      - ./database:/app/database
+    command: dotnet watch run --urls http://0.0.0.0:5255
+
+  frontend:
+    build: ./frontend-app
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend-app:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm start"
+
+  database:
+    image: nouchka/sqlite3
+    volumes:
+      - ./database:/data
