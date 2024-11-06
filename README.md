@@ -22,122 +22,41 @@ Make sure you have the following installed:
 - **SQLite**: Ensure SQLite is installed if you want to interact directly with the SQLite database.  
   [Download SQLite](https://www.sqlite.org/download.html)
 
+- **Git**: Install Git: [Download Git](https://git-scm.com/downloads)  
+   Verify installation: `git --version`
+
+- **Docker**: Install Docker: [Download Docker](https://www.docker.com/products/docker-desktop)  
+   Verify installation: `docker --version`
+
+- **Docker Compose**: Install Docker Compose: [Download Docker Compose](https://docs.docker.com/compose/install/)  
+   Verify installation: `docker-compose --version`
+
+
 ### Project Setup
 
-This application is split into two parts: the React frontend and the .NET backend. Follow the setup steps below for each part.
-
-## Getting Started
-
-### Step 1: Clone the Repository
-
-Clone the repository to your local machine.
-
-```bash
-git clone <repository-url>
-cd <repository-folder>
-```
-
-### Step 2: Install Dependencies
-
-#### Frontend Setup (React)
-
-Navigate to the `frontend` folder and install dependencies.
-
-```bash
-cd frontend-app
-npm install
-```
-
-#### Backend Setup (.NET)
-
-Navigate to the `backend` folder and restore .NET packages.
-
-```bash
-cd ../backend-api
-dotnet restore
-```
-
-## Running the Application
-
-### Start the Backend (.NET API)
-
-1. Navigate to the `backend-api` folder.
-
+1. Inside your project folder, run:
    ```bash
-   cd backend-api
+   git clone https://github.com/volfangultra/raspored
+   cd raspored
+   git checkout -b branch_name
    ```
+2. You can use `git status` to check which branch you are in.
 
-2. Run the following command to start the backend server:
+## Developing
+1. Run `docker-compose build`, then run `docker-compose up`.
+   For some changes, you will need to press `Ctrl+C` in the terminal and run `docker-compose up` again.
+   These changes are all in the backend and are listed in [Microsoft's documentation](https://learn.microsoft.com/en-us/visualstudio/debugger/supported-code-changes-csharp?view=vs-2022).
 
+2. After you finish editing, run:
    ```bash
-   dotnet run
+   git add .
+   git commit -m "Some message"
+   git push
    ```
+3. You can then create a pull request on [GitHub](https://github.com).
 
-   The backend will start on `http://localhost:5255`.
+### Code checking and testing: TODO
 
-### Start the Frontend (React)
-
-1. Open a new terminal window.
-2. Navigate to the `frontend` folder.
-
-   ```bash
-   cd frontend-app
-   ```
-
-3. Run the following command to start the frontend development server:
-
-   ```bash
-   npm start
-   ```
-
-   The frontend will start on `http://localhost:3000`.
-
-Now, you should have both the backend and frontend servers running. Access the full application by opening `http://localhost:3000` in your web browser.
-
-## Linting and Code Formatting
-
-Both the frontend and backend have linters set up to ensure code quality.
-
-### Frontend (React) Linting
-
-1. Navigate to the `frontend=api` folder.
-2. Run the following command to check for linting errors:
-
-   ```bash
-   npm run lint
-   ```
-
-3. To automatically fix linting issues, run:
-
-   ```bash
-   npm run format
-   ```
-
-### Backend (.NET) Linting
-
-The backend uses **StyleCop** for code analysis and style checking.
-
-1. Run the following command to analyze the backend code:
-
-   ```bash
-   dotnet build
-   ```
-
-   StyleCop will check for code style issues during the build process and display any warnings or errors in the output.
-
-2. To apply StyleCop rules manually, open your `.cs` files and ensure they align with the standard C# style conventions enforced by StyleCop.
-
-or
-
-1. Run the command
-   ```bash
-   dotnet format
-   ```
-
-## Database Management
-
-This application uses SQLite as the database. To reset or update the database schema, use Entity Framework Core’s migrations.
-For easy use/access use the SQLite tool in VSCode and use the console.sql to run queries.
 
 ## License
 

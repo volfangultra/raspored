@@ -9,8 +9,8 @@ using ProjectNamespace.Routes;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=../database/raspored.db"));
-
+    options.UseSqlite("Data Source=/app/database/raspored.db"));
+    
 builder.Services.AddCors(options => options.AddPolicy("AllowReactApp", policy => policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
               .AllowAnyMethod()));
@@ -24,6 +24,5 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowReactApp");
 app.MapStudentRoutes();
-app.UseHttpsRedirection();
 
 app.Run();
