@@ -12,5 +12,5 @@ public class Student
 
     public required string Email { get; set; }
 
-    //public required string IndexNumber { get; set; }
+    // public required string IndexNumber { get; set; }
 }
