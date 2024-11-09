@@ -11,6 +11,8 @@ export default [
         ...globals.browser,
         es2021: true,
         jest: true, // Add jest globals
+        node: true, // Add node globals
+        process: 'readonly', // Add process as a global variable
       },
       ecmaVersion: 12,
       sourceType: 'module',
