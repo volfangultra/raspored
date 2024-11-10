@@ -1,27 +1,23 @@
-// <copyright file="Program.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Routes;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add configuration to read environment variables
+builder.Configuration.AddEnvironmentVariables();
+
+var connectionString = builder.Configuration["REACT_APP_DATABASE_PATH"];
+var allowedOrigin = builder.Configuration["REACT_APP_URL"];
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=/app/database/raspored.db"));
-    
-builder.Services.AddCors(options => options.AddPolicy("AllowReactApp", policy => policy.WithOrigins("http://localhost:3000")
+    options.UseSqlite($"Data Source={connectionString}"));
+
+builder.Services.AddCors(options => options.AddPolicy("AllowReactApp", policy => policy.WithOrigins(allowedOrigin)
               .AllowAnyHeader()
               .AllowAnyMethod()));
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();
-}
-
 app.UseCors("AllowReactApp");
 app.MapStudentRoutes();
 

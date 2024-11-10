@@ -1,0 +1,18 @@
+{
+    "settings": {
+      "documentationRules": {
+        "companyName": "PlaceholderCompany",
+        "xmlHeader": false
+      },
+      "orderingRules": {
+        "usingDirectivesPlacement": "outsideNamespace"
+      },
+      "layoutRules": {
+        "newlineAtEndOfFile": "require",
+        "newlineBetweenMembers": "require"
+      },
+      "namingRules": {
+        "allowCommonHungarianPrefixes": true
+      }
+    }
+  }
