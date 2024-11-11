@@ -6,7 +6,7 @@ function App() {
 
   const getAllStudents = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/students`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors`);
       const data = await response.json();
       setStudents(data);
     } catch (error) {
