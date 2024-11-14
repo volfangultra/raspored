@@ -19,6 +19,10 @@ builder.Services.AddCors(options => options.AddPolicy("AllowReactApp", policy =>
 
 var app = builder.Build();
 app.UseCors("AllowReactApp");
+
 app.MapStudentRoutes();
+app.MapProfessorRoutes();
+app.MapClassroomRoutes();
+app.MapStudyGroupRoutes();
 
 app.Run();
