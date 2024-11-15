@@ -9,9 +9,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - database
-    volumes:
-      - ./backend-api:/app
-      - ./database:/app/database
+    #volumes:
+    #  - ./backend-api:/app
+      #- ./database:/app/database
     command: dotnet watch run --urls http://0.0.0.0:5255
 
   frontend:
@@ -22,12 +22,12 @@ services:
       - "3000:3000"
     environment:
       - CHOKIDAR_USEPOLLING=true
-    volumes:
-      - ./frontend-app:/app
-      - /app/node_modules
+    #volumes:
+    #  - ./frontend-app:/app
+    #  - /app/node_modules
     command: sh -c "npm install && npm start"
 
   database:
     image: nouchka/sqlite3
-    volumes:
-      - ./database:/data
+    #volumes:
+    #  - ./database:/data

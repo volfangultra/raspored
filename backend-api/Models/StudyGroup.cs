@@ -1,7 +1,12 @@
 namespace ProjectNamespace.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class StudyGroup
 {
+    [Key]
     public required int Id { get; set; }
 
     public required string Cycle { get; set; }
@@ -11,5 +16,7 @@ public class StudyGroup
     public required string Program { get; set; }
 
     public required int Num_of_students { get; set; }
+
+    public ICollection<Lesson> Lessons { get; set; }
     
 }
