@@ -118,9 +118,9 @@ function App() {
             variant="contained"
             color="primary"
             onClick={() => fetchProtectedData(`${userRole}-data`)}
-        >
+          >
           Fetch {userRole === 'admin' ? 'Admin' : 'User'} Data
-        </Button>
+          </Button>
           <Button variant="contained" color="primary" onClick={handleLogout}>
             Log out
           </Button>
