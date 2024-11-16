@@ -47,4 +47,12 @@ app.UseAuthorization();
 
 app.MapStudentRoutes();
 app.MapUserRoutes();
+app.MapProfessorRoutes();
+app.MapClassroomRoutes();
+app.MapStudyGroupRoutes();
+app.MapTimeslotRoutes();
+app.MapProfessorTimeslotRoutes();
+app.MapClassroomTimeslotRoutes();
+app.MapLessonRoutes();
+
 app.Run();
