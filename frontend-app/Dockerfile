@@ -1,12 +1,11 @@
-FROM node:22 AS build
+FROM node:22 AS development
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm install
-RUN mkdir -p node_modules/.cache && chmod -R 777 node_modules/.cache
 
-COPY . ./
+COPY . .
 
-EXPOSE 3000
 CMD ["npm", "start"]
