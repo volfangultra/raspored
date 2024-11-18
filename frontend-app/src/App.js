@@ -1,33 +1,19 @@
-import React, { useState } from 'react';
-import { Container, Typography, Button, List, ListItem } from '@mui/material';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import MainPage from './pages/MainPage'; // Ispravno ime komponente
 
 function App() {
-  const [students, setStudents] = useState([]);
-
-  const getAllStudents = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/students`);
-      const data = await response.json();
-      setStudents(data);
-    } catch (error) {
-      console.error('Error fetching students:', error);
-    }
-  };
-
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Welcome to My Project 123
-      </Typography>
-      <Button variant="contained" color="primary" onClick={getAllStudents}>
-        Show All Students
-      </Button>
-      <List>
-        {students.map((student) => (
-          <ListItem key={student.id}>{student.name}</ListItem>
-        ))}
-      </List>
-    </Container>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/raspored" element={<MainPage />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
