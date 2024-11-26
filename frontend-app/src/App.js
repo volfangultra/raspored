@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Input, Segment, Form, Grid, Header } from 'semantic-ui-react';
+import { Container, Button, Input, Segment, Form, Grid, Header, Loader } from 'semantic-ui-react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -10,8 +10,11 @@ function App() {
   const [password, setPassword] = useState('');
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    setUsername('');
+    setPassword('');
     const savedToken = localStorage.getItem('token');
     const savedRole = localStorage.getItem('userRole');
     if (savedToken && savedRole) {
@@ -46,17 +49,40 @@ function App() {
   };
 
   const handleLogout = () => {
+    setIsLoggingOut(true);
     setToken(null);
     setUserRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
+
+  if (isLoggingOut) {
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#f5f5f5',
+        }}
+      >
+        <Loader active size="large" inline="centered">
+          Logging out...
+        </Loader>
+      </div>
+    );
+  }
 
   return (
     <Container style={{ marginTop: '20px' }}>
       {token ? (
         <Router>
-          <Layout>
+          <Layout onLogout={handleLogout}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/raspored" element={<MainPage />} />

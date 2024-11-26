@@ -2,10 +2,10 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, onLogout }) => {
   return (
     <div>
-      <Header />
+      <Header onLogout={onLogout} />
       <div style={{ marginTop: '80px', paddingBottom: '60px' }}>{children}</div>
       <Footer />
     </div>
