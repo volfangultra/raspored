@@ -9,14 +9,14 @@ const MainPage = () => {
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'teachers':
-        return <Teachers />;
-      case 'courses':
-        return <Courses />;
-      case 'classrooms':
-        return <Classrooms />;
-      default:
-        return null;
+    case 'teachers':
+      return <Teachers />;
+    case 'courses':
+      return <Courses />;
+    case 'classrooms':
+      return <Classrooms />;
+    default:
+      return null;
     }
   };
 

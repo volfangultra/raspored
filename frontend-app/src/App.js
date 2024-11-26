@@ -9,7 +9,6 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState(null);
-  const [userRole, setUserRole] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -19,7 +18,6 @@ function App() {
     const savedRole = localStorage.getItem('userRole');
     if (savedToken && savedRole) {
       setToken(savedToken);
-      setUserRole(savedRole);
     }
   }, []);
 
@@ -39,7 +37,6 @@ function App() {
 
       const data = await response.json();
       setToken(data.token);
-      setUserRole(data.role);
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('userRole', data.role);
@@ -51,7 +48,6 @@ function App() {
   const handleLogout = () => {
     setIsLoggingOut(true);
     setToken(null);
-    setUserRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
     setTimeout(() => {

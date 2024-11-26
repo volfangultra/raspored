@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Table } from 'semantic-ui-react';
 
 const ScheduleTable = ({ content }) => {
@@ -36,6 +37,10 @@ const ScheduleTable = ({ content }) => {
       </Table.Body>
     </Table>
   );
+};
+
+ScheduleTable.propTypes = {
+  content: PropTypes.arrayOf(PropTypes.array).isRequired,
 };
 
 export default ScheduleTable;

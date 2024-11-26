@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, Dropdown, Segment, Header, Button, Icon } from 'semantic-ui-react';
+import PropTypes from 'prop-types';
+import { Modal, Form, Segment, Header, Button, Icon } from 'semantic-ui-react';
 
 const TeacherModal = ({ open, onClose }) => {
   const [formData, setFormData] = useState({
@@ -150,6 +151,11 @@ const TeacherModal = ({ open, onClose }) => {
       </Modal.Actions>
     </Modal>
   );
+};
+
+TeacherModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired, 
 };
 
 export default TeacherModal;

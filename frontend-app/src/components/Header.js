@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Menu, Icon, Image, Dropdown } from 'semantic-ui-react';
 
 const Header = ({ onLogout }) => {
@@ -36,6 +37,10 @@ const Header = ({ onLogout }) => {
       
     </Menu>
   );
+};
+
+Header.propTypes = {
+  onLogout: PropTypes.func.isRequired,
 };
 
 export default Header;

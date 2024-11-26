@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -10,6 +11,11 @@ const Layout = ({ children, onLogout }) => {
       <Footer />
     </div>
   );
+};
+
+Layout.propTypes = {
+  children: PropTypes.node.isRequired,
+  onLogout: PropTypes.func.isRequired,
 };
 
 export default Layout;
