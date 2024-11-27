@@ -1,31 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Button, List, ListItem, Input, Box, Stack } from '@mui/material';
+import { Container, Button, Input, Segment, Form, Grid, Header, Loader } from 'semantic-ui-react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import MainPage from './pages/MainPage';
 
 function App() {
-  const [students, setStudents] = useState([]);
-
-  const getAllStudents = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/students`);
-      const data = await response.json();
-      setStudents(data);
-    } catch (error) {
-      console.error('Error fetching students:', error);
-    }
-  };
-
-  // Login i logout
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    setUsername('');
+    setPassword('');
     const savedToken = localStorage.getItem('token');
     const savedRole = localStorage.getItem('userRole');
     if (savedToken && savedRole) {
       setToken(savedToken);
-      setUserRole(savedRole);
     }
   }, []);
 
@@ -38,112 +30,100 @@ function App() {
         },
         body: JSON.stringify({ Username: username, PasswordHash: password }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Login failed');
       }
-  
+
       const data = await response.json();
       setToken(data.token);
-      setUserRole(data.role);
-  
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('userRole', data.role);
-
-      console.log('Login successful, token saved:', data.token, data.role);   
     } catch (error) {
       console.error('Error logging in:', error);
     }
   };
-  
+
   const handleLogout = () => {
+    setIsLoggingOut(true);
     setToken(null);
-    setUserRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
-  const fetchProtectedData = async (endpoint) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('No token found, please log in');
-        return;
-      }
-  
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.status === 403) {
-        console.error('Access forbidden: insufficient privileges');
-        return;
-      }
-  
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-  
-      const data = await response.json();
-      console.log('Protected data:', data);
-      alert(`Data from ${endpoint}: ${JSON.stringify(data)}`);
-    } catch (error) {
-      console.error('Error fetching protected data:', error);
-    }
-  };
-  
+  if (isLoggingOut) {
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#f5f5f5',
+        }}
+      >
+        <Loader active size="large" inline="centered">
+          Logging out...
+        </Loader>
+      </div>
+    );
+  }
+
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Welcome to My Project
-      </Typography>
-      <Button variant="contained" color="primary" onClick={getAllStudents}>
-        Show All Students
-      </Button>
-      <List>
-        {students.map((student) => (
-          <ListItem key={student.id}>{student.name}</ListItem>
-        ))}
-      </List>
+    <Container style={{ marginTop: '20px' }}>
       {token ? (
-        <Box m={2} p={2}>
-          <Typography variant="h5">
-            Welcome {userRole === 'admin' ? 'Admin' : 'User'}!
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => fetchProtectedData(`${userRole}-data`)}
-          >
-          Fetch {userRole === 'admin' ? 'Admin' : 'User'} Data
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleLogout}>
-            Log out
-          </Button>
-        </Box>
+        <Router>
+          <Layout onLogout={handleLogout}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/raspored" element={<MainPage />} />
+            </Routes>
+          </Layout>
+        </Router>
       ) : (
-        <Box m={2} p={2}>
-          <Stack direction="row" spacing={2}>
-            <Input
-              placeholder="Enter username or email"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Input
-              placeholder="Enter password"
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-            />
-            <Button variant="contained" color="primary" onClick={handleLogin}>
-              Log in
-            </Button>
-          </Stack>
-        </Box>
+        <Segment>
+          <Header as="h2" textAlign="center">Login</Header>
+          <Form>
+            <Grid>
+              <Grid.Row columns={2}>
+                <Grid.Column>
+                  <Input
+                    fluid
+                    placeholder="Enter username or email"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Grid.Column>
+                <Grid.Column>
+                  <Input
+                    fluid
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                  />
+                </Grid.Column>
+              </Grid.Row>
+              <Grid.Row>
+                <Grid.Column width={16}>
+                  <Button
+                    color='teal'
+                    fluid
+                    onClick={handleLogin}
+                  >
+                    Log in
+                  </Button>
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
+          </Form>
+        </Segment>
       )}
-
     </Container>
   );
 }
