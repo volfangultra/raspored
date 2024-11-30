@@ -17,8 +17,6 @@ public class Lesson
 
     public string Type { get; set; }
 
-    public List<int> Timetable { get; set; }
-
     [ForeignKey("ProfessorId")]
     public Professor Professor { get; set; }
 
