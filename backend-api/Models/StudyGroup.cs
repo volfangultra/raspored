@@ -18,5 +18,5 @@ public class StudyGroup
     public required int Num_of_students { get; set; }
 
     public ICollection<Lesson> Lessons { get; set; }
-    
+
 }

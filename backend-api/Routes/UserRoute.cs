@@ -17,7 +17,7 @@ public static class UserRoutes
         var secretKey = app.Configuration["SECRET_KEY"];
 
         app.MapGet("/users", async (AppDbContext db) => await db.Users.ToListAsync());
-    
+
         app.MapPost("/login", async (AppDbContext db, HttpContext context) =>
         {
             var loginData = await context.Request.ReadFromJsonAsync<User>();
@@ -51,7 +51,7 @@ public static class UserRoutes
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
         };
 
         var token = new JwtSecurityToken(
