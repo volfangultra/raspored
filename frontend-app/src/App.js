@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
 import LoaderComponent from './components/Loader';
+import AdminHomePage from './pages/Admin/AdminHomePage';
 
 function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -50,7 +51,7 @@ function App() {
               }
               {userRole === 'admin' &&
                 <>
-                  <Route path="/" element={<h1 style={{ marginTop: '10px' }}>Hi Admin!</h1>} />
+                  <Route path="/" element={<AdminHomePage />} />
                 </>
               }
               <Route path="*" element={<Navigate to="/" replace />} />
