@@ -13,8 +13,8 @@ public class Classroom
 
     public required int Capacity { get; set; }
 
-    public required bool have_pcs {get; set; }
+    public required bool have_pcs { get; set; }
 
     public ICollection<ClassroomTimeslot> ClassroomTimeslots { get; set; }
-    
+
 }
