@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Container, Header, Grid, Statistic, Segment, Divider, Card, Icon, Button } from 'semantic-ui-react';
+import { Container, Header, Grid, Statistic, Segment, Divider, Button } from 'semantic-ui-react';
 import { ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import AddUserModal from '../../components/Admin/AddUserModal';
 

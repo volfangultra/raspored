@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Modal, Button, Form, Input, Message, Dropdown} from 'semantic-ui-react';
 
 const facultyOptions = [
-    { key: 'pmf', text: 'Prirodno-matematički', value: 'Prirodno-matematički' },
-    { key: 'etf', text: 'Elektrotehnički', value: 'Elektrotehnički' },
-    { key: 'ef', text: 'Ekonomski', value: 'Ekonomski' },
-    { key: 'ff', text: 'Filozofski', value: 'Filozofski' },
-    { key: 'ita', text: 'ItAcademy', value: 'ItAcademy' },
-  ];
+  { key: 'pmf', text: 'Prirodno-matematički', value: 'Prirodno-matematički' },
+  { key: 'etf', text: 'Elektrotehnički', value: 'Elektrotehnički' },
+  { key: 'ef', text: 'Ekonomski', value: 'Ekonomski' },
+  { key: 'ff', text: 'Filozofski', value: 'Filozofski' },
+  { key: 'ita', text: 'ItAcademy', value: 'ItAcademy' },
+];
 
 const AddUserModal = ({ open, onClose }) => {
   const [username, setUsername] = useState('');
@@ -33,14 +34,13 @@ const AddUserModal = ({ open, onClose }) => {
   return (
     <Modal open={open} onClose={onClose} size="small">
       <Modal.Header>Kreiraj korisnika</Modal.Header>
-       {/* Success Message */}
-       {success && (
-            <Message
-              success
-              header="Korisnik uspješno kreiran"
-              content="Novi korisnik je uspješno dodan u sistem."
-            />
-          )}
+      {success && (
+        <Message
+          success
+          header="Korisnik uspješno kreiran"
+          content="Novi korisnik je uspješno dodan u sistem."
+        />
+      )}
       <Modal.Content>
         <Form>
           <Form.Field>
@@ -60,17 +60,17 @@ const AddUserModal = ({ open, onClose }) => {
               onChange={(e) => setPassword(e.target.value)} 
             />
           </Form.Field>
-           <Form.Field>
-              <label>Fakultet</label>
-              <Dropdown
-                placeholder="Odaberite fakultet"
-                fluid
-                selection
-                options={facultyOptions}
-                value={faculty}
-                onChange={(e, { value }) => setFaculty(value)}
-              />
-            </Form.Field>
+          <Form.Field>
+            <label>Fakultet</label>
+            <Dropdown
+              placeholder="Odaberite fakultet"
+              fluid
+              selection
+              options={facultyOptions}
+              value={faculty}
+              onChange={(e, { value }) => setFaculty(value)}
+            />
+          </Form.Field>
         </Form>
       </Modal.Content>
       <Modal.Actions>
@@ -81,6 +81,12 @@ const AddUserModal = ({ open, onClose }) => {
       </Modal.Actions>
     </Modal>
   );
+};
+
+// Define PropTypes
+AddUserModal.propTypes = {
+  open: PropTypes.bool.isRequired, // Ensure open is a required boolean
+  onClose: PropTypes.func.isRequired, // Ensure onClose is a required function
 };
 
 export default AddUserModal;
