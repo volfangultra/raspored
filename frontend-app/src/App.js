@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Loader } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
+import LoaderComponent from './components/Loader';
 
 function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -32,22 +33,7 @@ function App() {
   };
 
   if (isLoggingOut) {
-    return (
-      <div
-        style={{
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#f5f5f5',
-        }}
-      >
-        <Loader active size="large" inline="centered">
-          Logging out...
-        </Loader>
-      </div>
-    );
+    return <LoaderComponent message='Logging out...' />
   }
 
   return (

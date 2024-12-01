@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';  
 import { Container, Button, Input, Segment, Form, Grid, Header, Message, Image } from 'semantic-ui-react';
+import LoaderComponent from '../components/Loader';
 
 const LoginPage = ( {setToken, setUserRole }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginMessage, setLoginMessage] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate(); 
 
   const handleLogin = async () => {
+    setIsLoggingIn(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
@@ -35,8 +38,14 @@ const LoginPage = ( {setToken, setUserRole }) => {
       }
     } catch (error) {
       console.error('Login failed:', error);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
+
+  if (isLoggingIn) {
+    return <LoaderComponent message="Logging in..." />;
+  }
 
   return (
     <Container
