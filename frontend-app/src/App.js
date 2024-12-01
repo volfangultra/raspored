@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Input, Segment, Form, Grid, Header, Loader } from 'semantic-ui-react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import MainPage from './pages/MainPage';
+import AdminHomePage from './pages/Admin/AdminHomePage';
 
 function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState(null);
+  const [role, setRole] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -36,7 +38,9 @@ function App() {
       }
 
       const data = await response.json();
+      console.log(data.role);
       setToken(data.token);
+      setRole(data.role);
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('userRole', data.role);
@@ -48,6 +52,7 @@ function App() {
   const handleLogout = () => {
     setIsLoggingOut(true);
     setToken(null);
+    setRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
     setTimeout(() => {
@@ -82,6 +87,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/raspored" element={<MainPage />} />
+              <Route path="/admin" element={<AdminHomePage />} />
             </Routes>
           </Layout>
         </Router>
