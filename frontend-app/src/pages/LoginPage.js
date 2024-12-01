@@ -34,7 +34,7 @@ const LoginPage = ( {setToken, setUserRole }) => {
         localStorage.setItem('userRole', data.role);
         navigate('/');  
       } else {
-        throw new Error("An unexpected error occurred.");
+        throw new Error('An unexpected error occurred.');
       }
     } catch (error) {
       console.error('Login failed:', error);
@@ -117,6 +117,6 @@ const LoginPage = ( {setToken, setUserRole }) => {
 LoginPage.propTypes = {
   setToken: PropTypes.func.isRequired,
   setUserRole: PropTypes.func.isRequired,
-}
+};
 
 export default LoginPage;

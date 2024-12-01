@@ -33,37 +33,36 @@ function App() {
   };
 
   if (isLoggingOut) {
-    return <LoaderComponent message='Logging out...' />
+    return <LoaderComponent message='Logging out...' />;
   }
 
   return (
     <Container style={{ marginTop: '20px' }}>
-        <Router>
-          {token ? (
-            <Layout onLogout={handleLogout}>
-              <Routes>
-                {userRole === 'user' &&
-                  <>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/raspored" element={<MainPage />} />
-                  </>
-                }
-                {userRole === 'admin' &&
-                  <>
-                    <Route path="/" element={<h1 style={{ marginTop: '10px' }}>Hi Admin!</h1>} />
-                  </>
-                }
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Layout>
-          ) : (
+      <Router>
+        {token ? (
+          <Layout onLogout={handleLogout}>
             <Routes>
-              <Route path='/' element={<LoginPage setToken={setToken} setUserRole={setUserRole} />} />
+              {userRole === 'user' &&
+                <>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/raspored" element={<MainPage />} />
+                </>
+              }
+              {userRole === 'admin' &&
+                <>
+                  <Route path="/" element={<h1 style={{ marginTop: '10px' }}>Hi Admin!</h1>} />
+                </>
+              }
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          )}
-          
-        </Router>
+          </Layout>
+        ) : (
+          <Routes>
+            <Route path='/' element={<LoginPage setToken={setToken} setUserRole={setUserRole} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}    
+      </Router>
     </Container>
   );
 }
