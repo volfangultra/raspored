@@ -23,9 +23,15 @@ public static class UserRoutes
             var loginData = await context.Request.ReadFromJsonAsync<User>();
 
             var user = await db.Users.FirstOrDefaultAsync(u => u.Username == loginData.Username);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(loginData.PasswordHash, user.PasswordHash))
+
+            if (user == null)
             {
-                return Results.Unauthorized();
+                return Results.NotFound(new { Message = "User not found." });
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(loginData.PasswordHash, user.PasswordHash))
+            {
+                return Results.BadRequest(new { Message = "Incorrect password." });
             }
 
             var token = GenerateJwtToken(user, validIssuer, allowedOrigin, secretKey);
