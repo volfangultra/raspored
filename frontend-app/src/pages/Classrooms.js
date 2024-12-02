@@ -10,10 +10,10 @@ const Classrooms = () => {
   const content = [
     [],
   ];
- 
+
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={Classrooms} buttonName='Dodaj prostoriju'/>
+      <SmallTable data={Classrooms} buttonName='Dodaj prostoriju' header='Dodavanje prostorije' />
       <ScheduleTable content={content} />
     </div>
   );
