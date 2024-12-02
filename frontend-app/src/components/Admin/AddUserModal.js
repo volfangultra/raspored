@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button, Form, Input, Message, Dropdown} from 'semantic-ui-react';
+import { Modal, Button, Form, Input, Message, Dropdown } from 'semantic-ui-react';
 
 const facultyOptions = [
   { key: 'pmf', text: 'Prirodno-matematički', value: 'Prirodno-matematički' },
@@ -29,7 +29,7 @@ const AddUserModal = ({ open, onClose }) => {
       setFaculty('');
     }, 3000); // Message displayed for 3 seconds
   };
-  
+
 
   return (
     <Modal open={open} onClose={onClose} size="small">
@@ -45,19 +45,19 @@ const AddUserModal = ({ open, onClose }) => {
         <Form>
           <Form.Field>
             <label>Korisničko ime</label>
-            <Input 
-              placeholder="Unesite username" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
+            <Input
+              placeholder="Unesite username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
             <label>Lozinka</label>
-            <Input 
-              type="password" 
-              placeholder="Unesite šifru" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
+            <Input
+              type="password"
+              placeholder="Unesite šifru"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
@@ -74,10 +74,11 @@ const AddUserModal = ({ open, onClose }) => {
         </Form>
       </Modal.Content>
       <Modal.Actions>
-        <Button onClick={onClose}>Otkaži</Button>
         <Button color="teal" onClick={handleSubmit}>
           Kreiraj
         </Button>
+        <Button color="teal" basic onClick={onClose}>Odustani</Button>
+
       </Modal.Actions>
     </Modal>
   );
