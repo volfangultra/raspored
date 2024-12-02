@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Header, Icon, Dropdown } from 'semantic-ui-react';
+import { Form, Segment, Header, Icon} from 'semantic-ui-react';
 
-const TeacherForm = ({ onSave }) => {
+const TeacherForm = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -61,9 +61,9 @@ const TeacherForm = ({ onSave }) => {
     setRestrictions(restrictions.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  /*const handleSubmit = () => {
     onSave({ ...formData, restrictions });
-  };
+  };*/
 
   return (
     <>

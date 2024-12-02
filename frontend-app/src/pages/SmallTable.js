@@ -6,7 +6,7 @@ import TeacherForm from './TeacherForm';
 import ClassroomForm from './ClassroomForm';
 import CourseForm from './CourseForm';
 
-const SmallTable = ({ data, buttonName, header, children, type }) => {
+const SmallTable = ({ data, buttonName, header, type }) => {
   const [isBasic, setIsBasic] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,14 +28,14 @@ const SmallTable = ({ data, buttonName, header, children, type }) => {
 
   const getFormComponent = () => {
     switch (type) {
-      case 'teacher':
-        return <TeacherForm onSave={closeAddModal} edit={editItem} />;
-      case 'classroom':
-        return <ClassroomForm onSave={closeAddModal} edit={editItem} />;
-      case 'course':
-        return <CourseForm onSave={closeAddModal} edit={editItem} />;
-      default:
-        return null;
+    case 'teacher':
+      return <TeacherForm onSave={closeAddModal} edit={editItem} />;
+    case 'classroom':
+      return <ClassroomForm onSave={closeAddModal} edit={editItem} />;
+    case 'course':
+      return <CourseForm onSave={closeAddModal} edit={editItem} />;
+    default:
+      return null;
     }
   };
 

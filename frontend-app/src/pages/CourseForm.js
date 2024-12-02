@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Header, Icon, Checkbox } from 'semantic-ui-react';
+import { Form, Segment, Header, Checkbox } from 'semantic-ui-react';
 
-const CourseForm = ({ onSave }) => {
+const CourseForm = () => {
   const [formData, setFormData] = useState({
     courseName: '',
     resources: {
@@ -33,9 +33,9 @@ const CourseForm = ({ onSave }) => {
     });
   };
 
-  const handleSubmit = () => {
+  /*const handleSubmit = () => {
     onSave(formData);
-  };
+  };*/
 
   return (
     <>

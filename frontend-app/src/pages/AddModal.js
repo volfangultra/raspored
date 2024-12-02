@@ -9,14 +9,14 @@ const AddModal = ({ open, onClose, header }) => {
 
   const getFormContent = (header) => {
     switch (header) {
-      case 'Dodavnje osoblja':
-        return <TeacherForm />;
-      case 'Dodavanje prostorije':
-        return <ClassroomForm />;
-      case 'Dodavanje predmeta':
-        return <CourseForm />;
-      default:
-        return <div>Dodavanje</div>;
+    case 'Dodavnje osoblja':
+      return <TeacherForm />;
+    case 'Dodavanje prostorije':
+      return <ClassroomForm />;
+    case 'Dodavanje predmeta':
+      return <CourseForm />;
+    default:
+      return <div>Dodavanje</div>;
     }
   };
 
