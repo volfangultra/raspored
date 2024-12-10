@@ -14,7 +14,7 @@ public class Professor
     public required string Rank { get; set; }
 
     public ICollection<ProfessorTimeslot> ProfessorTimeslots { get; set; }
-    
+
     public ICollection<Lesson> Lessons { get; set; }
 
 }
