@@ -41,12 +41,13 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
 
     try {
       if(!editItem){
-        const {id, ...formDataWithoutId} = formData;
-        console.log(formData);
+        const formDataWithoutId = Object.fromEntries(
+          Object.entries(formData).filter(([key]) => key !== "id")
+        );        
         await axios.post(url, formDataWithoutId);
       }
       else{       
-        await axios.put(`${url}/${formData.id}`,formData)
+        await axios.put(`${url}/${formData.id}`,formData);
       }
       refreshData();
       onClose();
@@ -75,6 +76,8 @@ AddModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,
+  editItem: PropTypes.object,
+  refreshData: PropTypes.func
 };
 
 export default AddModal;
