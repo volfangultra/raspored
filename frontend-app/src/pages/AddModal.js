@@ -25,18 +25,18 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
   const handleSave = async () => {
     let url;
     switch (header) {
-      case 'Dodavanje osoblja':
-        url = `${process.env.REACT_APP_API_URL}/professors`;
-        break;
-      case 'Dodavanje prostorije':
-        url = `${process.env.REACT_APP_API_URL}/classrooms`;
-        break;
-      case 'Dodavanje predmeta':
-        url = `${process.env.REACT_APP_API_URL}/courses`;//TODO:Promjeniti da ide na sifranik courses
-        break;
-      default:
-        console.error('Unknown header:', header);
-        return;
+    case 'Dodavanje osoblja':
+      url = `${process.env.REACT_APP_API_URL}/professors`;
+      break;
+    case 'Dodavanje prostorije':
+      url = `${process.env.REACT_APP_API_URL}/classrooms`;
+      break;
+    case 'Dodavanje predmeta':
+      url = `${process.env.REACT_APP_API_URL}/courses`;//TODO:Promjeniti da ide na sifranik courses
+      break;
+    default:
+      console.error('Unknown header:', header);
+      return;
     }
 
     try {
