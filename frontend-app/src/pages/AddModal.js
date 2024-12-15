@@ -42,7 +42,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
     try {
       if(!editItem){
         const formDataWithoutId = Object.fromEntries(
-          Object.entries(formData).filter(([key]) => key !== "id")
+          Object.entries(formData).filter(([key]) => key !== 'id')
         );        
         await axios.post(url, formDataWithoutId);
       }
