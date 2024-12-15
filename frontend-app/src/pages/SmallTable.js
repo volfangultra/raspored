@@ -2,45 +2,66 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Table, Icon, Input } from 'semantic-ui-react';
 import AddModal from './AddModal';
-import TeacherForm from './TeacherForm';
-import ClassroomForm from './ClassroomForm';
-import CourseForm from './CourseForm';
+import DeleteModal from './DeleteModal';
 
-const SmallTable = ({ data, buttonName, header, type }) => {
+const SmallTable = ({ data, buttonName, header, refreshData }) => {
   const [isBasic, setIsBasic] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editItem, setEditItem] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
 
   const openEditModal = (item) => {
     setEditItem(item);
-    setOpenModal(true);
+    setOpenAddModal(true);
   };
 
   const closeAddModal = () => {
-    setOpenModal(false);
+    setOpenAddModal(false);
     setEditItem(null);
   };
 
-  const filteredData = data.filter((element) =>
-    element.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const openDeleteModalFunc = (item) => {
+    setDeleteItem(item);
+    setOpenDeleteModal(true);
+  };
 
-  const getFormComponent = () => {
-    switch (type) {
-    case 'teacher':
-      return <TeacherForm onSave={closeAddModal} edit={editItem} />;
-    case 'classroom':
-      return <ClassroomForm onSave={closeAddModal} edit={editItem} />;
-    case 'course':
-      return <CourseForm onSave={closeAddModal} edit={editItem} />;
+  const closeDeleteModal = () => {
+    setDeleteItem(null);
+    setOpenDeleteModal(false);
+  };
+
+  const displayItem = (element) => {
+    switch (header) {
+    case 'Dodavanje osoblja':
+      return element.name;
+    case 'Dodavanje prostorije':
+      return element.name;
+    case 'Dodavanje predmeta':
+      return element.course;
     default:
+      console.error('Unknown header:', header);
       return null;
     }
   };
 
+  const filteredData = data.filter((element) => {
+    switch (header) {
+    case 'Dodavanje osoblja':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    case 'Dodavanje prostorije':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    case 'Dodavanje predmeta':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    default:
+      console.error('Unknown header:', header);
+      return false;
+    }
+  });
+
   return (
-    <div style={{ paddingTop: '10px', minWidth: '25%', maxHeight: '800px', overflowY: 'auto' }}>
+    <div style={{ paddingTop: '10px', minWidth: '25%', maxHeight: '800px'}}>
       <Button
         basic={isBasic}
         color="teal"
@@ -60,7 +81,7 @@ const SmallTable = ({ data, buttonName, header, type }) => {
       <Table compact="very" style={{ textAlign: 'center' }}>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell colSpan='2'>
+            <Table.HeaderCell colSpan='3'>
               <Input
                 icon="search"
                 placeholder="Pretraga..."
@@ -76,7 +97,7 @@ const SmallTable = ({ data, buttonName, header, type }) => {
             filteredData.map((element, index) => (
               <Table.Row key={index}>
                 <Table.Cell style={{ textAlign: 'left' }}>
-                  {element}
+                  {displayItem(element)}
                 </Table.Cell>
                 <Table.Cell onClick={() => openEditModal(element)} width='1' style={{ textAlign: 'right', cursor: 'pointer' }}>
                   <Icon
@@ -84,19 +105,24 @@ const SmallTable = ({ data, buttonName, header, type }) => {
                     color="teal"
                   />
                 </Table.Cell>
+                <Table.Cell onClick={() => openDeleteModalFunc(element)}  width='1' style={{ textAlign: 'right', cursor: 'pointer' }}>
+                  <Icon 
+                    name="trash alternate outline"
+                    color="red"
+                  />
+                </Table.Cell>
               </Table.Row>
             ))
           ) : (
             <Table.Row>
-              <Table.Cell colSpan="2">Nema podataka za prikazati</Table.Cell>
+              <Table.Cell colSpan="3">Nema podataka za prikazati</Table.Cell>
             </Table.Row>
           )}
         </Table.Body>
       </Table>
 
-      <AddModal open={openModal} onClose={closeAddModal} header={header}>
-        {getFormComponent()}
-      </AddModal>
+      <AddModal open={openAddModal} onClose={closeAddModal} header={header} editItem={editItem} refreshData={refreshData}/>
+      <DeleteModal open={openDeleteModal} onClose={closeDeleteModal} header={header} deleteItem={deleteItem} refreshData={refreshData}/>
     </div>
   );
 };
@@ -106,7 +132,7 @@ SmallTable.propTypes = {
   buttonName: PropTypes.string.isRequired,
   header: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
-  type: PropTypes.oneOf(['teacher', 'classroom', 'course']).isRequired,
+  refreshData:PropTypes.func,
 };
 
 export default SmallTable;
