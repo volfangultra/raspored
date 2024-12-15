@@ -33,10 +33,10 @@ const DeleteModal = ({ open, onClose,header, deleteItem, refreshData}) => {
 
   return (
     <Modal size="small" open={open} onClose={onClose}>
-        <Modal.Header>Potvrda brisanja</Modal.Header>
-        <Modal.Content>
+      <Modal.Header>Potvrda brisanja</Modal.Header>
+      <Modal.Content>
         <p>Jeste li sigurni da želite obrisati ovu stavku?</p>
-        </Modal.Content>
+      </Modal.Content>
       <Modal.Actions>
         <Button negative onClick={onClose}>
             Ne

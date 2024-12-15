@@ -10,7 +10,7 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editItem, setEditItem] = useState(null);
-  const [deleteItem, setDeleteItem] = useState(null)
+  const [deleteItem, setDeleteItem] = useState(null);
 
   const openEditModal = (item) => {
     setEditItem(item);

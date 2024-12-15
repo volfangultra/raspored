@@ -6,17 +6,17 @@ const Classrooms = () => {
   const [classrooms, setClassrooms] = useState([]);
  
   const fetchClassrooms = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setClassrooms(data);
-      } catch (error) {
-        console.error('Failed to fetch professors:', error);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      setClassrooms(data);
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+    }
+  };
      
   useEffect(() => {
     fetchClassrooms();
