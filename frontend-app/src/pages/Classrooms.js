@@ -1,11 +1,26 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
 
 const Classrooms = () => {
-  const Classrooms = [
-    'Prostorija1', 'Prostorija2', 'Prostorija3', 'Prostorija4', 'Prostorija5'
-  ];
+   const [classrooms, setClassrooms] = useState([]);
+ 
+    const fetchClassrooms = async () => {
+       try {
+         const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
+         if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+         }
+         const data = await response.json();
+         setClassrooms(data);
+       } catch (error) {
+         console.error('Failed to fetch professors:', error);
+       }
+     };
+     
+     useEffect(() => {
+      fetchClassrooms();
+     }, []);
 
   const content = [
     [],
@@ -13,7 +28,7 @@ const Classrooms = () => {
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={Classrooms} buttonName='Dodaj prostoriju' header='Dodavanje prostorije' />
+      <SmallTable data={classrooms} buttonName='Dodaj prostoriju' header='Dodavanje prostorije' refreshData={fetchClassrooms}/>
       <ScheduleTable content={content} />
     </div>
   );

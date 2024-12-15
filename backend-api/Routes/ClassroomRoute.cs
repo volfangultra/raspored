@@ -23,5 +23,36 @@ public static class ClassroomRoutes
             await db.SaveChangesAsync();
             return Results.Created($"/classrooms/{classroom.Id}", classroom);
         });
+
+        app.MapPut("/classrooms/{id}", async (int id, Classroom updatedClassroom, AppDbContext db) =>
+        {
+            var classroom = await db.Classrooms.FindAsync(id);
+            if (classroom is null)
+            {
+                return Results.NotFound();
+            }
+
+            classroom.Name = updatedClassroom.Name;
+            classroom.Capacity = updatedClassroom.Capacity;
+
+            db.Classrooms.Update(classroom);
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
+
+        app.MapDelete("/classrooms/{id}", async (int id, AppDbContext db) =>
+        {
+            var classroom = await db.Classrooms.FindAsync(id);
+            if (classroom is null)
+            {
+                return Results.NotFound();
+            }
+
+            db.Classrooms.Remove(classroom);
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
     }
 }

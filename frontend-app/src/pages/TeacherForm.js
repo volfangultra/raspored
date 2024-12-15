@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment, Header, Icon} from 'semantic-ui-react';
 
-const TeacherForm = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    title: '',
-    days: '',
-    timeFrom: '',
-    timeTo: '',
+const TeacherForm = ({onChange,editItem}) => {
+  const [formData, setFormData] = useState(()=>{
+    const [firstName = '', lastName = ''] = (editItem?.name || '').split(' ');
+    return{
+      id: editItem?.id || null,
+      firstName: firstName,
+      lastName:lastName,
+      Rank: editItem?.rank.toLowerCase() || '',
+    }
   });
 
   const [restrictions, setRestrictions] = useState([]);
@@ -37,7 +38,12 @@ const TeacherForm = () => {
   }));
 
   const handleInputChange = (e, { name, value }) => {
-    setFormData({ ...formData, [name]: value });
+    const updatedForm = { ...formData, [name]: value };
+    if (name === 'firstName' || name === 'lastName') {
+      updatedForm.Name = `${updatedForm.firstName} ${updatedForm.lastName}`.trim();
+    }
+    setFormData(updatedForm);
+    onChange(updatedForm);
   };
 
   const addRestriction = () => {
@@ -83,8 +89,8 @@ const TeacherForm = () => {
           />
           <Form.Dropdown
             label="Zvanje"
-            name="title"
-            value={formData.title}
+            name="Rank"
+            value={formData.Rank}
             onChange={handleInputChange}
             options={titleOptions}
             selection

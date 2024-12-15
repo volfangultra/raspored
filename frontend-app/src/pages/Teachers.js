@@ -1,19 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
 
 const Teachers = () => {
-  const teachers = [
-    'Osoba1', 'Osoba2', 'Osoba3', 'Osoba4', 'Osoba5'
-  ];
+  const [teachers, setTeachers] = useState([]);
+  const content = [[]];
 
-  const content = [
-    [],
-  ];
+  const fetchProfessors = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setTeachers(data);
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchProfessors();
+  }, []);
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={teachers} buttonName='Dodaj osoblje' header='Dodavnje osoblja' />
+      <SmallTable data={teachers} buttonName='Dodaj osoblje' header='Dodavanje osoblja' refreshData={fetchProfessors} />
       <ScheduleTable content={content} />
     </div>
   );

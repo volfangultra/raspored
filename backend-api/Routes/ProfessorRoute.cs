@@ -23,5 +23,36 @@ public static class ProfessorRoutes
             await db.SaveChangesAsync();
             return Results.Created($"/professors/{professor.Id}", professor);
         });
+
+        app.MapPut("/professors/{id}", async (int id, Professor updatedProfessor, AppDbContext db) =>
+        {
+            var professor = await db.Professors.FindAsync(id);
+            if (professor is null)
+            {
+                return Results.NotFound();
+            }
+
+            professor.Name = updatedProfessor.Name;
+            professor.Rank = updatedProfessor.Rank;
+
+            db.Professors.Update(professor);
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
+
+        app.MapDelete("/professors/{id}", async (int id, AppDbContext db) =>
+        {
+            var professor = await db.Professors.FindAsync(id);
+            if (professor is null)
+            {
+                return Results.NotFound();
+            }
+
+            db.Professors.Remove(professor);
+            await db.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
     }
 }
