@@ -3,24 +3,24 @@ import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
 
 const Classrooms = () => {
-   const [classrooms, setClassrooms] = useState([]);
+  const [classrooms, setClassrooms] = useState([]);
  
-    const fetchClassrooms = async () => {
-       try {
-         const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
-         if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-         }
-         const data = await response.json();
-         setClassrooms(data);
-       } catch (error) {
-         console.error('Failed to fetch professors:', error);
-       }
-     };
+  const fetchClassrooms = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setClassrooms(data);
+      } catch (error) {
+        console.error('Failed to fetch professors:', error);
+      }
+    };
      
-     useEffect(() => {
-      fetchClassrooms();
-     }, []);
+  useEffect(() => {
+    fetchClassrooms();
+  }, []);
 
   const content = [
     [],

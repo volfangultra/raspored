@@ -10,7 +10,7 @@ const TeacherForm = ({onChange,editItem}) => {
       firstName: firstName,
       lastName:lastName,
       Rank: editItem?.rank.toLowerCase() || '',
-    }
+    };
   });
 
   const [restrictions, setRestrictions] = useState([]);
@@ -182,6 +182,8 @@ const TeacherForm = ({onChange,editItem}) => {
 
 TeacherForm.propTypes = {
   onSave: PropTypes.func.isRequired,
+  onChange:PropTypes.func,
+  editItem:PropTypes.object,
 };
 
 export default TeacherForm;

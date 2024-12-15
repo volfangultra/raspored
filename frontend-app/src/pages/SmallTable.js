@@ -34,29 +34,29 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
 
   const displayItem = (element) => {
     switch (header) {
-      case 'Dodavanje osoblja':
-        return element.name;
-      case 'Dodavanje prostorije':
-        return element.name;
-      case 'Dodavanje predmeta':
-        return element.course;
-      default:
-        console.error('Unknown header:', header);
-        return null;
+    case 'Dodavanje osoblja':
+      return element.name;
+    case 'Dodavanje prostorije':
+      return element.name;
+    case 'Dodavanje predmeta':
+      return element.course;
+    default:
+      console.error('Unknown header:', header);
+      return null;
     }
   };
 
   const filteredData = data.filter((element) => {
     switch (header) {
-      case 'Dodavanje osoblja':
-        return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
-      case 'Dodavanje prostorije':
-        return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
-      case 'Dodavanje predmeta':
-        return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
-      default:
-        console.error('Unknown header:', header);
-        return false;
+    case 'Dodavanje osoblja':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    case 'Dodavanje prostorije':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    case 'Dodavanje predmeta':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    default:
+      console.error('Unknown header:', header);
+      return false;
     }
   });
 
@@ -107,8 +107,8 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
                 </Table.Cell>
                 <Table.Cell onClick={() => openDeleteModalFunc(element)}  width='1' style={{ textAlign: 'right', cursor: 'pointer' }}>
                   <Icon 
-                  name="trash alternate outline"
-                  color="red"
+                    name="trash alternate outline"
+                    color="red"
                   />
                 </Table.Cell>
               </Table.Row>
@@ -132,6 +132,7 @@ SmallTable.propTypes = {
   buttonName: PropTypes.string.isRequired,
   header: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
+  refreshData:PropTypes.func,
 };
 
 export default SmallTable;
