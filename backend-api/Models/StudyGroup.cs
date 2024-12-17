@@ -15,7 +15,7 @@ public class StudyGroup
 
     public required string Program { get; set; }
 
-    public required int Num_of_students { get; set; }
+    public required int NumOfStudents { get; set; }
 
     public ICollection<Lesson> Lessons { get; set; }
     

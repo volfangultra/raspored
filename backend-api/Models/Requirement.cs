@@ -4,17 +4,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Classroom
+public class Requirement
 {
     [Key]
     public int Id { get; set; }
+    public string Name { get; set; }
 
-    public required string Name { get; set; }
-
-    public required int Capacity { get; set; }
-
-    public ICollection<ClassroomTimeslot> ClassroomTimeslots { get; set; }
+    public ICollection<CourseRequirement> CourseRequirements { get; set; }
 
     public ICollection<ClassroomRequirement> ClassroomRequirements { get; set; }
-
+    
 }
