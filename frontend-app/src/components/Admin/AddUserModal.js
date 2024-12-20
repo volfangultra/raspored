@@ -21,9 +21,9 @@ const AddUserModal = ({ open, onClose }) => {
   const [existingUsernames, setExistingUsernames] = useState([]);
 
   const getToken = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      throw new Error("No token found, user is not authenticated.");
+      throw new Error('No token found, user is not authenticated.');
     }
     return token;
   };
@@ -33,9 +33,9 @@ const AddUserModal = ({ open, onClose }) => {
       const token = getToken();
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/users`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
@@ -53,7 +53,7 @@ const AddUserModal = ({ open, onClose }) => {
   const validatePassword = (password) => {
     const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);
-  }
+  };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,7 +66,7 @@ const AddUserModal = ({ open, onClose }) => {
 
   useEffect(() => {
     const formValid =
-      username.trim() !== "" &&
+      username.trim() !== '' &&
       !existingUsernames.includes(username) &&
       validatePassword(password) &&
       faculty &&
@@ -76,13 +76,13 @@ const AddUserModal = ({ open, onClose }) => {
 
   const handleSubmit = async () => {
     if (existingUsernames.includes(username)) {
-      setError("Korisničko ime već postoji. Molimo izaberite drugo.");
+      setError('Korisničko ime već postoji. Molimo izaberite drugo.');
       return;
     }
 
     if (!validatePassword(password)) {
       setError(
-        "Šifra mora biti duža od 8 karaktera i sadržavati slova, brojeve i neke od znakova @$!%*?&."      );
+        'Šifra mora biti duža od 8 karaktera i sadržavati slova, brojeve i neke od znakova @$!%*?&.'      );
       return;
     }
 
@@ -93,15 +93,15 @@ const AddUserModal = ({ open, onClose }) => {
       email,
       passwordHash: password,
       role: 'user',
-    }
+    };
 
     setError(null);
     setSuccess(null);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/add-user`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(userData),
@@ -110,7 +110,7 @@ const AddUserModal = ({ open, onClose }) => {
         console.log(response);
       }
     } catch (error) {
-      console.error("Greška prilikom slanja podataka:", error);
+      console.error('Greška prilikom slanja podataka:', error);
     }
 
     setSuccess(true);
@@ -122,109 +122,109 @@ const AddUserModal = ({ open, onClose }) => {
       setError(null);
       setFaculty('');
     }, 3000); 
-  }
+  };
 
 
 
-return (
-  <Modal open={open} onClose={onClose} size="small">
-    <Modal.Header>Dodavanje novog korisnika</Modal.Header>
-    {success && (
-      <Message
-        success
-        header="Korisnik uspješno kreiran"
-        content="Novi korisnik je uspješno dodan u sistem."
-      />
-    )}
-    <Modal.Content>
-      <Form>
-        <Grid>
-          <Grid.Row columns={2}>
-            <Grid.Column>
-              <Form.Field>
-                <label>Korisničko ime</label>
-                <Input
-                  placeholder="Unesite username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                {existingUsernames.includes(username) && (
-                  <Label basic color="red" pointing>
+  return (
+    <Modal open={open} onClose={onClose} size="small">
+      <Modal.Header>Dodavanje novog korisnika</Modal.Header>
+      {success && (
+        <Message
+          success
+          header="Korisnik uspješno kreiran"
+          content="Novi korisnik je uspješno dodan u sistem."
+        />
+      )}
+      <Modal.Content>
+        <Form>
+          <Grid>
+            <Grid.Row columns={2}>
+              <Grid.Column>
+                <Form.Field>
+                  <label>Korisničko ime</label>
+                  <Input
+                    placeholder="Unesite username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  {existingUsernames.includes(username) && (
+                    <Label basic color="red" pointing>
                     Username već postoji.
-                  </Label>
-                )}
-              </Form.Field>
-            </Grid.Column>
-            <GridColumn>
-              <Form.Field>
-                <label>Šifra</label>
-                <Popup
-                  trigger={
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Unesite šifru"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      icon={
-                        <Icon
-                          name={showPassword ? "eye slash" : "eye"}
-                          link
-                          onClick={() => setShowPassword(!showPassword)}
-                        />
-                      }
-                    />
-                  }
-                  content="Šifra mora imati barem 8 karaktera, uključujući slova, brojeve i neke od znakova @$!%*?&."
-                  position="bottom"
-                  open={password.length > 0 && !validatePassword(password)}
-                />
-              </Form.Field>
-            </GridColumn>
-          </Grid.Row>
-          <Grid.Row columns={2}>
-            <Grid.Column>
-              <Form.Field>
-                <label>Fakultet</label>
-                <Dropdown
-                  placeholder="Odaberite fakultet"
-                  fluid
-                  selection
-                  options={facultyOptions}
-                  value={faculty}
-                  onChange={(e, { value }) => setFaculty(value)}
-                />
-              </Form.Field>
-            </Grid.Column>
-            <Grid.Column>
-              <Form.Field>
-                <label>Email</label>
-                <Input
-                  placeholder="Unesite email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={email && !validateEmail(email)}
-                />
-                {email && !validateEmail(email) && (
-                  <Label basic color="red" pointing>
+                    </Label>
+                  )}
+                </Form.Field>
+              </Grid.Column>
+              <GridColumn>
+                <Form.Field>
+                  <label>Šifra</label>
+                  <Popup
+                    trigger={
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Unesite šifru"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        icon={
+                          <Icon
+                            name={showPassword ? 'eye slash' : 'eye'}
+                            link
+                            onClick={() => setShowPassword(!showPassword)}
+                          />
+                        }
+                      />
+                    }
+                    content="Šifra mora imati barem 8 karaktera, uključujući slova, brojeve i neke od znakova @$!%*?&."
+                    position="bottom"
+                    open={password.length > 0 && !validatePassword(password)}
+                  />
+                </Form.Field>
+              </GridColumn>
+            </Grid.Row>
+            <Grid.Row columns={2}>
+              <Grid.Column>
+                <Form.Field>
+                  <label>Fakultet</label>
+                  <Dropdown
+                    placeholder="Odaberite fakultet"
+                    fluid
+                    selection
+                    options={facultyOptions}
+                    value={faculty}
+                    onChange={(e, { value }) => setFaculty(value)}
+                  />
+                </Form.Field>
+              </Grid.Column>
+              <Grid.Column>
+                <Form.Field>
+                  <label>Email</label>
+                  <Input
+                    placeholder="Unesite email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={email && !validateEmail(email)}
+                  />
+                  {email && !validateEmail(email) && (
+                    <Label basic color="red" pointing>
                     Unesite validnu email adresu.
-                  </Label>
-                )}
-              </Form.Field>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-      </Form>
-      {error && <Message negative>{error}</Message>}
-    </Modal.Content>
-    <Modal.Actions>
-      <Button color="teal" onClick={handleSubmit} disabled={!isValid}>
+                    </Label>
+                  )}
+                </Form.Field>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Form>
+        {error && <Message negative>{error}</Message>}
+      </Modal.Content>
+      <Modal.Actions>
+        <Button color="teal" onClick={handleSubmit} disabled={!isValid}>
         Kreiraj
-      </Button>
-      <Button color="teal" basic onClick={onClose}>Odustani</Button>
+        </Button>
+        <Button color="teal" basic onClick={onClose}>Odustani</Button>
 
-    </Modal.Actions>
-  </Modal>
+      </Modal.Actions>
+    </Modal>
   );
 };
 
