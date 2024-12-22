@@ -9,7 +9,7 @@ const facultyOptions = [
   { key: 'ff', text: 'Filozofski fakultet', value: 'Filozofski' },
 ];
 
-const AddUserModal = ({ open, onClose }) => {
+const AddUserModal = ({ fetchUsersFunction, open, onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -121,6 +121,7 @@ const AddUserModal = ({ open, onClose }) => {
       setPassword(''); 
       setError(null);
       setFaculty('');
+      fetchUsersFunction();
     }, 3000); 
   };
 
@@ -232,6 +233,7 @@ const AddUserModal = ({ open, onClose }) => {
 AddUserModal.propTypes = {
   open: PropTypes.bool.isRequired, // Ensure open is a required boolean
   onClose: PropTypes.func.isRequired, // Ensure onClose is a required function
+  fetchUsersFunction: PropTypes.func.isRequired
 };
 
 export default AddUserModal;

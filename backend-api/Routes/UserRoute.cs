@@ -18,6 +18,26 @@ public static class UserRoutes
 
         app.MapGet("/users", [Authorize(Roles = "admin")] async (AppDbContext db) => await db.Users.ToListAsync());
 
+        app.MapDelete("/delete-user/{id:int}", [Authorize(Roles = "admin")] async (AppDbContext db, int id) =>{
+            var user = await db.Users.FindAsync(id);
+
+            if (user == null){
+              return Results.NotFound(new { Message = "User not found." });
+            }
+
+            try{
+                db.Users.Remove(user);
+                await db.SaveChangesAsync();
+                return Results.Ok(new { Message = "User successfully deleted." });
+            }
+            catch (Exception ex){
+                Console.WriteLine($"Error deleting user: {ex.Message}");
+                return Results.Problem("An error occurred while deleting the user.");
+            }
+        });
+
+        app.MapGet("/users/count", [Authorize(Roles = "admin")] async (AppDbContext db) => await db.Users.CountAsync());
+
         app.MapPost("/add-user", [Authorize(Roles = "admin")] async (AppDbContext db, HttpContext context) =>
         {
             var userData = await context.Request.ReadFromJsonAsync<User>();
