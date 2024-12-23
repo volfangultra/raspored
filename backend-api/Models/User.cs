@@ -12,7 +12,5 @@ public class User
 
     public string Role { get; set; }
 
-    public string Email {get; set; }
-
     public string College {get; set; }
 }
