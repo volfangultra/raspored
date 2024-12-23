@@ -1,7 +1,7 @@
 // <copyright file="ProfessorTimeslotRoute.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
-
+/*
 namespace ProjectNamespace.Routes;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
@@ -25,3 +25,4 @@ public static class ProfessorTimeslotRoutes
         });
     }
 }
+*/

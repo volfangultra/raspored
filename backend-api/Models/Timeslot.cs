@@ -17,6 +17,8 @@ public class Timeslot
 
     public ICollection<ClassroomTimeslot> ClassroomTimeslots { get; set; }
 
+    public ICollection<ProfessorTimeslot> ProfessorTimeslots { get; set; }
+
     public ICollection<CourseTimeslot> CourseTimeslots { get; set; }
     
 }

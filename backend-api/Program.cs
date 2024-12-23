@@ -51,7 +51,7 @@ app.MapProfessorRoutes();
 app.MapClassroomRoutes();
 app.MapStudyGroupRoutes();
 app.MapTimeslotRoutes();
-app.MapProfessorTimeslotRoutes();
+//app.MapProfessorTimeslotRoutes();
 app.MapClassroomTimeslotRoutes();
 app.MapLessonRoutes();
 

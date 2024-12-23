@@ -11,11 +11,7 @@ public class Professor
 
     public string Name { get; set; }
 
-    public int RankId { get; set; }
-
-    [ForeignKey("RankId")]
-    public Rank Rank { get; set; }
-
+    public string Rank {get; set; }
     public ICollection<Course> Courses { get; set; }
 
 }
