@@ -74,6 +74,7 @@ public static class UserRoutes
     
         app.MapPost("/login", async (AppDbContext db, HttpContext context) =>
         {
+
             var loginData = await context.Request.ReadFromJsonAsync<User>();
 
             var user = await db.Users.FirstOrDefaultAsync(u => u.Username == loginData.Username);
