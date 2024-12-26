@@ -33,7 +33,6 @@ public static class ClassroomRoutes
             }
 
             classroom.Name = updatedClassroom.Name;
-            classroom.Capacity = updatedClassroom.Capacity;
 
             db.Classrooms.Update(classroom);
             await db.SaveChangesAsync();

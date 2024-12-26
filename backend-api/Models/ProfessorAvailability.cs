@@ -7,7 +7,7 @@ public class ProfessorAvailability
     [Key]
     public int Id { get; set; }
 
-    public string ProfessorId { get; set; }
+    public int ProfessorId { get; set; }
 
     public int Day { get; set; }
 
