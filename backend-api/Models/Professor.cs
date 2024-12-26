@@ -7,7 +7,6 @@ public class Professor
     public int Id { get; set; }
 
     public string Name { get; set; }
-
     public string Rank { get; set; }
 
     public int NumberOfSlots { get; set; }

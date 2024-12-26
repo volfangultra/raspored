@@ -16,10 +16,65 @@ public static class UserRoutes
         var validIssuer = app.Configuration["REACT_APP_API_URL"];
         var secretKey = app.Configuration["SECRET_KEY"];
 
-        app.MapGet("/users", async (AppDbContext db) => await db.Users.ToListAsync());
+        app.MapGet("/users", [Authorize(Roles = "admin")] async (AppDbContext db) => await db.Users.ToListAsync());
+
+        app.MapDelete("/delete-user/{id:int}", [Authorize(Roles = "admin")] async (AppDbContext db, int id) =>{
+            var user = await db.Users.FindAsync(id);
+
+            if (user == null){
+              return Results.NotFound(new { Message = "User not found." });
+            }
+
+            try{
+                db.Users.Remove(user);
+                await db.SaveChangesAsync();
+                return Results.Ok(new { Message = "User successfully deleted." });
+            }
+            catch (Exception ex){
+                Console.WriteLine($"Error deleting user: {ex.Message}");
+                return Results.Problem("An error occurred while deleting the user.");
+            }
+        });
+
+        app.MapGet("/users/count", [Authorize(Roles = "admin")] async (AppDbContext db) => await db.Users.CountAsync());
+
+        app.MapPost("/add-user", [Authorize(Roles = "admin")] async (AppDbContext db, HttpContext context) =>
+        {
+            var userData = await context.Request.ReadFromJsonAsync<User>();
+
+            if (string.IsNullOrWhiteSpace(userData?.Username) || string.IsNullOrWhiteSpace(userData?.PasswordHash))
+            {
+                return Results.BadRequest(new { Message = "Username and password are required." });
+            }
+
+            if (await db.Users.AnyAsync(u => u.Username == userData.Username))
+            {
+                return Results.Conflict(new { Message = "Username already exists." });
+            }
+            if (string.IsNullOrWhiteSpace(userData?.PasswordHash))
+            {
+                return Results.BadRequest(new { Message = "Password is required." });
+            }
+
+            userData.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userData.PasswordHash);
+
+            try
+            {
+                db.Users.Add(userData);
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database Error: {ex.Message}");
+                return Results.Problem("An error occurred while saving the user.");
+            }
+            
+            return Results.Ok(new { Message = "User successfully added." });
+        });
     
         app.MapPost("/login", async (AppDbContext db, HttpContext context) =>
         {
+
             var loginData = await context.Request.ReadFromJsonAsync<User>();
 
             var user = await db.Users.FirstOrDefaultAsync(u => u.Username == loginData.Username);

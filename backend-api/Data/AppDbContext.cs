@@ -17,8 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options): DbContext(opt
     public DbSet<ProfessorAvailability> ProfessorAvailabilities {get; set; }
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<StudentGroup> StudentGroups { get; set; }
-    public DbSet<Lesson> Lessons {get; set; }
-
+    public DbSet<Lesson> Lessons { get; set; }
     // The following configures EF to create a Sqlite database file in the
     // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options)

@@ -11,7 +11,7 @@ using ProjectNamespace.Data;
 namespace backend_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241226172050_InitialCreate")]
+    [Migration("20241226173249_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -47,6 +47,9 @@ namespace backend_api.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LectureSlotLength")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")

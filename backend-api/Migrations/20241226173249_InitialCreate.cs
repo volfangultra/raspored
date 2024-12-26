@@ -132,6 +132,7 @@ namespace backend_api.Migrations
                     ProfessorId = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
+                    LectureSlotLength = table.Column<int>(type: "INTEGER", nullable: false),
                     NumberOfSlots = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

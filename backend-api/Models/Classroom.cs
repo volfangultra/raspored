@@ -10,7 +10,6 @@ public class Classroom
     public int ScheduleId { get; set; }
 
     public string Name { get; set; }
-
     public int Floor { get; set; }
 
     [ForeignKey("ScheduleId")]
@@ -19,5 +18,6 @@ public class Classroom
     public ICollection<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
 
     public ICollection<Lesson> Lessons { get; set; }
+    
 
 }

@@ -13,6 +13,8 @@ public static class StudyGroupRoutes
     {
         app.MapGet("/studygroups", async (AppDbContext db) => await db.StudyGroups.ToListAsync());
 
+        app.MapGet("/studygroups/count", async (AppDbContext db) => await db.StudyGroups.CountAsync());
+
         app.MapGet("/studygroups/{id}", async (int id, AppDbContext db) => await db.StudyGroups.FindAsync(id) is StudyGroup studygroup
                 ? Results.Ok(studygroup)
                 : Results.NotFound());
