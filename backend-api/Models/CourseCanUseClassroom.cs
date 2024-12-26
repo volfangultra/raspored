@@ -2,7 +2,7 @@ namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Lesson 
+public class CourseCanUseClassroom
 {
     [Key]
     public int Id { get; set; }
@@ -11,16 +11,9 @@ public class Lesson
 
     public int ClassroomId { get; set; }
 
-    public int Day { get; set; }
-
-    public TimeOnly Starttime { get; set; }
-
-    public TimeOnly EndTime { get; set; }
-
     [ForeignKey("CourseId")]
     public Course Course { get; set; }
 
     [ForeignKey("ClassroomId")]
     public Classroom Classroom { get; set; }
-    
 }

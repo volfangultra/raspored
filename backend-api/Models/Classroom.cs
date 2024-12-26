@@ -1,6 +1,4 @@
 namespace ProjectNamespace.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,12 +7,17 @@ public class Classroom
     [Key]
     public int Id { get; set; }
 
-    public required string Name { get; set; }
+    public int ScheduleId { get; set; }
 
-    public required int Capacity { get; set; }
+    public string Name { get; set; }
 
-    public bool have_pcs { get; set; }
+    public int Floor { get; set; }
 
-    public ICollection<ClassroomTimeslot> ClassroomTimeslots { get; set; }
+    [ForeignKey("ScheduleId")]
+    public Schedule Schedule { get; set; }
+
+    public ICollection<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
+
+    public ICollection<Lesson> Lessons { get; set; }
 
 }
