@@ -1,23 +1,25 @@
 namespace ProjectNamespace.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Lesson
+public class Lesson 
 {
     [Key]
     public int Id { get; set; }
     public int CourseId { get; set; }
-    public int ClassroomTimeslotId { get; set; }
-    public int StudyGroupId { get; set; }
+
+    public int ClassroomId { get; set; }
+
+    public int Day { get; set; }
+
+    public TimeOnly Starttime { get; set; }
+
+    public TimeOnly EndTime { get; set; }
 
     [ForeignKey("CourseId")]
     public Course Course { get; set; }
 
-    [ForeignKey("ClassroomTimeslotId")]
-    public ClassroomTimeslot ClassroomTimeslot { get; set; }
-    [ForeignKey("StudyGroupId")]
-    public StudyGroup StudyGroup { get; set; }
+    [ForeignKey("ClassroomId")]
+    public Classroom Classroom { get; set; }
     
 }

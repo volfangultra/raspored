@@ -6,7 +6,7 @@ namespace ProjectNamespace.Routes;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Models;
-
+/*
 public static class StudyGroupRoutes
 {
     public static void MapStudyGroupRoutes(this WebApplication app)
@@ -27,3 +27,4 @@ public static class StudyGroupRoutes
         });
     }
 }
+*/

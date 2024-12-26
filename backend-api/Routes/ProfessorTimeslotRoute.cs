@@ -6,7 +6,7 @@ namespace ProjectNamespace.Routes;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Models;
-
+/*
 public static class ProfessorTimeslotRoutes
 {
     public static void MapProfessorTimeslotRoutes(this WebApplication app)
