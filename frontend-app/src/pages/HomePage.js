@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button, Segment, Grid, Image } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';  
 import myImage from './Image1.png';
-import axios from 'axios';
-import {AddLesson, GetProfessors, GetClassrooms, GetCourses, GetStudentGroups, GetProfessorAvailableTimes} from '../components/Logic';
+//import axios from 'axios';
+//import {AddLesson, GetProfessors, GetClassrooms, GetCourses, GetStudentGroups, GetProfessorAvailableTimes} from '../components/Logic';
 
 const HomePage = () => {
   const [isBasic, setIsBasic] = useState(true);  
