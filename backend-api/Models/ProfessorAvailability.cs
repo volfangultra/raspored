@@ -1,6 +1,7 @@
 namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public class ProfessorAvailability
 {
@@ -13,9 +14,10 @@ public class ProfessorAvailability
 
     public TimeOnly StartTime { get; set; }
 
-    public TimeOnly Endtime { get; set; }
+    public TimeOnly EndTime { get; set; }
 
     [ForeignKey("ProfessorId")]
+    [JsonIgnore]
     public Professor Professor { get; set; }
     
 }

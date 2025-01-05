@@ -12,7 +12,7 @@ public class Lesson
 
     public int Day { get; set; }
 
-    public TimeOnly Starttime { get; set; }
+    public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }
 

@@ -6,41 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend_api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Professors",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Rank = table.Column<string>(type: "TEXT", nullable: false),
-                    NumberOfSlots = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Professors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StudentGroups",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Major = table.Column<string>(type: "TEXT", nullable: false),
-                    Year = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StudentGroups", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -56,28 +26,6 @@ namespace backend_api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProfessorAvailabilities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ProfessorId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Day = table.Column<int>(type: "INTEGER", nullable: false),
-                    StartTime = table.Column<TimeOnly>(type: "TEXT", nullable: false),
-                    Endtime = table.Column<TimeOnly>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProfessorAvailabilities", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProfessorAvailabilities_Professors_ProfessorId",
-                        column: x => x.ProfessorId,
-                        principalTable: "Professors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,6 +71,49 @@ namespace backend_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Professors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ScheduleId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Rank = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Professors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Professors_Schedules_ScheduleId",
+                        column: x => x.ScheduleId,
+                        principalTable: "Schedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentGroups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ScheduleId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Major = table.Column<string>(type: "TEXT", nullable: false),
+                    Year = table.Column<int>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudentGroups_Schedules_ScheduleId",
+                        column: x => x.ScheduleId,
+                        principalTable: "Schedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Courses",
                 columns: table => new
                 {
@@ -132,8 +123,7 @@ namespace backend_api.Migrations
                     ProfessorId = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
-                    LectureSlotLength = table.Column<int>(type: "INTEGER", nullable: false),
-                    NumberOfSlots = table.Column<int>(type: "INTEGER", nullable: false)
+                    LectureSlotLength = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -148,6 +138,28 @@ namespace backend_api.Migrations
                         name: "FK_Courses_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProfessorAvailabilities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProfessorId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Day = table.Column<int>(type: "INTEGER", nullable: false),
+                    StartTime = table.Column<TimeOnly>(type: "TEXT", nullable: false),
+                    EndTime = table.Column<TimeOnly>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProfessorAvailabilities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProfessorAvailabilities_Professors_ProfessorId",
+                        column: x => x.ProfessorId,
+                        principalTable: "Professors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -185,8 +197,7 @@ namespace backend_api.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     CourseId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StudentGroupId = table.Column<int>(type: "INTEGER", nullable: false),
-                    GroupId = table.Column<int>(type: "INTEGER", nullable: false)
+                    StudentGroupId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -198,8 +209,8 @@ namespace backend_api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_GroupTakesCourses_StudentGroups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_GroupTakesCourses_StudentGroups_StudentGroupId",
+                        column: x => x.StudentGroupId,
                         principalTable: "StudentGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -214,7 +225,7 @@ namespace backend_api.Migrations
                     CourseId = table.Column<int>(type: "INTEGER", nullable: false),
                     ClassroomId = table.Column<int>(type: "INTEGER", nullable: false),
                     Day = table.Column<int>(type: "INTEGER", nullable: false),
-                    Starttime = table.Column<TimeOnly>(type: "TEXT", nullable: false),
+                    StartTime = table.Column<TimeOnly>(type: "TEXT", nullable: false),
                     EndTime = table.Column<TimeOnly>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -265,9 +276,9 @@ namespace backend_api.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupTakesCourses_GroupId",
+                name: "IX_GroupTakesCourses_StudentGroupId",
                 table: "GroupTakesCourses",
-                column: "GroupId");
+                column: "StudentGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Lessons_ClassroomId",
@@ -285,9 +296,19 @@ namespace backend_api.Migrations
                 column: "ProfessorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Professors_ScheduleId",
+                table: "Professors",
+                column: "ScheduleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Schedules_UserId",
                 table: "Schedules",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentGroups_ScheduleId",
+                table: "StudentGroups",
+                column: "ScheduleId");
         }
 
         /// <inheritdoc />

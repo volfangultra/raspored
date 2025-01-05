@@ -54,5 +54,6 @@ app.MapClassroomRoutes();
 //app.MapProfessorTimeslotRoutes();
 //app.MapClassroomTimeslotRoutes();
 app.MapLessonRoutes();
+app.MapScheduleRoutes();
 
 app.Run();

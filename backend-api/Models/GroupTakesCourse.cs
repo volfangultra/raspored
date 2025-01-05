@@ -1,6 +1,7 @@
 namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public class GroupTakesCourse
 {
@@ -14,6 +15,6 @@ public class GroupTakesCourse
     [ForeignKey("CourseId")]
     public Course Course { get; set; }
 
-    [ForeignKey("GroupId")]
+    [ForeignKey("StudentGroupId")]
     public StudentGroup StudentGroup { get; set; }
 }

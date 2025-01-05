@@ -70,7 +70,7 @@ DeleteConfirmationModal.propTypes = {
   fetchUsers: PropTypes.func.isRequired,
   open: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  userId: PropTypes.int.isRequired,
+  userId: PropTypes.int,
   deleteName: PropTypes.string.isRequired,
 };
 
