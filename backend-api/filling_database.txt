@@ -1,0 +1,101 @@
+ // Seed schedules
+            var schedules = new List<Schedule>
+            {
+                new Schedule { Id = 1, UserId = 1, Name = "Fall 2025 Schedule", Semester = "Fall 2025" },
+                new Schedule { Id = 2, UserId = 1, Name = "Spring 2026 Schedule", Semester = "Spring 2026" }
+            };
+            db.Schedules.AddRange(schedules);
+
+            // Seed professors
+            var professors = new List<Professor>
+            {
+                new Professor { Id = 1, Name = "Dr. Alice Johnson", Rank = "Associate Professor" },
+                new Professor { Id = 2, Name = "Dr. Bob Williams", Rank = "Professor" }
+            };
+            db.Professors.AddRange(professors);
+
+            // Seed professor availability
+            var professorAvailabilities = new List<ProfessorAvailability>
+            {
+                new ProfessorAvailability
+                {
+                    Id = 1, ProfessorId = 1, Day = 0,
+                    StartTime = new TimeOnly(9, 0),
+                    EndTime = new TimeOnly(14, 0)
+                },
+                new ProfessorAvailability
+                {
+                    Id = 2, ProfessorId = 2, Day = 1,
+                    StartTime = new TimeOnly(10, 0),
+                    EndTime = new TimeOnly(16, 0)
+                }
+            };
+            db.ProfessorAvailabilities.AddRange(professorAvailabilities);
+
+            // Seed student groups
+            var studentGroups = new List<StudentGroup>
+            {
+                new StudentGroup { Id = 1, Major = "Computer Science", Year = 2, Name = "CS-2025" },
+                new StudentGroup { Id = 2, Major = "Mechanical Engineering", Year = 3, Name = "ME-2024" }
+            };
+            db.StudentGroups.AddRange(studentGroups);
+
+            // Seed courses
+            var courses = new List<Course>
+            {
+                new Course { Id = 1, ScheduleId = 1, Name = "Data Structures", Type = "Lecture", ProfessorId = 1, LectureSlotLength = 3 },
+                new Course { Id = 2, ScheduleId = 1, Name = "Thermodynamics", Type = "Lecture", ProfessorId = 2, LectureSlotLength = 3 }
+            };
+            db.Courses.AddRange(courses);
+
+            // Seed group-takes-courses
+            var groupTakesCourses = new List<GroupTakesCourse>
+            {
+                new GroupTakesCourse { Id = 1, StudentGroupId = 1, CourseId = 1 },
+                new GroupTakesCourse { Id = 2, StudentGroupId = 1, CourseId = 2 }
+            };
+            db.GroupTakesCourses.AddRange(groupTakesCourses);
+
+            // Seed classrooms
+            var classrooms = new List<Classroom>
+            {
+                new Classroom { Id = 1, ScheduleId = 1, Name = "CS101", Floor = 1 },
+                new Classroom { Id = 2, ScheduleId = 1, Name = "ME202", Floor = 2 }
+            };
+            db.Classrooms.AddRange(classrooms);
+
+            // Seed course-can-use-classroom
+            var courseCanUseClassrooms = new List<CourseCanUseClassroom>
+            {
+                new CourseCanUseClassroom { Id = 1, CourseId = 1, ClassroomId = 1 },
+                new CourseCanUseClassroom { Id = 2, CourseId = 2, ClassroomId = 2 }
+            };
+            db.CourseCanUseClassrooms.AddRange(courseCanUseClassrooms);
+
+            // Seed lessons
+            var lessons = new List<Lesson>
+            {
+                new Lesson
+                {
+                    Id = 1, CourseId = 1, ClassroomId = 1, Day = 1,
+                    StartTime = new TimeOnly(9, 0),
+                    EndTime = new TimeOnly(10, 30)
+                },
+                new Lesson
+                {
+                    Id = 2, CourseId = 2, ClassroomId = 2, Day = 2,
+                    StartTime = new TimeOnly(10, 0),
+                    EndTime = new TimeOnly(11, 30)
+                }
+            };
+            db.Lessons.AddRange(lessons);
+
+            // Save changes to the database
+            db.SaveChanges();
+
+            Console.WriteLine("Database seeded successfully!");
+            
+            /*var pass = BCrypt.Net.BCrypt.HashPassword(loginData.PasswordHash);
+            var sql = "INSERT INTO Users (Username, Email, PasswordHash, College, Role) VALUES ({0}, {1}, {2}, {3}, {4})";
+            db.Database.ExecuteSqlRaw(sql, "volfangultra", "emin.mulaimovic2305@gmail.com", 
+            pass, "PMF", "user");*/

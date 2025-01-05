@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button, Segment, Grid, Image } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';  
 import myImage from './Image1.png';
+//import axios from 'axios';
+//import {AddLesson, GetProfessors, GetClassrooms, GetCourses, GetStudentGroups, GetProfessorAvailableTimes} from '../components/Logic';
 
 const HomePage = () => {
   const [isBasic, setIsBasic] = useState(true);  
@@ -9,9 +11,22 @@ const HomePage = () => {
   const schedules = ['Raspored1', 'Raspored2', 'Raspored3', 'Raspored4', 'Raspored5']; 
 
   
-  const handleCreateSchedule = () => {
+  const handleCreateSchedule = async () => {
     navigate('/raspored');  
-  };
+    /*try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get_schedule/${1}`);
+      localStorage.setItem("schedule_data", JSON.stringify(response.data));
+      console.log("Classrooms", GetClassrooms())
+      console.log("Professors", GetProfessors())
+      console.log("Courses", GetCourses())
+      console.log("StudentGroups", GetStudentGroups())
+      console.log("ProfessorAvailabilites", GetProfessorAvailableTimes(1))
+      
+      
+    } catch (error) {
+      console.error("Error fetching schedule:", error.response ? error.response.data : error.message);
+    }*/
+  };  
 
   return (
     <div style={{ textAlign: 'center', paddingTop: '50px' }}>

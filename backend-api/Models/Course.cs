@@ -1,6 +1,7 @@
 namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public class Course 
 {
@@ -16,8 +17,6 @@ public class Course
 
     public int LectureSlotLength { get; set; }
 
-    public int NumberOfSlots { get; set; }
-
     [ForeignKey("ScheduleId")]
     public Schedule Schedule { get; set; }
     
@@ -27,4 +26,6 @@ public class Course
     public ICollection<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
 
     public ICollection<GroupTakesCourse> GroupTakesCourses { get; set; }
+
+    public ICollection<Lesson> Lessons { get; set; }
 }

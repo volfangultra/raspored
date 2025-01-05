@@ -1,5 +1,7 @@
 namespace ProjectNamespace.Models;
 
+using System.Text.Json.Serialization;
+
 public class User
 {
     public int Id { get; set; }
@@ -12,5 +14,6 @@ public class User
     public string College { get; set; }
 
     public string Role { get; set; }
+    [JsonIgnore]
     public ICollection<Schedule> Schedules { get; set; }
 }

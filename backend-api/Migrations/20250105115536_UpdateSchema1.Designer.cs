@@ -11,8 +11,8 @@ using ProjectNamespace.Data;
 namespace backend_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241226173249_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250105115536_UpdateSchema1")]
+    partial class UpdateSchema1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,9 @@ namespace backend_api.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Floor")
@@ -55,9 +58,6 @@ namespace backend_api.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("NumberOfSlots")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ProfessorId")
                         .HasColumnType("INTEGER");
@@ -108,9 +108,6 @@ namespace backend_api.Migrations
                     b.Property<int>("CourseId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("StudentGroupId")
                         .HasColumnType("INTEGER");
 
@@ -118,7 +115,7 @@ namespace backend_api.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex("StudentGroupId");
 
                     b.ToTable("GroupTakesCourses");
                 });
@@ -141,7 +138,7 @@ namespace backend_api.Migrations
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeOnly>("Starttime")
+                    b.Property<TimeOnly>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -163,14 +160,16 @@ namespace backend_api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("NumberOfSlots")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Rank")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ScheduleId");
 
                     b.ToTable("Professors");
                 });
@@ -184,7 +183,7 @@ namespace backend_api.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeOnly>("Endtime")
+                    b.Property<TimeOnly>("EndTime")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("ProfessorId")
@@ -238,10 +237,15 @@ namespace backend_api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Year")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ScheduleId");
 
                     b.ToTable("StudentGroups");
                 });
@@ -336,7 +340,7 @@ namespace backend_api.Migrations
 
                     b.HasOne("ProjectNamespace.Models.StudentGroup", "StudentGroup")
                         .WithMany("GroupTakesCourses")
-                        .HasForeignKey("GroupId")
+                        .HasForeignKey("StudentGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -354,7 +358,7 @@ namespace backend_api.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectNamespace.Models.Course", "Course")
-                        .WithMany()
+                        .WithMany("Lessons")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -362,6 +366,17 @@ namespace backend_api.Migrations
                     b.Navigation("Classroom");
 
                     b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("ProjectNamespace.Models.Professor", b =>
+                {
+                    b.HasOne("ProjectNamespace.Models.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.ProfessorAvailability", b =>
@@ -386,6 +401,17 @@ namespace backend_api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ProjectNamespace.Models.StudentGroup", b =>
+                {
+                    b.HasOne("ProjectNamespace.Models.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Schedule");
+                });
+
             modelBuilder.Entity("ProjectNamespace.Models.Classroom", b =>
                 {
                     b.Navigation("CourseCanUseClassrooms");
@@ -398,6 +424,8 @@ namespace backend_api.Migrations
                     b.Navigation("CourseCanUseClassrooms");
 
                     b.Navigation("GroupTakesCourses");
+
+                    b.Navigation("Lessons");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.Professor", b =>
