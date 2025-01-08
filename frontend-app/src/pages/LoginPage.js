@@ -33,7 +33,7 @@ const LoginPage = ( {setToken, setUserRole,setUserId }) => {
         setUserId(data.id);
         localStorage.setItem('token', data.token);
         localStorage.setItem('userRole', data.role);
-        localStorage.setItem('userId',data.id)
+        localStorage.setItem('userId',data.id);
         navigate('/');  
       } else {
         throw new Error('An unexpected error occurred.');
@@ -119,6 +119,7 @@ const LoginPage = ( {setToken, setUserRole,setUserId }) => {
 LoginPage.propTypes = {
   setToken: PropTypes.func.isRequired,
   setUserRole: PropTypes.func.isRequired,
+  setUserId:PropTypes.func.isRequired,
 };
 
 export default LoginPage;

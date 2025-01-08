@@ -53,7 +53,7 @@ const HomePage = () => {
 
       const { id } = await response.json();
       localStorage.setItem('scheduleId', id);
-      navigate(`/raspored`);
+      navigate('/raspored');
     } catch (error) {
       console.error('Error creating schedule:', error);
     }
@@ -61,7 +61,7 @@ const HomePage = () => {
 
   const handleScheduleClick = async(scheduleId) => {
     localStorage.setItem('scheduleId', scheduleId);
-    navigate(`/raspored`);
+    navigate('/raspored');
   };
 
   return (

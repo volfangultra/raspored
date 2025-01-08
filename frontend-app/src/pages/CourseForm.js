@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Grid, Dropdown, Button, List, Icon, Header } from 'semantic-ui-react';
+import { Form, Segment, Grid, Dropdown, Button, Icon, Header } from 'semantic-ui-react';
 import axios from 'axios';
 import AddModal from './AddModal';
 
@@ -25,7 +25,7 @@ const CourseForm = ({ onChange, editItem }) => {
   const [selectedClassrooms, setSelectedClassrooms] = useState([]);
   const [availableStudentGroups, setAvailableStudentGroups] = useState([]);
   const [selectedStudentGroups, setSelectedStudentGroups] = useState([]);
-  const [error, setError] = useState('');
+  const error = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
@@ -175,7 +175,6 @@ const CourseForm = ({ onChange, editItem }) => {
     { key: 'AV', text: 'AV', value: 'AV' },
     { key: 'LV', text: 'LV', value: 'LV' },
   ];
-  console.log(formData)
 
   return (
     <Form>
@@ -247,86 +246,86 @@ const CourseForm = ({ onChange, editItem }) => {
           </Grid.Column>
         </Grid.Row>
           {/* Student Groups */}
-      <Grid.Row columns={2}>
+    <Grid.Row columns={2}>
+      <Grid.Column>
+        <Dropdown
+          placeholder="Select Student Groups"
+          fluid
+          search
+          selection
+          options={availableStudentGroups}
+          onChange={addStudentGroup}
+        />
+        <Header as="h4">Selected Student Groups:</Header>
+        {selectedStudentGroups.length > 0 ? (
+          <Segment>
+            {selectedStudentGroups.map((group, index) => (
+              <div
+                key={index}
+                style={{
+                  marginBottom: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <span>{group.text}</span>
+                <Icon
+                  name="delete"
+                  color="red"
+                  style={{
+                    marginLeft: '10px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => deleteStudentGroup(group.value)}
+                />
+              </div>
+            ))}
+          </Segment>
+        ) : (
+          <p>No selected student groups</p>
+        )}
+      </Grid.Column>
+        {/* Classrooms */}
         <Grid.Column>
           <Dropdown
-            placeholder="Select Student Groups"
+            placeholder="Exclude Classrooms"
             fluid
             search
             selection
-            options={availableStudentGroups}
-            onChange={addStudentGroup}
+            options={availableClassrooms}
+            onChange={addClassroom}
           />
-          <Header as="h4">Selected Student Groups:</Header>
-          {selectedStudentGroups.length > 0 ? (
-            <Segment>
-              {selectedStudentGroups.map((group, index) => (
-                <div
-                  key={index}
-                  style={{
-                    marginBottom: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span>{group.text}</span>
-                  <Icon
-                    name="delete"
-                    color="red"
-                    style={{
-                      marginLeft: '10px',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => deleteStudentGroup(group.value)}
-                  />
-                </div>
-              ))}
-            </Segment>
-          ) : (
-            <p>No selected student groups</p>
-          )}
-        </Grid.Column>
-          {/* Classrooms */}
-          <Grid.Column>
-            <Dropdown
-              placeholder="Exclude Classrooms"
-              fluid
-              search
-              selection
-              options={availableClassrooms}
-              onChange={addClassroom}
-            />
-            <Header as="h4">Odabrane prostorije:</Header>
-                  {selectedClassrooms.length > 0 ? (
-                    <Segment>
-                      {selectedClassrooms.map((classroom, index) => (
-                        <div
-                          key={index}
+          <Header as="h4">Odabrane prostorije:</Header>
+                {selectedClassrooms.length > 0 ? (
+                  <Segment>
+                    {selectedClassrooms.map((classroom, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          marginBottom: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <span>{classroom.text}</span>
+                        <Icon
+                          name="delete"
+                          color="red"
                           style={{
-                            marginBottom: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
+                            marginLeft: '10px',
+                            cursor: 'pointer',
                           }}
-                        >
-                          <span>{classroom.text}</span>
-                          <Icon
-                            name="delete"
-                            color="red"
-                            style={{
-                              marginLeft: '10px',
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => deleteClassroom(classroom.value)}
-                          />
-                        </div>
-                      ))}
-                    </Segment>
-                  ) : (
-                    <p>Nema odabranih predmeta</p>
-                  )}
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
+                          onClick={() => deleteClassroom(classroom.value)}
+                        />
+                      </div>
+                    ))}
+                  </Segment>
+                ) : (
+                  <p>Nema odabranih predmeta</p>
+                )}
+        </Grid.Column>
+      </Grid.Row>
+    </Grid>
 
       <AddModal
         open={modalOpen}
