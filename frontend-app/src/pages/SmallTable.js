@@ -39,7 +39,9 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
     case 'Dodavanje prostorije':
       return element.name;
     case 'Dodavanje predmeta':
-      return element.course;
+      return element.name;
+    case 'Dodavanje smijera':
+      return element.name;
     default:
       console.error('Unknown header:', header);
       return null;
@@ -53,6 +55,8 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
     case 'Dodavanje prostorije':
       return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
     case 'Dodavanje predmeta':
+      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+    case 'Dodavanje smijera':
       return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
     default:
       console.error('Unknown header:', header);

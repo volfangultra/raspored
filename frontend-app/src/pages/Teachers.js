@@ -8,11 +8,12 @@ const Teachers = () => {
 
   const fetchProfessors = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      
       setTeachers(data);
     } catch (error) {
       console.error('Failed to fetch professors:', error);

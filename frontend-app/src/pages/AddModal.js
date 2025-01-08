@@ -4,6 +4,7 @@ import { Modal, Button } from 'semantic-ui-react';
 import TeacherForm from './TeacherForm';
 import ClassroomForm from './ClassroomForm';
 import CourseForm from './CourseForm';
+import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
 
 const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
@@ -16,7 +17,9 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
     case 'Dodavanje prostorije':
       return <ClassroomForm onChange={setFormData} editItem={editItem}/>;
     case 'Dodavanje predmeta':
-      return <CourseForm onChange={setFormData}/>;
+      return <CourseForm onChange={setFormData} editItem={editItem}/>;
+    case 'Dodavanje smijera':
+      return <StudentGroupForm onChange={setFormData} editItem={editItem}/>;
     default:
       return <div>Dodavanje</div>;
     }
@@ -32,7 +35,10 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
       url = `${process.env.REACT_APP_API_URL}/classrooms`;
       break;
     case 'Dodavanje predmeta':
-      url = `${process.env.REACT_APP_API_URL}/courses`;//TODO:Promjeniti da ide na sifranik courses
+      url = `${process.env.REACT_APP_API_URL}/courses`;
+      break;
+    case 'Dodavanje smijera':
+      url = `${process.env.REACT_APP_API_URL}/student-groups`;
       break;
     default:
       console.error('Unknown header:', header);

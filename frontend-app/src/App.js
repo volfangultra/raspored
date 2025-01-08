@@ -12,10 +12,12 @@ function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedRole = localStorage.getItem('userRole');
+    console.log(userId);
     if (savedToken && savedRole) {
       setToken(savedToken);
       setUserRole(savedRole);
@@ -59,7 +61,7 @@ function App() {
           </Layout>
         ) : (
           <Routes>
-            <Route path='/' element={<LoginPage setToken={setToken} setUserRole={setUserRole} />} />
+            <Route path='/' element={<LoginPage setToken={setToken} setUserRole={setUserRole} setUserId={setUserId} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         )}    

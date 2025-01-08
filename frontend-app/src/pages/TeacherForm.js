@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Header, Icon} from 'semantic-ui-react';
+import { Form, Segment, Header, Icon } from 'semantic-ui-react';
 
-const TeacherForm = ({onChange,editItem}) => {
-  const [formData, setFormData] = useState(()=>{
+const TeacherForm = ({ onChange, editItem }) => {
+  const [formData, setFormData] = useState(() => {
     const [firstName = '', lastName = ''] = (editItem?.name || '').split(' ');
-    return{
+    return {
       id: editItem?.id || null,
       firstName: firstName,
-      lastName:lastName,
+      lastName: lastName,
       Rank: editItem?.rank.toLowerCase() || '',
+      ScheduleId: localStorage.getItem('scheduleId'),
     };
   });
 
-  const [restrictions, setRestrictions] = useState([]);
+  const [restrictions, setRestrictions] = useState(() => {
+    if (editItem?.professorAvailabilities) {
+      return editItem.professorAvailabilities.map((avail) => ({
+        day: avail.day,
+        startTime: avail.startTime,
+        endTime: avail.endTime,
+      }));
+    }
+    return [];
+  });
 
   const titleOptions = [
     { key: 'asistent', value: 'asistent', text: 'Asistent' },
@@ -24,12 +34,28 @@ const TeacherForm = ({onChange,editItem}) => {
   ];
 
   const daysOptions = [
-    { key: 'ponedjeljak', value: 'Ponedjeljak', text: 'Ponedjeljak' },
-    { key: 'utorak', value: 'Utorak', text: 'Utorak' },
-    { key: 'srijeda', value: 'Srijeda', text: 'Srijeda' },
-    { key: 'cetvrtak', value: 'Četvrtak', text: 'Četvrtak' },
-    { key: 'petak', value: 'Petak', text: 'Petak' },
+    { key: 0, value: 'Ponedjeljak', text: 'Ponedjeljak' },
+    { key: 1, value: 'Utorak', text: 'Utorak' },
+    { key: 2, value: 'Srijeda', text: 'Srijeda' },
+    { key: 3, value: 'Četvrtak', text: 'Četvrtak' },
+    { key: 4, value: 'Petak', text: 'Petak' },
   ];
+
+  const formatTimeForFront = (time) => {
+    const [hours, minutes] = time.split(':');
+    return `${hours}:${minutes}`;
+  };
+
+  const getDayName = (dayIndex) => {
+    const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
+    return days[dayIndex];
+  };
+
+  const getDayIndex = (dayName) => {
+    const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
+    return days.indexOf(dayName); 
+  };
+  
 
   const timeOptions = Array.from({ length: 24 }, (_, hour) => ({
     key: `${hour}:00`,
@@ -47,29 +73,41 @@ const TeacherForm = ({onChange,editItem}) => {
   };
 
   const addRestriction = () => {
-    setRestrictions([
-      ...restrictions,
-      {
-        day: formData.days,
-        from: formData.timeFrom,
-        to: formData.timeTo,
-      },
-    ]);
+    const newRestriction = {
+      day: getDayIndex(formData.days),
+      startTime: `${formData.timeFrom}:00`,
+      endTime: `${formData.timeTo}:00`,
+    };
+  
+    const updatedRestrictions = [...restrictions, newRestriction];
+    setRestrictions(updatedRestrictions);
+
     setFormData({
       ...formData,
       days: '',
       timeFrom: '',
       timeTo: '',
     });
+
+    formData.professorAvailabilities = updatedRestrictions;
+  
+    if (editItem) {
+      editItem.professorAvailabilities = updatedRestrictions;
+      onChange(editItem);
+    }
   };
+  
 
   const deleteRestriction = (index) => {
-    setRestrictions(restrictions.filter((_, i) => i !== index));
+    const updatedRestrictions = restrictions.filter((_, i) => i !== index);
+    setRestrictions(updatedRestrictions);
+  
+    if (editItem) {
+      editItem.professorAvailabilities = updatedRestrictions;
+      onChange(editItem);
+    }
   };
-
-  /*const handleSubmit = () => {
-    onSave({ ...formData, restrictions });
-  };*/
+  
 
   return (
     <>
@@ -140,7 +178,11 @@ const TeacherForm = ({onChange,editItem}) => {
             color="teal"
             size="large"
             onClick={addRestriction}
-            style={{ marginTop: '30px', marginLeft: '10px', cursor: 'pointer' }}
+            style={{
+              marginTop: '30px',
+              marginLeft: '10px',
+              cursor: 'pointer',
+            }}
           />
         </Form.Group>
       </Form>
@@ -158,7 +200,8 @@ const TeacherForm = ({onChange,editItem}) => {
               }}
             >
               <span>
-                {restriction.day} ({restriction.from}-{restriction.to})
+                {getDayName(restriction.day)}{' '}
+                ({formatTimeForFront(restriction.startTime)} - {formatTimeForFront(restriction.endTime)})
               </span>
               <Icon
                 name="delete"
@@ -182,8 +225,8 @@ const TeacherForm = ({onChange,editItem}) => {
 
 TeacherForm.propTypes = {
   onSave: PropTypes.func.isRequired,
-  onChange:PropTypes.func,
-  editItem:PropTypes.object,
+  onChange: PropTypes.func,
+  editItem: PropTypes.object,
 };
 
 export default TeacherForm;

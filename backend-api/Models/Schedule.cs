@@ -19,5 +19,5 @@ public class Schedule
     public ICollection<Course> Courses { get; set; }
 
     public ICollection<Classroom> Classrooms { get; set; }
-    
+
 }

@@ -7,7 +7,7 @@ const Classrooms = () => {
  
   const fetchClassrooms = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
