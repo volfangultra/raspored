@@ -246,46 +246,46 @@ const CourseForm = ({ onChange, editItem }) => {
           </Grid.Column>
         </Grid.Row>
 
-      <Grid.Row columns={2}>
-        <Grid.Column>
-          <Dropdown
-            placeholder="Select Student Groups"
-            fluid
-            search
-            selection
-            options={availableStudentGroups}
-            onChange={addStudentGroup}
-          />
-          <Header as="h4">Selected Student Groups:</Header>
-          {selectedStudentGroups.length > 0 ? (
-            <Segment>
-              {selectedStudentGroups.map((group, index) => (
-                <div
-                  key={index}
-                  style={{
-                    marginBottom: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span>{group.text}</span>
-                  <Icon
-                    name="delete"
-                    color="red"
+        <Grid.Row columns={2}>
+          <Grid.Column>
+            <Dropdown
+              placeholder="Select Student Groups"
+              fluid
+              search
+              selection
+              options={availableStudentGroups}
+              onChange={addStudentGroup}
+            />
+            <Header as="h4">Selected Student Groups:</Header>
+            {selectedStudentGroups.length > 0 ? (
+              <Segment>
+                {selectedStudentGroups.map((group, index) => (
+                  <div
+                    key={index}
                     style={{
-                      marginLeft: '10px',
-                      cursor: 'pointer',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
                     }}
-                    onClick={() => deleteStudentGroup(group.value)}
-                  />
-                </div>
-              ))}
-            </Segment>
-          ) : (
-            <p>No selected student groups</p>
-          )}
-        </Grid.Column>
-          {/* Classrooms */}
+                  >
+                    <span>{group.text}</span>
+                    <Icon
+                      name="delete"
+                      color="red"
+                      style={{
+                        marginLeft: '10px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => deleteStudentGroup(group.value)}
+                    />
+                  </div>
+                ))}
+              </Segment>
+            ) : (
+              <p>No selected student groups</p>
+            )}
+          </Grid.Column>
+
           <Grid.Column>
             <Dropdown
               placeholder="Exclude Classrooms"
@@ -296,33 +296,33 @@ const CourseForm = ({ onChange, editItem }) => {
               onChange={addClassroom}
             />
             <Header as="h4">Odabrane prostorije:</Header>
-                  {selectedClassrooms.length > 0 ? (
-                    <Segment>
-                      {selectedClassrooms.map((classroom, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            marginBottom: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <span>{classroom.text}</span>
-                          <Icon
-                            name="delete"
-                            color="red"
-                            style={{
-                              marginLeft: '10px',
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => deleteClassroom(classroom.value)}
-                          />
-                        </div>
-                      ))}
-                    </Segment>
-                  ) : (
-                    <p>Nema odabranih predmeta</p>
-                  )}
+            {selectedClassrooms.length > 0 ? (
+              <Segment>
+                {selectedClassrooms.map((classroom, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      marginBottom: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>{classroom.text}</span>
+                    <Icon
+                      name="delete"
+                      color="red"
+                      style={{
+                        marginLeft: '10px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => deleteClassroom(classroom.value)}
+                    />
+                  </div>
+                ))}
+              </Segment>
+            ) : (
+              <p>Nema odabranih predmeta</p>
+            )}
           </Grid.Column>
         </Grid.Row>
       </Grid>
