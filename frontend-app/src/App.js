@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedRole = localStorage.getItem('userRole');
-    console.log(userId)
+    console.log(userId);
     if (savedToken && savedRole) {
       setToken(savedToken);
       setUserRole(savedRole);
