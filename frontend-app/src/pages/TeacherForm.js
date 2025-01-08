@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment, Header, Icon } from 'semantic-ui-react';
 
@@ -42,7 +42,7 @@ const TeacherForm = ({ onChange, editItem }) => {
   ];
 
   const formatTimeForFront = (time) => {
-    const [hours, minutes] = time.split(":");
+    const [hours, minutes] = time.split(':');
     return `${hours}:${minutes}`;
   };
 
@@ -92,7 +92,7 @@ const TeacherForm = ({ onChange, editItem }) => {
     formData.professorAvailabilities = updatedRestrictions;
   
     if (editItem) {
-      editItem.professorAvailabilities = updatedRestrictions
+      editItem.professorAvailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };
@@ -103,7 +103,7 @@ const TeacherForm = ({ onChange, editItem }) => {
     setRestrictions(updatedRestrictions);
   
     if (editItem) {
-      editItem.professorAvailabilities = updatedRestrictions
+      editItem.professorAvailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };
