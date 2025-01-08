@@ -11,13 +11,13 @@ public class StudentGroup
 
     public string Major { get; set; }
 
-    public int Year {get; set; }
+    public int Year { get; set; }
 
     public string Name { get; set; }
 
     [ForeignKey("ScheduleId")]
     public Schedule Schedule { get; set; }
 
-    public ICollection<GroupTakesCourse> GroupTakesCourses { get; set; }
+    public ICollection<GroupTakesCourses> GroupTakesCourses { get; set; }
 
 }

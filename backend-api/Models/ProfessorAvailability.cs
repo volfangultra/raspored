@@ -19,5 +19,5 @@ public class ProfessorAvailability
     [ForeignKey("ProfessorId")]
     [JsonIgnore]
     public Professor Professor { get; set; }
-    
+
 }

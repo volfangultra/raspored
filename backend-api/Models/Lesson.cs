@@ -2,7 +2,7 @@ namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Lesson 
+public class Lesson
 {
     [Key]
     public int Id { get; set; }
@@ -21,5 +21,5 @@ public class Lesson
 
     [ForeignKey("ClassroomId")]
     public Classroom Classroom { get; set; }
-    
+
 }

@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment, Header, Icon } from 'semantic-ui-react';
 
-const ClassroomForm = ({ onChange, editItem }) => {
+const StudentGroupForm = ({ onChange, editItem }) => {
   const [formData, setFormData] = useState(() => ({
     id: editItem?.id || null,
     Name: editItem?.name || '',
-    Floor: editItem?.floor || '',
-    Capacity: editItem?.capacity || '',
+    Major: editItem?.major || '',
+    Year: editItem?.year || '',
     ScheduleId: localStorage.getItem('scheduleId'),
-    CourseCanUseClassrooms: editItem?.courseCanUseClassrooms?.map((groupCourse) => ({
+    GroupTakesCourses: editItem?.groupTakesCourses?.map((groupCourse) => ({
       courseId: groupCourse.courseId,
     })) || [],
   }));
@@ -32,7 +32,7 @@ const ClassroomForm = ({ onChange, editItem }) => {
         }));
 
         const selectedCoursesMapped =
-          editItem?.courseCanUseClassrooms?.map((groupCourse) =>
+          editItem?.groupTakesCourses?.map((groupCourse) =>
             options.find((option) => option.value === groupCourse.courseId)
           ).filter(Boolean) || [];
 
@@ -66,11 +66,11 @@ const ClassroomForm = ({ onChange, editItem }) => {
 
       setAvailableCourses(availableCourses.filter((c) => c.value !== value));
 
-      const updatedCourseCanUseClassrooms = [
-        ...formData.CourseCanUseClassrooms,
+      const updatedGroupTakesCourses = [
+        ...formData.GroupTakesCourses,
         { courseId: course.value },
       ];
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, GroupTakesCourses: updatedGroupTakesCourses };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -84,10 +84,10 @@ const ClassroomForm = ({ onChange, editItem }) => {
       setSelectedCourses(updatedCourses);
       setAvailableCourses([...availableCourses, removedCourse]);
 
-      const updatedCourseCanUseClassrooms = formData.CourseCanUseClassrooms.filter(
+      const updatedGroupTakesCourses = formData.GroupTakesCourses.filter(
         (c) => c.courseId !== courseId
       );
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, GroupTakesCourses: updatedGroupTakesCourses };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -99,26 +99,26 @@ const ClassroomForm = ({ onChange, editItem }) => {
       <Form widths="equal">
         <Form.Group>
           <Form.Input
-            label="Naziv učionice"
+            label="Naziv grupe"
             name="Name"
             value={formData.Name}
             onChange={handleInputChange}
-            placeholder="Unesite naziv učionice"
+            placeholder="Unesite naziv grupe"
           />
           <Form.Input
-            label="Sprat"
-            name="Floor"
-            value={formData.Floor}
+            label="Smjer"
+            name="Major"
+            value={formData.Major}
             onChange={handleInputChange}
-            placeholder="Unesite sprat učionice"
+            placeholder="Unesite smjer"
           />
           <Form.Input
-            label="Kapacitet"
-            name="Capacity"
+            label="Godina"
+            name="Year"
             type="number"
-            value={formData.Capacity}
+            value={formData.Year}
             onChange={handleInputChange}
-            placeholder="Unesite kapacitet učionice"
+            placeholder="Unesite godinu"
           />
         </Form.Group>
       </Form>
@@ -168,9 +168,9 @@ const ClassroomForm = ({ onChange, editItem }) => {
   );
 };
 
-ClassroomForm.propTypes = {
+StudentGroupForm.propTypes = {
   onChange: PropTypes.func.isRequired,
   editItem: PropTypes.object,
 };
 
-export default ClassroomForm;
+export default StudentGroupForm;

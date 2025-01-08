@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = validIssuer, 
+            ValidIssuer = validIssuer,
             ValidAudience = allowedOrigin,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
@@ -45,15 +45,12 @@ app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.MapStudentRoutes();
 app.MapUserRoutes();
 app.MapProfessorRoutes();
 app.MapClassroomRoutes();
-//app.MapStudyGroupRoutes();
-//app.MapTimeslotRoutes();
-//app.MapProfessorTimeslotRoutes();
-//app.MapClassroomTimeslotRoutes();
-app.MapLessonRoutes();
 app.MapScheduleRoutes();
+app.MapStudentGroupRoutes();
+app.MapCourseRoutes();
+app.MapLessonRoutes();
 
 app.Run();

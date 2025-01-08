@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Button, Input, Segment, Form, Grid, Header, Message, Image } from 'semantic-ui-react';
 import LoaderComponent from '../components/Loader';
 
-const LoginPage = ( {setToken, setUserRole }) => {
+const LoginPage = ( {setToken, setUserRole,setUserId }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginMessage, setLoginMessage] = useState('');
@@ -30,8 +30,10 @@ const LoginPage = ( {setToken, setUserRole }) => {
         const data = await response.json();
         setToken(data.token);
         setUserRole(data.role);
+        setUserId(data.id);
         localStorage.setItem('token', data.token);
         localStorage.setItem('userRole', data.role);
+        localStorage.setItem('userId',data.id)
         navigate('/');  
       } else {
         throw new Error('An unexpected error occurred.');

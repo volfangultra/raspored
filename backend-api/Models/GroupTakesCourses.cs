@@ -1,9 +1,8 @@
 namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-public class GroupTakesCourse
+public class GroupTakesCourses
 {
     [Key]
     public int Id { get; set; }

@@ -18,19 +18,23 @@ public static class UserRoutes
 
         app.MapGet("/users", [Authorize(Roles = "admin")] async (AppDbContext db) => await db.Users.ToListAsync());
 
-        app.MapDelete("/delete-user/{id:int}", [Authorize(Roles = "admin")] async (AppDbContext db, int id) =>{
+        app.MapDelete("/delete-user/{id:int}", [Authorize(Roles = "admin")] async (AppDbContext db, int id) =>
+        {
             var user = await db.Users.FindAsync(id);
 
-            if (user == null){
-              return Results.NotFound(new { Message = "User not found." });
+            if (user == null)
+            {
+                return Results.NotFound(new { Message = "User not found." });
             }
 
-            try{
+            try
+            {
                 db.Users.Remove(user);
                 await db.SaveChangesAsync();
                 return Results.Ok(new { Message = "User successfully deleted." });
             }
-            catch (Exception ex){
+            catch (Exception ex)
+            {
                 Console.WriteLine($"Error deleting user: {ex.Message}");
                 return Results.Problem("An error occurred while deleting the user.");
             }
@@ -68,10 +72,10 @@ public static class UserRoutes
                 Console.WriteLine($"Database Error: {ex.Message}");
                 return Results.Problem("An error occurred while saving the user.");
             }
-            
+
             return Results.Ok(new { Message = "User successfully added." });
         });
-    
+
         app.MapPost("/login", async (AppDbContext db, HttpContext context) =>
         {
             var loginData = await context.Request.ReadFromJsonAsync<User>();
@@ -93,7 +97,7 @@ public static class UserRoutes
             }
 
             var token = GenerateJwtToken(user, validIssuer, allowedOrigin, secretKey);
-            return Results.Ok(new { Token = token, Role = user.Role });
+            return Results.Ok(new { Token = token, Role = user.Role, Id = user.Id });
         });
 
         app.MapGet("/admin-data", [Authorize(Roles = "admin")] async () =>

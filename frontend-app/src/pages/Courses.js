@@ -7,7 +7,7 @@ const Courses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/lessons`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -23,7 +23,7 @@ const Courses = () => {
   }, []);
 
   const content = [
-    ['Predmet1', 'Predmet2', 'Predmet3', 'Predmet4', 'Predmet5'],
+    [],
   ];
 
   return (

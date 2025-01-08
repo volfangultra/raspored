@@ -15,7 +15,10 @@ const DeleteModal = ({ open, onClose,header, deleteItem, refreshData}) => {
       url = `${process.env.REACT_APP_API_URL}/classrooms`;
       break;
     case 'Dodavanje predmeta':
-      url = `${process.env.REACT_APP_API_URL}/courses`;//TODO:Promjeniti da ide na sifranik courses
+      url = `${process.env.REACT_APP_API_URL}/courses`;
+      break;
+    case 'Dodavanje smijera':
+      url = `${process.env.REACT_APP_API_URL}/student-groups`;
       break;
     default:
       console.error('Unknown header:', header);

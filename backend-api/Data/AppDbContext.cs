@@ -6,15 +6,15 @@ namespace ProjectNamespace.Data;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Models;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options): DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Classroom> Classrooms { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<Professor> Professors {get; set; }
-    public DbSet<Course> Courses {get; set; }
-    public DbSet<CourseCanUseClassroom> CourseCanUseClassrooms {get; set; }
-    public DbSet<GroupTakesCourse> GroupTakesCourses {get; set; }
-    public DbSet<ProfessorAvailability> ProfessorAvailabilities {get; set; }
+    public DbSet<Professor> Professors { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
+    public DbSet<GroupTakesCourses> GroupTakesCourses { get; set; }
+    public DbSet<ProfessorAvailability> ProfessorAvailabilities { get; set; }
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<StudentGroup> StudentGroups { get; set; }
     public DbSet<Lesson> Lessons { get; set; }
