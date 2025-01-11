@@ -7,7 +7,20 @@ const Header = ({ onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
+    handleItemClick('', 'schedules');
     navigate('/');
+  };
+
+  const handleItemClick = (path, id) => {
+    const items = document.querySelectorAll('.menu .item');
+    items.forEach(item => {
+      if (item.id === id) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+    navigate(`/${path}`);
   };
 
   return (
@@ -18,6 +31,17 @@ const Header = ({ onLogout }) => {
         <Image src="/logo.png" alt="eRaspored" style={{ height: '50px', width: 'auto' }} />
       </Menu.Item>
 
+      {/* Navigation Items */}
+      <Menu.Item id="schedules" style={{ padding: '0 15px' }} onClick={() => handleItemClick('', 'schedules')}>
+        Rasporedi
+      </Menu.Item>
+      <Menu.Item id="classrooms" style={{ padding: '0 15px' }} onClick={() => handleItemClick('ucionice', 'classrooms')}>
+        Ucionice
+      </Menu.Item>
+      <Menu.Item id="professors" style={{ padding: '0 15px' }} onClick={() => handleItemClick('profesori', 'professors')}>
+        Profesori
+      </Menu.Item>
+      
       {/* User Icon */}
       <Menu.Menu position="right">
         <Dropdown

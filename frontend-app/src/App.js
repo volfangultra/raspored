@@ -7,6 +7,7 @@ import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
 import LoaderComponent from './components/Loader';
 import AdminHomePage from './pages/Admin/AdminHomePage';
+import ClassroomsPage from './pages/ClassroomsPage';
 
 function App() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -49,6 +50,7 @@ function App() {
                 <>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/raspored" element={<MainPage />} />
+                  <Route path="/ucionice" element={<ClassroomsPage />} />
                 </>
               }
               {userRole === 'admin' &&
