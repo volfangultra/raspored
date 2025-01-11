@@ -36,7 +36,7 @@ const Header = ({ onLogout }) => {
         Rasporedi
       </Menu.Item>
       <Menu.Item id="classrooms" style={{ padding: '0 15px' }} onClick={() => handleItemClick('ucionice', 'classrooms')}>
-        Ucionice
+        Učionice
       </Menu.Item>
       <Menu.Item id="professors" style={{ padding: '0 15px' }} onClick={() => handleItemClick('profesori', 'professors')}>
         Profesori

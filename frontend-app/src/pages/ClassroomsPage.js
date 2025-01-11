@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Input,
@@ -7,40 +7,32 @@ import {
   Card,
   Button,
   Modal,
-  Form,
   Pagination,
   Icon,
 } from 'semantic-ui-react';
 import ScheduleTable from './ScheduleTable';
+import AddModal from './AddModal';
+import DeleteModal from './DeleteModal';
 
 const ClassroomsPage = () => {
-  const floors = ['I', 'II', 'III', 'IV'];
-  const courses = [
-    { id: 1, name: 'Elementarna matematika' },
-    { id: 2, name: 'Računarski sistemi' },
-    { id: 3, name: 'Programiranje I' },
-    { id: 4, name: 'Baze podataka' },
-  ];
-
-  const courses_classrooms = [
-    { course_id: 1, classroom_id: 2 },
-    { course_id: 2, classroom_id: 2 },
-    { course_id: 3, classroom_id: 2 },
-    { course_id: 3, classroom_id: 3 },
-    { course_id: 3, classroom_id: 4 },
-    { course_id: 4, classroom_id: 7 },
-  ];
-
-  const classroomsData = [
-    { id: 1, name: '441', floor: 'IV', size: 30 },
-    { id: 2, name: 'ABG', floor: 'I', size: 150 },
-    { id: 3, name: 'VRC', floor: 'I', size: 60 },
-    { id: 4, name: 'RC', floor: 'IV', size: 40 },
-    { id: 5, name: '428', floor: 'IV', size: 30 },
-    { id: 6, name: '432', floor: 'IV', size: 30 },
-    { id: 7, name: '419', floor: 'IV', size: 30 },
-    { id: 8, name: '412', floor: 'IV', size: 30 },
-  ];
+  const header = 'Dodavanje prostorije';
+  const floors = [1, 2, 3, 4];
+  const fetchClassrooms = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setClassrooms(data);
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchClassrooms();
+  }, []);
 
   const sortOptions = [
     { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
@@ -57,12 +49,21 @@ const ClassroomsPage = () => {
   const [filterFloor, setFilterFloor] = useState('');
   const [filterSize, setFilterSize] = useState('');
   const [sortOption, setSortOption] = useState('nameAsc');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [currentClassroom, setCurrentClassroom] = useState(null);
 
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+  const [currentClassroom, setCurrentClassroom] = useState(null);
+  const [classrooms, setClassrooms] = useState([]);
+
+  const [toast, setToast] = useState({ message: '', type: '', visible: false });
+  const showToast = (message, type) => {
+    setToast({ message, type, visible: true });
+  
+    setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
+  };
+  
   const sortClassrooms = (classrooms) => {
     switch (sortOption) {
       case 'nameAsc':
@@ -77,7 +78,7 @@ const ClassroomsPage = () => {
   };
 
   const filteredClassrooms = sortClassrooms(
-    classroomsData.filter((classroom) => {
+    classrooms.filter((classroom) => {
       if (
         searchText &&
         !classroom.name.toLowerCase().includes(searchText.toLowerCase())
@@ -99,7 +100,7 @@ const ClassroomsPage = () => {
 
   const handleEditClick = (classroom) => {
     setCurrentClassroom(classroom);
-    setModalOpen(true);
+    setOpenAddModal(true);
   };
 
   const openScheduleModal = (classroom) => {
@@ -109,26 +110,14 @@ const ClassroomsPage = () => {
 
   const handleDeleteClick = (classroom) => {
     setCurrentClassroom(classroom);
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = () => {
-    //setClassroomsData((prev) => prev.filter((c) => c.id !== currentClassroom.id));
-    setDeleteModalOpen(false);
-    setCurrentClassroom(null);
-  };
-
-  const handleAddClassroom = (newClassroom) => {
-    //setClassroomsData((prev) => [...prev, { ...newClassroom, id: prev.length + 1 }]);
-    setAddModalOpen(false);
+    setOpenDeleteModal(true);
   };
 
   const closeModals = () => {
     setCurrentClassroom(null);
-    setModalOpen(false);
     setScheduleModalOpen(false);
-    setAddModalOpen(false);
-    setDeleteModalOpen(false);
+    setOpenAddModal(false);
+    setOpenDeleteModal(false);
   };
 
   const itemsPerPage = 6;
@@ -145,6 +134,24 @@ const ClassroomsPage = () => {
 
   return (
     <Container style={{ marginTop: '20px' }}>
+      {toast.visible && (
+  <div
+    style={{
+      position: 'fixed',
+      bottom: '50px',
+      right: '20px',
+      background: toast.type === 'success' ? '#21ba45' : '#db2828',
+      color: 'white',
+      padding: '20px 30px',
+      borderRadius: '5px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+      zIndex: 1000,
+    }}
+  >
+    {toast.message}
+  </div>
+)}
+
       <Grid>
         <Grid.Row>
           <Grid.Column width={4}>
@@ -158,7 +165,7 @@ const ClassroomsPage = () => {
                 }}
                 onMouseEnter={(e) => e.target.classList.remove('basic')}
                 onMouseLeave={(e) => e.target.classList.add('basic')}
-                onClick={() => setAddModalOpen(true)}
+                onClick={() => setOpenAddModal(true)}
                 fluid
               >
                 Dodaj novu učionicu
@@ -239,7 +246,7 @@ const ClassroomsPage = () => {
                         Sprat: {classroom.floor}
                         <br />
                         Kursevi:{' '}
-                        {courses_classrooms
+                        {classroom.courseCanUseClassrooms
                           .filter((cc) => cc.classroom_id === classroom.id)
                           .map(
                             (cc) =>
@@ -287,52 +294,7 @@ const ClassroomsPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      {currentClassroom && (
-        <Modal open={modalOpen} onClose={closeModals}>
-          <Modal.Header>Uredi učionicu</Modal.Header>
-          <Modal.Content>
-            <Form>
-              <Form.Input
-                label="Ime"
-                value={currentClassroom.name}
-                onChange={(e) =>
-                  setCurrentClassroom({
-                    ...currentClassroom,
-                    name: e.target.value,
-                  })
-                }
-              />
-              <Form.Input
-                label="Broj mjesta"
-                type="number"
-                value={currentClassroom.size}
-                onChange={(e) =>
-                  setCurrentClassroom({
-                    ...currentClassroom,
-                    size: e.target.value,
-                  })
-                }
-              />
-              <Form.Input
-                label="Sprat"
-                value={currentClassroom.floor}
-                onChange={(e) =>
-                  setCurrentClassroom({
-                    ...currentClassroom,
-                    floor: e.target.value,
-                  })
-                }
-              />
-            </Form>
-          </Modal.Content>
-          <Modal.Actions>
-            <Button color="teal">Sačuvaj</Button>
-            <Button basic color="teal" onClick={closeModals}>
-              Odustani
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      )}
+      
       {currentClassroom && (
         <Modal open={scheduleModalOpen} onClose={closeModals}>
           <Modal.Header>Raspored za {currentClassroom.name}</Modal.Header>
@@ -348,54 +310,24 @@ const ClassroomsPage = () => {
           </Modal.Actions>
         </Modal>
       )}
-      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <Modal.Header>Potvrda brisanja</Modal.Header>
-        <Modal.Content>
-          Jeste li sigurni da želite obrisati učionicu {currentClassroom?.name}?
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color="red" onClick={confirmDelete}>
-            Obriši
-          </Button>
-          <Button onClick={() => setDeleteModalOpen(false)}>Odustani</Button>
-        </Modal.Actions>
-      </Modal>
 
-      <Modal open={addModalOpen} onClose={() => setAddModalOpen(false)}>
-        <Modal.Header>Dodaj učionicu</Modal.Header>
-        <Modal.Content>
-          <Form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const form = e.target;
-              const newClassroom = {
-                name: form.name.value,
-                size: parseInt(form.size.value, 10),
-                floor: form.floor.value,
-              };
-              handleAddClassroom(newClassroom);
-            }}
-          >
-            <Form.Input label="Ime" name="name" required />
-            <Form.Input
-              label="Broj mjesta"
-              name="size"
-              type="number"
-              required
-            />
-            <Form.Input label="Sprat" name="floor" required />
-            <Button type="submit" primary>
-              Dodaj
-            </Button>
-          </Form>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color="teal">Sačuvaj</Button>
-          <Button basic color="teal" onClick={closeModals}>
-            Odustani
-          </Button>
-        </Modal.Actions>
-      </Modal>
+      <DeleteModal
+        open={openDeleteModal}
+        onClose={closeModals}
+        header={header} 
+        deleteItem={currentClassroom}
+        refreshData={fetchClassrooms}
+      />
+
+      <AddModal 
+        open={openAddModal} 
+        onClose={closeModals} 
+        header={header} 
+        editItem={currentClassroom} 
+        refreshData={fetchClassrooms}
+        showToast={showToast}
+      />
+
     </Container>
   );
 };

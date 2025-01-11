@@ -53,6 +53,9 @@ const ClassroomForm = ({ onChange, editItem }) => {
   }, []);
 
   const handleInputChange = (e, { name, value }) => {
+    if ((name == 'Floor' || name == 'Capacity') && value < 0) {
+      return;
+    }
     const updatedForm = { ...formData, [name]: value };
     setFormData(updatedForm);
     onChange(updatedForm);
@@ -108,6 +111,8 @@ const ClassroomForm = ({ onChange, editItem }) => {
           <Form.Input
             label="Sprat"
             name="Floor"
+            type="number"
+            min="1"
             value={formData.Floor}
             onChange={handleInputChange}
             placeholder="Unesite sprat učionice"
@@ -116,6 +121,7 @@ const ClassroomForm = ({ onChange, editItem }) => {
             label="Kapacitet"
             name="Capacity"
             type="number"
+            min="0"
             value={formData.Capacity}
             onChange={handleInputChange}
             placeholder="Unesite kapacitet učionice"
@@ -138,7 +144,13 @@ const ClassroomForm = ({ onChange, editItem }) => {
 
       <Header as="h4">Odabrani predmeti:</Header>
       {selectedCourses.length > 0 ? (
-        <Segment>
+        <Segment
+          style={{
+            maxHeight: '200px',
+            overflowY: 'auto',  
+            padding: '10px',
+          }}
+        >
           {selectedCourses.map((course, index) => (
             <div
               key={index}

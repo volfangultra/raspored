@@ -7,7 +7,7 @@ import CourseForm from './CourseForm';
 import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
 
-const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast}) => {
   const [formData, setFormData] = useState({});
 
   const getFormContent = (header) => {
@@ -55,10 +55,13 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
       else{       
         await axios.put(`${url}/${formData.id}`,formData);
       }
+      
+      showToast('Stavka uspješno dodana!', 'success');
       refreshData();
       onClose();
     } catch (error) {
       console.error('Error saving data:', error);
+      showToast('Došlo je do greške pri dodavanju stavke.', 'error');
     }
   };
 
