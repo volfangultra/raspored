@@ -40,10 +40,20 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData}) => {
         <p>Jeste li sigurni da želite obrisati ovu stavku?</p>
       </Modal.Content>
       <Modal.Actions>
-        <Button negative onClick={onClose}>
+        <Button 
+            basic 
+            color="red" 
+            onMouseEnter={(e) => e.target.classList.remove('basic')}
+            onMouseLeave={(e) => e.target.classList.add('basic')}
+            onClick={onClose}>
             Ne
         </Button>
-        <Button positive onClick={deleteHandle}>
+        <Button 
+            basic 
+            color="teal"
+            onMouseEnter={(e) => e.target.classList.remove('basic')}
+            onMouseLeave={(e) => e.target.classList.add('basic')} 
+            onClick={deleteHandle}>
             Da
         </Button>
       </Modal.Actions>
