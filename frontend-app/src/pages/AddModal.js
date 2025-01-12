@@ -37,7 +37,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
     case 'Dodavanje predmeta':
       url = `${process.env.REACT_APP_API_URL}/courses`;
       break;
-    case 'Dodavanje smijera':
+    case 'Dodavanje smjera':
       url = `${process.env.REACT_APP_API_URL}/student-groups`;
       break;
     default:

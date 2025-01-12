@@ -14,49 +14,46 @@ import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
 
-const ProfessorsPage = () => {
-  const header = 'Dodavanje osoblja';
-  const ranks = ['Asistent', 'Viši asistent', 'Docent', 'Vanredni profesor', 'Redovni profesor'];
-  const daysOptions = [
-    { key: 0, value: 'Ponedjeljak', text: 'Ponedjeljak' },
-    { key: 1, value: 'Utorak', text: 'Utorak' },
-    { key: 2, value: 'Srijeda', text: 'Srijeda' },
-    { key: 3, value: 'Četvrtak', text: 'Četvrtak' },
-    { key: 4, value: 'Petak', text: 'Petak' },
-  ];
-  const fetchProfessors = async () => {
+const StudentGroupsPage = () => {
+  const header = 'Dodavanje smjera';
+  const fetchStudentGroups = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setProfessors(data);
+      setStudentGroups(data);
     } catch (error) {
-      console.error('Failed to fetch professors:', error);
+      console.error('Failed to fetch student groups:', error);
     }
   };
   
   useEffect(() => {
-    fetchProfessors();
+    fetchStudentGroups();
   }, []);
 
   const sortOptions = [
     { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
-    { key: 'rankAsc', text: 'Zvanje (rast.)', value: 'rankAsc' },
-    { key: 'rankDesc', text: 'Zvanje (opad.)', value: 'rankDesc' }
+    { key: 'yearAsc', text: 'Godina (rast.)', value: 'yearAsc' },
+    { key: 'yearDesc', text: 'Godina (opad.)', value: 'yearDesc' },
   ];
 
   const [searchText, setSearchText] = useState('');
-  const [filterRank, setFilterRank] = useState('');
+  const [filterYear, setFilterYear] = useState('');
   const [sortOption, setSortOption] = useState('nameAsc');
 
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-  const [currentProfessor, setCurrentProfessor] = useState(null);
-  const [professors, setProfessors] = useState([]);
+  const [currentStudentGroup, setCurrentStudentGroup] = useState(null);
+  const [studentgroups, setStudentGroups] = useState([]);
+
+  const yearOptions = [...new Set(studentgroups.map(({ year }) => year))]
+  .map((year) => ({ year }));
+
+  console.log(yearOptions);
 
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
@@ -65,63 +62,51 @@ const ProfessorsPage = () => {
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
   
-  const sortProfessors = (professors) => {
+  const sortStudentGroups = (studentgroups) => {
     switch (sortOption) {
       case 'nameAsc':
-        return professors.sort((a, b) => a.name.localeCompare(b.name));
-      case 'rankAsc':
-        return professors.sort((a, b) => ranks.indexOf(a.rank) - ranks.indexOf(b.rank));
-      case 'rankDesc':
-        return professors.sort((a, b) => ranks.indexOf(b.rank) - ranks.indexOf(a.rank));
+        return studentgroups.sort((a, b) => a.name.localeCompare(b.name));
+      case 'yearAsc':
+        return studentgroups.sort((a, b) => a.year - b.year);
+      case 'yearDesc':
+        return studentgroups.sort((a, b) => b.year - a.year);
       default:
-        return professors;
+        return studentgroups;
     }
   };
 
-  const filteredProfessors = sortProfessors(
-    professors.filter((professor) => {
+  const filteredStudentGroups = sortStudentGroups(
+    studentgroups.filter((studentgroup) => {
       if (
         searchText &&
-        !professor.name.toLowerCase().includes(searchText.toLowerCase())
+        !studentgroup.name.toLowerCase().includes(searchText.toLowerCase())
       ) {
         return false;
       }
-      if (filterRank === 'Asistent' && professor.rank != 'Asistent') {
-        return false;
-      }
-      if (filterRank === 'Viši asistent' && professor.rank != 'Viši asistent') {
-        return false;
-      }
-      if (filterRank === 'Docent' && professor.rank != 'Docent') {
-        return false;
-      }
-      if (filterRank === 'Vanredni profesor' && professor.rank != 'Vanredni profesor') {
-        return false;
-      }
-      if (filterRank === 'Redovni profesor' && professor.rank === 'Redovni profesor') {
+      if (filterYear && studentgroup.year !== filterYear) {
         return false;
       }
       return true;
     })
   );
 
-  const handleEditClick = (professor) => {
-    setCurrentProfessor(professor);
+  const handleEditClick = (studentgroup) => {
+    setCurrentStudentGroup(studentgroup);
     setOpenAddModal(true);
   };
 
-  const openScheduleModal = (professor) => {
-    setCurrentProfessor(professor);
+  const openScheduleModal = (studentgroup) => {
+    setCurrentStudentGroup(studentgroup);
     setScheduleModalOpen(true);
   };
 
-  const handleDeleteClick = (professor) => {
-    setCurrentProfessor(professor);
+  const handleDeleteClick = (studentgroup) => {
+    setCurrentStudentGroup(studentgroup);
     setOpenDeleteModal(true);
   };
 
   const closeModals = () => {
-    setCurrentProfessor(null);
+    setCurrentStudentGroup(null);
     setScheduleModalOpen(false);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
@@ -130,8 +115,8 @@ const ProfessorsPage = () => {
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(filteredProfessors.length / itemsPerPage);
-  const paginatedProfessors = filteredProfessors.slice(
+  const totalPages = Math.ceil(filteredStudentGroups.length / itemsPerPage);
+  const paginatedStudentGroups = filteredStudentGroups.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -175,7 +160,7 @@ const ProfessorsPage = () => {
                 onClick={() => setOpenAddModal(true)}
                 fluid
               >
-                Dodaj novo osoblje
+                Dodaj novi smjer
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
               </Button>
             </div>
@@ -192,16 +177,16 @@ const ProfessorsPage = () => {
             <div style={{ marginBottom: '20px' }}>
               <h4 className="ui dividing header">Filteri</h4>
               <Dropdown
-                placeholder="Zvanje"
+                placeholder="Godina"
                 fluid
                 selection
-                options={ranks.map((rank) => ({
-                  key: rank,
-                  text: `${rank}`,
-                  value: rank,
+                options={yearOptions.map(({ year }) => ({
+                  key: year,     // Unique key for each option
+                  text: year,    // Text displayed in the dropdown
+                  value: year,   // Value of the dropdown item
                 }))}
-                value={filterRank}
-                onChange={(e, { value }) => setFilterRank(value)}
+                value={filterYear}
+                onChange={(e, { value }) => setFilterYear(value)}
                 clearable
               />
             </div>
@@ -220,9 +205,9 @@ const ProfessorsPage = () => {
 
           <Grid.Column width={12}>
             <Card.Group itemsPerRow={3}>
-              {paginatedProfessors.length > 0 ? (
-                paginatedProfessors.map((professor) => (
-                  <Card key={professor.id}>
+              {paginatedStudentGroups.length > 0 ? (
+                paginatedStudentGroups.map((studentgroup) => (
+                  <Card key={studentgroup.id}>
                     <Card.Content>
                       <div
                         style={{
@@ -231,53 +216,33 @@ const ProfessorsPage = () => {
                           alignItems: 'center',
                         }}
                       >
-                        <Card.Header>{professor.name}</Card.Header>
+                        <Card.Header>{studentgroup.name}</Card.Header>
                         <Icon
                           name="edit"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => handleEditClick(professor)}
+                          onClick={() => handleEditClick(studentgroup)}
                         />
                       </div>
                       <Card.Description>
-                        Zvanje: {professor.rank}
+                        Godina: {studentgroup.year}
                         <br />
-                        <br />
-                        Zabrane: {professor.professorAvailabilities.length > 0 ? (
-                            <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
-                            {professor.professorAvailabilities
-                                .sort((a, b) => {
-                                    if (a.day !== b.day) {
-                                        return a.day - b.day;
-                                    }
-                                    if (a.startTime !== b.startTime) {
-                                        return a.startTime.localeCompare(b.startTime);
-                                    }
-                                    return a.endTime.localeCompare(b.endTime);
-                                }).map((availability, index) => {
-                                const day = daysOptions.find(day => day.key === availability.day);
-                                const formatTime = (time) => {
-                                    const [hours, minutes] = time.split(':');
-                                    return `${hours}:${minutes}`;
-                                };
-
-                                return (
-                                    <div key={index}>
-                                        {day ? day.text : availability.day}: {formatTime(availability.startTime)} - {formatTime(availability.endTime)}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        ) : (
-                            "Nema"
-                        )
-                        }  
+                        Kursevi:{' '}
+                        {studentgroup.groupTakesCourses
+                          .filter((cc) => cc.studentgroup_id === studentgroup.id)
+                          .map(
+                            (cc) =>
+                              courses.find(
+                                (course) => course.id === cc.course_id
+                              )?.name
+                          )
+                          .join(', ') || 'Nema kurseva'}
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
                       <Button
                         basic
                         color="teal"
-                        onClick={() => openScheduleModal(professor)}
+                        onClick={() => openScheduleModal(studentgroup)}
                         onMouseEnter={(e) => e.target.classList.remove('basic')}
                         onMouseLeave={(e) => e.target.classList.add('basic')}
                       >
@@ -286,7 +251,7 @@ const ProfessorsPage = () => {
                       <Button
                         basic
                         color="red"
-                        onClick={() => handleDeleteClick(professor)}
+                        onClick={() => handleDeleteClick(studentgroup)}
                         onMouseEnter={(e) => e.target.classList.remove('basic')}
                         onMouseLeave={(e) => e.target.classList.add('basic')}
                       >
@@ -297,7 +262,7 @@ const ProfessorsPage = () => {
                 ))
               ) : (
                 <div className="ui message">
-                  Nema osoblja koji odgovaraju filterima.
+                  Nema rezultata.
                 </div>
               )}
             </Card.Group>
@@ -311,9 +276,9 @@ const ProfessorsPage = () => {
         </Grid.Row>
       </Grid>
       
-      {currentProfessor && (
+      {currentStudentGroup && (
         <Modal open={scheduleModalOpen} onClose={closeModals}>
-          <Modal.Header>Raspored za {currentProfessor.name}</Modal.Header>
+          <Modal.Header>Raspored za {currentStudentGroup.name}</Modal.Header>
           <Modal.Content>
             <ScheduleTable
               content={/* Unesite raspored za ovu učionicu */ []}
@@ -331,16 +296,16 @@ const ProfessorsPage = () => {
         open={openDeleteModal}
         onClose={closeModals}
         header={header} 
-        deleteItem={currentProfessor}
-        refreshData={fetchProfessors}
+        deleteItem={currentStudentGroup}
+        refreshData={fetchStudentGroups}
       />
 
       <AddModal 
         open={openAddModal} 
         onClose={closeModals} 
         header={header} 
-        editItem={currentProfessor} 
-        refreshData={fetchProfessors}
+        editItem={currentStudentGroup} 
+        refreshData={fetchStudentGroups}
         showToast={showToast}
       />
 
@@ -348,4 +313,4 @@ const ProfessorsPage = () => {
   );
 };
 
-export default ProfessorsPage;
+export default StudentGroupsPage;

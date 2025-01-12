@@ -241,7 +241,6 @@ const ClassroomsPage = () => {
                           onClick={() => handleEditClick(classroom)}
                         />
                       </div>
-                      <Card.Meta>{classroom.size} mjesta</Card.Meta>
                       <Card.Description>
                         Sprat: {classroom.floor}
                         <br />
