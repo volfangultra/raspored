@@ -7,7 +7,7 @@ import CourseForm from './CourseForm';
 import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
 
-const AddModal = ({ open, onClose, header, editItem, refreshData, showToast}) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) => {
   const [formData, setFormData] = useState({});
 
   const getFormContent = (header) => {
@@ -18,7 +18,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast}) =>
       return <ClassroomForm onChange={setFormData} editItem={editItem}/>;
     case 'Dodavanje predmeta':
       return <CourseForm onChange={setFormData} editItem={editItem}/>;
-    case 'Dodavanje smijera':
+    case 'Dodavanje smjera':
       return <StudentGroupForm onChange={setFormData} editItem={editItem}/>;
     default:
       return <div>Dodavanje</div>;

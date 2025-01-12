@@ -69,9 +69,9 @@ const ClassroomsPage = () => {
       case 'nameAsc':
         return classrooms.sort((a, b) => a.name.localeCompare(b.name));
       case 'sizeAsc':
-        return classrooms.sort((a, b) => a.size - b.size);
+        return classrooms.sort((a, b) => a.capacity - b.capacity);
       case 'sizeDesc':
-        return classrooms.sort((a, b) => b.size - a.size);
+        return classrooms.sort((a, b) => b.capacity - a.capacity);
       default:
         return classrooms;
     }
@@ -88,10 +88,10 @@ const ClassroomsPage = () => {
       if (filterFloor && classroom.floor !== filterFloor) {
         return false;
       }
-      if (filterSize === 'greater' && classroom.size <= 50) {
+      if (filterSize === 'greater' && classroom.capacity <= 50) {
         return false;
       }
-      if (filterSize === 'smaller' && classroom.size > 50) {
+      if (filterSize === 'smaller' && classroom.capacity > 50) {
         return false;
       }
       return true;
@@ -245,6 +245,8 @@ const ClassroomsPage = () => {
                       <Card.Description>
                         Sprat: {classroom.floor}
                         <br />
+                        Kapacitet: {classroom.capacity}
+                        <br />
                         Kursevi:{' '}
                         {classroom.courseCanUseClassrooms
                           .filter((cc) => cc.classroom_id === classroom.id)
@@ -281,7 +283,7 @@ const ClassroomsPage = () => {
                 ))
               ) : (
                 <div className="ui message">
-                  Nema učionica koje odgovaraju filterima.
+                  Nema rezultata.
                 </div>
               )}
             </Card.Group>
