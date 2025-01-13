@@ -41,6 +41,9 @@ const Header = ({ onLogout }) => {
       <Menu.Item id="professors" style={{ padding: '0 15px' }} onClick={() => handleItemClick('profesori', 'professors')}>
         Profesori
       </Menu.Item>
+      <Menu.Item id="courses" style={{ padding: '0 15px' }} onClick={() => handleItemClick('kursevi', 'courses')}>
+        Kursevi
+      </Menu.Item>
       
       {/* User Icon */}
       <Menu.Menu position="right">
