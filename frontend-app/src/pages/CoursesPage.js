@@ -279,12 +279,12 @@ const CoursesPage = () => {
                       Profesor: {professors[course.professorId] || "Nepoznato"}
                     </Card.Meta>
                     <Card.Description>
-                      Tip: {course.type == "P" ? "Predvanje" : 
+                      Tip: {course.type == "P" ? "Predavanje" : 
                             course.type == "AV" ? "Auditorne vježbe" :
                             course.type == "LV" ? "Laboratorijske vježbe" : "N/A"} <br />
                       Broj časova: {course.lectureSlotLength || "N/A"} <br />
                       {course.courseCanUseClassrooms
-                          .filter((cc) => cc.classroom_id === classroom.id)
+                          .filter((cc) => cc.classroom_id === course.id)
                           .map(
                             (cc) =>
                               courses.find(
