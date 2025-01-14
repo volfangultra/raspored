@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import LoaderComponent from './components/Loader';
 import AdminHomePage from './pages/Admin/AdminHomePage';
 import ClassroomsPage from './pages/ClassroomsPage';
+import CoursesPage from './pages/CoursesPage';
 import ProfessorsPage from './pages/ProfessorsPage';
 import StudentGroupsPage from './pages/StudentGroupsPage';
 
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/raspored" element={<MainPage />} />
                   <Route path="/ucionice" element={<ClassroomsPage />} />
+                  <Route path="/kursevi" element={<CoursesPage />} />
                   <Route path="/osoblje" element={<ProfessorsPage />} />
                   <Route path="/smjerovi" element={<StudentGroupsPage />} />
                 </>

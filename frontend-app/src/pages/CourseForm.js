@@ -7,15 +7,15 @@ import AddModal from './AddModal';
 const CourseForm = ({ onChange, editItem }) => {
   const [formData, setFormData] = useState({
     id: editItem?.id || '',
-    ScheduleId: localStorage.getItem('scheduleId'),
-    Name: editItem?.name || '',
-    LectureSlotLength: editItem?.lectureSlotLength || '',
-    Type: editItem?.type || '',
-    ProfessorId: editItem?.professorId || null,
-    GroupTakesCourses: editItem?.groupTakesCourses?.map((groupCourse) => ({
+    scheduleId: localStorage.getItem('scheduleId'),
+    name: editItem?.name || '',
+    lectureSlotLength: editItem?.lectureSlotLength || '',
+    type: editItem?.type || '',
+    professorId: editItem?.professorId || null,
+    groupTakesCourses: editItem?.groupTakesCourses?.map((groupCourse) => ({
       studentGroupId: groupCourse.studentGroupId,
     })) || [],
-    CourseCanUseClassrooms: editItem?.courseCanUseClassrooms?.map((groupCourse) => ({
+    courseCanUseClassrooms: editItem?.courseCanUseClassrooms?.map((groupCourse) => ({
       classroomId: groupCourse.classroomId,
     })) || [],
   });
@@ -107,10 +107,10 @@ const CourseForm = ({ onChange, editItem }) => {
       setAvailableClassrooms(availableClassrooms.filter((c) => c.value !== value));
 
       const updatedCourseCanUseClassrooms = [
-        ...formData.CourseCanUseClassrooms,
+        ...formData.courseCanUseClassrooms,
         { classroomId: classroom.value },
       ];
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanUseClassrooms: updatedCourseCanUseClassrooms };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -124,10 +124,10 @@ const CourseForm = ({ onChange, editItem }) => {
       setSelectedClassrooms(updatedClassrooms);
       setAvailableClassrooms([...availableClassrooms, removedClassroom]);
 
-      const updatedCourseCanUseClassrooms = formData.CourseCanUseClassrooms.filter(
+      const updatedCourseCanUseClassrooms = formData.courseCanUseClassrooms.filter(
         (c) => c.classroomId !== classroomId
       );
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanUseClassrooms: updatedCourseCanUseClassrooms };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -143,10 +143,10 @@ const CourseForm = ({ onChange, editItem }) => {
       setAvailableStudentGroups(availableStudentGroups.filter((g) => g.value !== value));
 
       const updatedGroupTakesCourses = [
-        ...formData.GroupTakesCourses,
+        ...formData.groupTakesCourses,
         { studentGroupId: group.value },
       ];
-      const updatedFormData = { ...formData, GroupTakesCourses: updatedGroupTakesCourses };
+      const updatedFormData = { ...formData, groupTakesCourses: updatedGroupTakesCourses };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -160,10 +160,10 @@ const CourseForm = ({ onChange, editItem }) => {
       setSelectedStudentGroups(updatedGroups);
       setAvailableStudentGroups([...availableStudentGroups, removedGroup]);
 
-      const updatedGroupTakesCourses = formData.GroupTakesCourses.filter(
+      const updatedGroupTakesCourses = formData.groupTakesCourses.filter(
         (g) => g.studentGroupId !== groupId
       );
-      const updatedFormData = { ...formData, GroupTakesCourses: updatedGroupTakesCourses };
+      const updatedFormData = { ...formData, groupTakesCourses: updatedGroupTakesCourses };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -177,37 +177,33 @@ const CourseForm = ({ onChange, editItem }) => {
   ];
 
   return (
-    <Form>
+    <Form widths="equal">
       <Grid>
         {/* Basic Course Info */}
         <Grid.Row columns={3}>
           <Grid.Column>
             <Form.Input
-              label="Course Name"
+              label="Naziv kursa"
               name="name"
-              value={formData.Name}
+              value={formData.name}
               onChange={handleInputChange}
-              placeholder="Enter course name"
             />
           </Grid.Column>
           <Grid.Column>
             <Form.Input
-              label="Lecture Slot Length (hours)"
+              label="Dužina predavanja (broj časova)"
               name="lectureSlotLength"
-              value={formData.LectureSlotLength}
+              value={formData.lectureSlotLength}
               onChange={handleInputChange}
-              placeholder="Enter lecture length"
               type="number"
             />
           </Grid.Column>
           <Grid.Column>
-            <Dropdown
-              label="Type"
-              placeholder="Select course type"
-              fluid
+            <Form.Dropdown
+              label="Tip časova"
               selection
               options={courseTypeOptions}
-              value={formData.Type}
+              value={formData.type}
               onChange={handleInputChange}
               name="type"
             />
@@ -218,45 +214,54 @@ const CourseForm = ({ onChange, editItem }) => {
         <Grid.Row columns={2}>
           <Grid.Column>
             <Form.Field>
-              <label>Professor</label>
-              <Dropdown
-                placeholder="Select Professor"
+              <label>Predavač</label>
+              <Form.Dropdown
                 fluid
                 selection
+                name="professorId"
                 options={professors.map((prof) => ({
                   key: prof.id,
                   text: prof.name,
                   value: prof.id,
                 }))}
-                value={formData.ProfessorId || null}
-                onChange={(e, { value }) =>
-                  setFormData((prev) => ({ ...prev, professorId: value }))
-                }
+                value={formData.professorId || null}
+                onChange={(e, { value }) => {
+                  const updatedFormData = { ...formData, professorId: value };
+                  setFormData(updatedFormData);
+                  onChange(updatedFormData);
+                }}
                 error={error ? true : false}
               />
               {error && <div style={{ color: 'red' }}>{error}</div>}
             </Form.Field>
           </Grid.Column>
           <Grid.Column>
-            <Button
-              primary
-              content="Add Professor"
-              onClick={() => setModalOpen(true)}
-            />
+            <Form.Field>
+              <Button
+                color="teal"
+                icon
+                labelPosition="top"
+                content="Add Professor"
+                onClick={() => setModalOpen(true)}
+                style={{ marginTop: "20px"}}
+              >
+                <Icon name="add" />
+                Dodaj novog predavača
+              </Button>
+            </Form.Field>
           </Grid.Column>
         </Grid.Row>
-
         <Grid.Row columns={2}>
           <Grid.Column>
             <Dropdown
-              placeholder="Select Student Groups"
+              placeholder="Odaberite studentsku grupu"
               fluid
               search
               selection
               options={availableStudentGroups}
               onChange={addStudentGroup}
             />
-            <Header as="h4">Selected Student Groups:</Header>
+            <Header as="h4">Odabrane studentske grupe:</Header>
             {selectedStudentGroups.length > 0 ? (
               <Segment>
                 {selectedStudentGroups.map((group, index) => (
@@ -321,7 +326,7 @@ const CourseForm = ({ onChange, editItem }) => {
                 ))}
               </Segment>
             ) : (
-              <p>Nema odabranih predmeta</p>
+              <p>Nema odabranih prostorija</p>
             )}
           </Grid.Column>
         </Grid.Row>
