@@ -343,6 +343,7 @@ const CourseForm = ({ onChange, editItem }) => {
             .then((response) => setProfessors(response.data))
             .catch((error) => console.error('Error fetching professors:', error))
         }
+        showToast={null}
       />
     </Form>
   );

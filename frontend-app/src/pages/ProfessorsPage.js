@@ -142,22 +142,22 @@ const ProfessorsPage = () => {
   return (
     <Container style={{ marginTop: '20px' }}>
       {toast.visible && (
-  <div
-    style={{
-      position: 'fixed',
-      bottom: '50px',
-      right: '20px',
-      background: toast.type === 'success' ? '#21ba45' : '#db2828',
-      color: 'white',
-      padding: '20px 30px',
-      borderRadius: '5px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-      zIndex: 1000,
-    }}
-  >
-    {toast.message}
-  </div>
-)}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '50px',
+            right: '20px',
+            background: toast.type === 'success' ? '#21ba45' : '#db2828',
+            color: 'white',
+            padding: '20px 30px',
+            borderRadius: '5px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            zIndex: 1000,
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
 
       <Grid>
         <Grid.Row>
@@ -297,7 +297,7 @@ const ProfessorsPage = () => {
                 ))
               ) : (
                 <div className="ui message">
-                  Nema osoblja koji odgovaraju filterima.
+                  Nema rezultata.
                 </div>
               )}
             </Card.Group>
@@ -333,6 +333,7 @@ const ProfessorsPage = () => {
         header={header} 
         deleteItem={currentProfessor}
         refreshData={fetchProfessors}
+        showToast={showToast}
       />
 
       <AddModal 

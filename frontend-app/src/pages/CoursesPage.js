@@ -20,15 +20,24 @@ const CoursesPage = () => {
   const [filterProfessor, setFilterProfessor] = useState(null);
   const [filterType, setFilterType] = useState(null);
   const [filterSlotLength, setFilterSlotLength] = useState(null);
+
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [currentCourse, setCurrentCourse] = useState(null);;
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [professors, setProfessors] = useState({});
+
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const userId = localStorage.getItem('userId');
+
+  const [toast, setToast] = useState({ message: '', type: '', visible: false });
+  const showToast = (message, type) => {
+    setToast({ message, type, visible: true });
+  
+    setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
+  };
 
   const fetchCourses = async (scheduleId = null) => {
     try {
@@ -174,6 +183,23 @@ const CoursesPage = () => {
 
   return (
     <Container style={{ marginTop: '20px' }}>
+      {toast.visible && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '50px',
+            right: '20px',
+            background: toast.type === 'success' ? '#21ba45' : '#db2828',
+            color: 'white',
+            padding: '20px 30px',
+            borderRadius: '5px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            zIndex: 1000,
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
       <Grid>
         <Grid.Row>
           <Grid.Column width={4}>
@@ -199,6 +225,7 @@ const CoursesPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
+                disabled={selectedSchedule ? false : true}
               >
                 Dodaj novi kurs
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -328,6 +355,7 @@ const CoursesPage = () => {
         header={header} 
         editItem={currentCourse} 
         refreshData={fetchCourses}
+        showToast={showToast}
       />
       <DeleteModal
         open={openDeleteModal}
@@ -335,6 +363,7 @@ const CoursesPage = () => {
         header={header} 
         deleteItem={currentCourse}
         refreshData={fetchCourses}
+        showToast={showToast}
       />
     </Container>
   );

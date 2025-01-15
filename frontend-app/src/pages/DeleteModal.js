@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Modal, Button } from 'semantic-ui-react';
 import axios from 'axios';
 
-const DeleteModal = ({ open, onClose, header, deleteItem, refreshData}) => {
+const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast}) => {
   const deleteHandle = async () => {
     let url;
     switch (header) {
@@ -26,11 +26,13 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData}) => {
     
     try {     
       await axios.delete(`${url}/${deleteItem.id}`,deleteItem);
+      showToast('Stavka uspješno obrisana!', 'success');
       refreshData();
-      onClose();
     } catch (error) {
       console.error('Error saving data:', error);
+      showToast('Došlo je do greške pri brisanju stavke.', 'error');
     }
+    onClose();
   };
   
   return (

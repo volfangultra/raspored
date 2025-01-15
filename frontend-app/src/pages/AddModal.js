@@ -56,12 +56,17 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
         await axios.put(`${url}/${formData.id}`,formData);
       }
       
-      showToast('Stavka uspješno dodana!', 'success');
+      if (showToast)
+        showToast(editItem ? 'Stavka uspješno uređena!' : 'Stavka uspješno dodana!', 'success');
       refreshData();
       onClose();
     } catch (error) {
       console.error('Error saving data:', error);
-      showToast('Došlo je do greške pri dodavanju stavke.', 'error');
+      if (showToast)
+        showToast('Došlo je do greške pri dodavanju stavke.', 'error');
+      onClose();
+    } finally {
+      setFormData(null);
     }
   };
 
