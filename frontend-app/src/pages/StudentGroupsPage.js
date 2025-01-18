@@ -231,8 +231,8 @@ const StudentGroupsPage = () => {
                           .filter((cc) => cc.studentgroup_id === studentgroup.id)
                           .map(
                             (cc) =>
-                              courses.find(
-                                (course) => course.id === cc.course_id
+                              studentgroups.find(
+                                (studentgroup) => studentgroup.id === cc.studentgroup_id
                               )?.name
                           )
                           .join(', ') || 'Nema kurseva'}
