@@ -249,12 +249,12 @@ const ClassroomsPage = () => {
                         Kursevi:{' '}
                         {classroom.courseCanUseClassrooms
                           .filter((cc) => cc.classroom_id === classroom.id)
-                          .map(
+                          /*.map(
                             (cc) =>
                               courses.find(
                                 (course) => course.id === cc.course_id
                               )?.name
-                          )
+                          )*/
                           .join(', ') || 'Nema kurseva'}
                       </Card.Description>
                     </Card.Content>

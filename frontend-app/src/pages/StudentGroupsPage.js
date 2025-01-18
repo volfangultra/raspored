@@ -229,12 +229,12 @@ const StudentGroupsPage = () => {
                         Kursevi:{' '}
                         {studentgroup.groupTakesCourses
                           .filter((cc) => cc.studentgroup_id === studentgroup.id)
-                          .map(
+                          /*.map(
                             (cc) =>
-                              studentgroups.find(
-                                (studentgroup) => studentgroup.id === cc.studentgroup_id
+                              courses.find(
+                                (course) => course.id === cc.course_id
                               )?.name
-                          )
+                          )*/
                           .join(', ') || 'Nema kurseva'}
                       </Card.Description>
                     </Card.Content>
