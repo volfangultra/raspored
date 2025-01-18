@@ -28,7 +28,7 @@ const StudentGroup = () => {
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={studentGroups} buttonName='Dodaj smijer' header='Dodavanje smijera' refreshData={fetchStudentGroups}/>
+      <SmallTable data={studentGroups} buttonName='Dodaj smjer' header='Dodavanje smjera' refreshData={fetchStudentGroups}/>
       <ScheduleTable content={content} />
     </div>
   );

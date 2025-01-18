@@ -26,11 +26,11 @@ const TeacherForm = ({ onChange, editItem }) => {
   });
 
   const titleOptions = [
-    { key: 'asistent', value: 'asistent', text: 'Asistent' },
-    { key: 'visii-asistent', value: 'viši asistent', text: 'Viši asistent' },
-    { key: 'docent', value: 'docent', text: 'Docent' },
-    { key: 'redovni-prof', value: 'redovni prof', text: 'Redovni profesor' },
-    { key: 'vanredni-prof', value: 'vanredni prof', text: 'Vanredni profesor' },
+    { key: 'asistent', value: 'Asistent', text: 'Asistent' },
+    { key: 'visi-asistent', value: 'Viši asistent', text: 'Viši asistent' },
+    { key: 'docent', value: 'Docent', text: 'Docent' },
+    { key: 'vanredni-prof', value: 'Vanredni profesor', text: 'Vanredni profesor' },
+    { key: 'redovni-prof', value: 'Redovni profesor', text: 'Redovni profesor' },
   ];
 
   const daysOptions = [

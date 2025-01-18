@@ -7,7 +7,7 @@ import CourseForm from './CourseForm';
 import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
 
-const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) => {
   const [formData, setFormData] = useState({});
 
   const getFormContent = (header) => {
@@ -18,7 +18,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
       return <ClassroomForm onChange={setFormData} editItem={editItem}/>;
     case 'Dodavanje predmeta':
       return <CourseForm onChange={setFormData} editItem={editItem}/>;
-    case 'Dodavanje smijera':
+    case 'Dodavanje smjera':
       return <StudentGroupForm onChange={setFormData} editItem={editItem}/>;
     default:
       return <div>Dodavanje</div>;
@@ -37,7 +37,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
     case 'Dodavanje predmeta':
       url = `${process.env.REACT_APP_API_URL}/courses`;
       break;
-    case 'Dodavanje smijera':
+    case 'Dodavanje smjera':
       url = `${process.env.REACT_APP_API_URL}/student-groups`;
       break;
     default:
@@ -55,10 +55,18 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
       else{       
         await axios.put(`${url}/${formData.id}`,formData);
       }
+      
+      if (showToast)
+        showToast(editItem ? 'Stavka uspješno uređena!' : 'Stavka uspješno dodana!', 'success');
       refreshData();
       onClose();
     } catch (error) {
       console.error('Error saving data:', error);
+      if (showToast)
+        showToast('Došlo je do greške pri dodavanju stavke.', 'error');
+      onClose();
+    } finally {
+      setFormData(null);
     }
   };
 
@@ -79,6 +87,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData}) => {
 };
 
 AddModal.propTypes = {
+  showToast: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,

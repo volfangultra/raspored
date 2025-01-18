@@ -7,7 +7,7 @@ services:
       - "5255:5255"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - CHOKIDAR_USEPOLLING=true
+      - DOTNET_USE_POLLING_FILE_WATCHER=false
     depends_on:
       - database
     volumes:
