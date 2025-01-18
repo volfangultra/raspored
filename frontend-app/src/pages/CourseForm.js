@@ -243,7 +243,7 @@ const CourseForm = ({ onChange, editItem }) => {
                 labelPosition="top"
                 content="Add Professor"
                 onClick={() => setModalOpen(true)}
-                style={{ marginTop: "20px"}}
+                style={{ marginTop: '20px'}}
               >
                 <Icon name="add" />
                 Dodaj novog predavača

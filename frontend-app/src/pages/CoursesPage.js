@@ -22,8 +22,8 @@ const CoursesPage = () => {
   const [filterSlotLength, setFilterSlotLength] = useState(null);
 
   const [openAddModal, setOpenAddModal] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false)
-  const [currentCourse, setCurrentCourse] = useState(null);;
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [currentCourse, setCurrentCourse] = useState(null);
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [professors, setProfessors] = useState({});
@@ -63,7 +63,7 @@ const CoursesPage = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/schedules/user/${userId}`);
       if (!response.ok) {
-      throw new Error(`Error fetching schedules: ${response.statusText}`);
+        throw new Error(`Error fetching schedules: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -179,7 +179,7 @@ const CoursesPage = () => {
     setCurrentCourse(null);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
-  }
+  };
 
   return (
     <Container style={{ marginTop: '20px' }}>

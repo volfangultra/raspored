@@ -64,6 +64,7 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast
 };
 
 DeleteModal.propTypes = {
+  showToast: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,

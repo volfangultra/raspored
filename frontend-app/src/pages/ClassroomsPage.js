@@ -66,14 +66,14 @@ const ClassroomsPage = () => {
   
   const sortClassrooms = (classrooms) => {
     switch (sortOption) {
-      case 'nameAsc':
-        return classrooms.sort((a, b) => a.name.localeCompare(b.name));
-      case 'sizeAsc':
-        return classrooms.sort((a, b) => a.capacity - b.capacity);
-      case 'sizeDesc':
-        return classrooms.sort((a, b) => b.capacity - a.capacity);
-      default:
-        return classrooms;
+    case 'nameAsc':
+      return classrooms.sort((a, b) => a.name.localeCompare(b.name));
+    case 'sizeAsc':
+      return classrooms.sort((a, b) => a.capacity - b.capacity);
+    case 'sizeDesc':
+      return classrooms.sort((a, b) => b.capacity - a.capacity);
+    default:
+      return classrooms;
     }
   };
 

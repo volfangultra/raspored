@@ -87,6 +87,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
 };
 
 AddModal.propTypes = {
+  showToast: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,
