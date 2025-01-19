@@ -92,9 +92,18 @@ const HomePage = () => {
             <Grid.Row>
               {schedules.map((schedule, index) => (
                 <Grid.Column key={index}>
-                  <Segment 
-                    onClick={() => handleScheduleClick(schedule.id)} 
-                    style={{ cursor: 'pointer' }}
+                  <Segment
+                    onClick={() => handleScheduleClick(schedule.id)}
+                    style={{
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
                   >
                     {schedule.name}
                   </Segment>
@@ -104,7 +113,7 @@ const HomePage = () => {
           </Grid>
         ) : (
           <Message info>
-            <Message.Header>Trenutno nema raspored</Message.Header>
+            <Message.Header>Trenutno nema rasporeda</Message.Header>
             <p>Molim da kreirate raspored.</p>
           </Message>
         )}
