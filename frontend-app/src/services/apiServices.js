@@ -24,16 +24,39 @@ export const fetchSchedules = async (userId) => {
 
 export const fetchClassrooms = async (scheduleId = null) => {
   try {
-    const scheduleQuery = scheduleId ? `?scheduleId=${scheduleId}` : 
-                                       `?scheduleId=${localStorage.getItem('scheduleId')}`;
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms${scheduleQuery}`);
+    const scheduleQuery = scheduleId
+      ? `?scheduleId=${scheduleId}`
+      : `?scheduleId=${localStorage.getItem('scheduleId')}`;
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/classrooms${scheduleQuery}`
+    );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
     return data;
-    } catch (error) {
-      console.error('Failed to fetch professors:', error);
-      return [];
+  } catch (error) {
+    console.error('Failed to fetch professors:', error);
+    return [];
+  }
+};
+
+export const fetchCourses = async (scheduleId = null) => {
+  try {
+    const scheduleQuery = scheduleId
+      ? `?scheduleId=${scheduleId}`
+      : `?scheduleId=${localStorage.getItem('scheduleId')}`;
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/courses${scheduleQuery}`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch courses:', error);
+    return [];
+  }
+};

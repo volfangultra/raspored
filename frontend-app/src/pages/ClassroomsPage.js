@@ -13,7 +13,7 @@ import {
 import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
-import { fetchSchedules, fetchClassrooms } from '../services/apiServices';
+import { fetchSchedules, fetchClassrooms, fetchCourses } from '../services/apiServices';
 
 const ClassroomsPage = () => {
   const header = 'Dodavanje prostorije';
@@ -30,6 +30,7 @@ const ClassroomsPage = () => {
 
   const [currentClassroom, setCurrentClassroom] = useState(null);
   const [classrooms, setClassrooms] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
 
@@ -39,25 +40,33 @@ const ClassroomsPage = () => {
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
   
-  const setSchedulesAndClassrooms = async () => {
+  const setData = async () => {
     try {
       const schedules = await fetchSchedules(userId);
       setScheduleOptions(schedules);
 
-      const allClassrooms = [];
+      const allClassrooms = [], allCourses = [];
       for (const schedule of schedules) {
-        const data = await fetchClassrooms(schedule.key);
-        data.forEach((classroom) => {
+        const classroomsData = await fetchClassrooms(schedule.key);
+        classroomsData.forEach((classroom) => {
           allClassrooms.push({ ...classroom, scheduleId: schedule.key });
         });
+        
+        const coursesData = await fetchCourses(schedule.key);
+        console.log(schedule.key);
+        console.log(coursesData);
+        allCourses.push(...coursesData);
       }
       setClassrooms(allClassrooms);
+      setCourses(allCourses);
+      console.log(allClassrooms);
+      console.log(allCourses);
     } catch (error) {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
   };
   useEffect(() => {
-    setSchedulesAndClassrooms();
+    setData();
   }, [userId]);
 
   useEffect(() => {
@@ -272,16 +281,17 @@ const ClassroomsPage = () => {
                         <br />
                         Kapacitet: {classroom.capacity}
                         <br />
+                        <br />
                         Kursevi:{' '}
-                        {classroom.courseCanUseClassrooms
-                          .filter((cc) => cc.classroom_id === classroom.id)
-                          /*.map(
-                            (cc) =>
-                              courses.find(
-                                (course) => course.id === cc.course_id
-                              )?.name
-                          )*/
-                          .join(', ') || 'Nema kurseva'}
+                        <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
+                          {classroom.courseCanUseClassrooms
+                            .filter((cc) => cc.classroomId === classroom.id)
+                            .map((cc) => {
+                              const courseName = courses.find((course) => course.id === cc.courseId)?.name;
+                              return courseName ? <span key={cc.courseId}>{courseName}<br /></span> : null;
+                            })}
+                          {!classroom.courseCanUseClassrooms.length ? 'Nema kurseva' : null}
+                        </div>
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
@@ -352,7 +362,7 @@ const ClassroomsPage = () => {
         onClose={closeModals} 
         header={header} 
         editItem={currentClassroom} 
-        refreshData={setSchedulesAndClassrooms}
+        refreshData={setData}
         showToast={showToast}
       />
 
