@@ -13,38 +13,12 @@ import {
 import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
+import { fetchSchedules, fetchClassrooms } from '../services/apiServices';
 
 const ClassroomsPage = () => {
   const header = 'Dodavanje prostorije';
   const floors = [1, 2, 3, 4];
-  const fetchClassrooms = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setClassrooms(data);
-    } catch (error) {
-      console.error('Failed to fetch professors:', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchClassrooms();
-  }, []);
-
-  const sortOptions = [
-    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
-    { key: 'sizeAsc', text: 'Broj mjesta (rast.)', value: 'sizeAsc' },
-    { key: 'sizeDesc', text: 'Broj mjesta (opad.)', value: 'sizeDesc' },
-  ];
-
-  const sizeOptions = [
-    { key: 'greater', text: 'Veći od 50', value: 'greater' },
-    { key: 'smaller', text: 'Manji od 50', value: 'smaller' },
-  ];
-
+  const userId = localStorage.getItem('userId');
   const [searchText, setSearchText] = useState('');
   const [filterFloor, setFilterFloor] = useState('');
   const [filterSize, setFilterSize] = useState('');
@@ -56,13 +30,50 @@ const ClassroomsPage = () => {
 
   const [currentClassroom, setCurrentClassroom] = useState(null);
   const [classrooms, setClassrooms] = useState([]);
+  const [scheduleOptions, setScheduleOptions] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
     setToast({ message, type, visible: true });
-  
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
+  
+  const setSchedulesAndClassrooms = async () => {
+    try {
+      const schedules = await fetchSchedules(userId);
+      setScheduleOptions(schedules);
+
+      const allClassrooms = [];
+      for (const schedule of schedules) {
+        const data = await fetchClassrooms(schedule.key);
+        data.forEach((classroom) => {
+          allClassrooms.push({ ...classroom, scheduleId: schedule.key });
+        });
+      }
+      setClassrooms(allClassrooms);
+    } catch (error) {
+      console.error('Failed to fetch schedules or classrooms:', error);
+    }
+  };
+  useEffect(() => {
+    setSchedulesAndClassrooms();
+  }, [userId]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [searchText, filterFloor, filterSize, selectedSchedule]);
+
+  const sortOptions = [
+    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
+    { key: 'sizeAsc', text: 'Broj mjesta (rast.)', value: 'sizeAsc' },
+    { key: 'sizeDesc', text: 'Broj mjesta (opad.)', value: 'sizeDesc' },
+  ];
+
+  const sizeOptions = [
+    { key: 'greater', text: 'Veći od 50', value: 'greater' },
+    { key: 'smaller', text: 'Manji od 50', value: 'smaller' },
+  ];
   
   const sortClassrooms = (classrooms) => {
     switch (sortOption) {
@@ -92,6 +103,9 @@ const ClassroomsPage = () => {
         return false;
       }
       if (filterSize === 'smaller' && classroom.capacity > 50) {
+        return false;
+      }
+      if (selectedSchedule && classroom.scheduleId !== selectedSchedule) {
         return false;
       }
       return true;
@@ -156,6 +170,17 @@ const ClassroomsPage = () => {
         <Grid.Row>
           <Grid.Column width={4}>
             <div style={{ marginBottom: '20px' }}>
+              <Dropdown
+                placeholder="Odaberite raspored za pregled kurseva"
+                fluid
+                selection
+                options={scheduleOptions}
+                onChange={(e, { value }) => setSelectedSchedule(value)}
+                value={selectedSchedule}
+                clearable
+              />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
               <Button
                 basic
                 color="teal"
@@ -167,6 +192,7 @@ const ClassroomsPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
+                disabled={selectedSchedule ? false : true}
               >
                 Dodaj novu učionicu
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -326,7 +352,7 @@ const ClassroomsPage = () => {
         onClose={closeModals} 
         header={header} 
         editItem={currentClassroom} 
-        refreshData={fetchClassrooms}
+        refreshData={setSchedulesAndClassrooms}
         showToast={showToast}
       />
 
