@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Container, Input, Icon, Dropdown, Button } from 'semantic-ui-react';
-import Teachers from './Teachers'; 
-import Courses from './Courses'; 
-import Classrooms from './Classrooms'; 
-import StudentGroup from './StudentGroup';
+import { Container, Input, Icon, Dropdown, Button } from 'semantic-ui-react'; 
+import Courses from './Courses';
 import axios from 'axios';
 
 const MainPage = () => {
-  const [activeSection, setActiveSection] = useState('teachers');
-  const [scheduleName, setScheduleName] = useState('My Schedule');
+  const [scheduleName, setScheduleName] = useState('Novi raspored');
   const [semesterType, setSemesterType] = useState('Zimski');
   const [isEditing, setIsEditing] = useState(false);
+  const [professorsOptions, setProfessorsOptions] = useState(null);
+  const [studentGroupsOptions, setStudentGroupsOptions] = useState(null);
+  const [classroomsOptions, setClassroomsOptions] = useState(null);
+  const [courses, setCourses] = useState([]);
 
   const fetchSchedule = async () => {
     try {
@@ -23,9 +23,85 @@ const MainPage = () => {
     }
   };
 
+  const fetchProfessors = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setProfessorsOptions(data);
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+    }
+  };
+
+  const fetchClassrooms = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setClassroomsOptions(data);
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+    }
+  };
+
+  const fetchStudentGroups = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setStudentGroupsOptions(data);
+    } catch (error) {
+      console.error('Failed to fetch student groups:', error);
+    }
+  };
+
   useEffect(() => {
     fetchSchedule();
+    fetchProfessors();
+    fetchClassrooms();
+    fetchStudentGroups();
   }, []);
+  
+  const handleProfessorSelect = async (professorId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const courses = response.data;
+      const filteredCourses = courses.filter(course => course.professorId === professorId);
+      setCourses(filteredCourses);
+    } catch (err) {
+      console.error('Failed to fetch courses for professor', err);
+    }
+  };
+
+  const handleClassroomSelect = async (classroomId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const courses = response.data;
+
+      const filteredCourses = courses.filter(course => course.courseCanUseClassrooms.some(ccc => ccc.classroomId === classroomId));
+      setCourses(filteredCourses);
+    } catch (err) {
+      console.error('Failed to fetch courses for professor', err);
+    }
+  };
+
+  const handleStudentGroupSelect = async (studentGroupId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const courses = response.data;
+      const filteredCourses = courses.filter(course => course.groupTakesCourses.some(gtc => gtc.studentGroupId === studentGroupId));
+      setCourses(filteredCourses);
+    } catch (err) {
+      console.error('Failed to fetch courses for professor', err);
+    }
+  };
 
   const handleSemesterChange = async (e, { value }) => {
     setSemesterType(value);
@@ -34,6 +110,24 @@ const MainPage = () => {
         { Name:scheduleName,Semester: value, UserId: localStorage.getItem('userId') });
     } catch (err) {
       console.error('Failed to update semester', err);
+    }
+  };
+
+  const clearDropdowns = () => {
+    const dropdown1 = document.querySelector('.dropdown1 .clear');
+    if(dropdown1){
+      console.log("hej", dropdown1);
+      dropdown1.click(); // Clear the input
+    }
+
+    const dropdown2 = document.querySelector('.dropdown2 .clear');
+    if(dropdown2){
+      dropdown2.click(); // Clear the input
+    }
+
+    const dropdown3 = document.querySelector('.dropdown3 .clear');
+    if(dropdown3){
+      dropdown3.click(); // Clear the input
     }
   };
 
@@ -76,21 +170,6 @@ const MainPage = () => {
     // }
   };
 
-  const renderSection = () => {
-    switch (activeSection) {
-    case 'teachers':
-      return <Teachers />;
-    case 'courses':
-      return <Courses />;
-    case 'classrooms':
-      return <Classrooms />;
-    case 'studentGroup':
-      return <StudentGroup />;
-    default:
-      return null;
-    }
-  };
-
   const semesterOptions = [
     { key: 'zimski', text: 'Zimski', value: 'Zimski' },
     { key: 'ljetni', text: 'Ljetni', value: 'Ljetni' },
@@ -98,38 +177,12 @@ const MainPage = () => {
 
   return (
     <Container style={{ marginTop: '20px' }}>
-      <div style={{ alignItems: 'center' }}>
-        <Menu compact>
-          <Menu.Item
-            color="teal"
-            name="Osoblje"
-            active={activeSection === 'teachers'}
-            onClick={() => setActiveSection('teachers')}
-          />
-          <Menu.Item
-            color="teal"
-            name="Predmeti"
-            active={activeSection === 'courses'}
-            onClick={() => setActiveSection('courses')}
-          />
-          <Menu.Item
-            color="teal"
-            name="Prostorije"
-            active={activeSection === 'classrooms'}
-            onClick={() => setActiveSection('classrooms')}
-          />
-          <Menu.Item
-            color="teal"
-            name="Student Group"
-            active={activeSection === 'studenGroup'}
-            onClick={() => setActiveSection('studentGroup')}
-          />
-        </Menu>
-
-        <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+      
+      <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'start', marginTop: '10px' }}>
           <h2
             onClick={handleTitleClick}
-            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', marginRight: '20px' }}
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', marginRight: '15px' }}
           >
             {isEditing ? (
               <Input
@@ -144,7 +197,7 @@ const MainPage = () => {
                 {scheduleName}
                 <Icon
                   name="edit"
-                  style={{ marginLeft: '10px', cursor: 'pointer' }}
+                  style={{ marginLeft: '10px', cursor: 'pointer', width: '10px', height: '10px', display: 'inline-flex', alignItems: 'center' }}
                   onClick={handleTitleClick}
                 />
               </>
@@ -156,19 +209,55 @@ const MainPage = () => {
             options={semesterOptions}
             value={semesterType}
             onChange={handleSemesterChange}
+            style={{display: 'inline-flex', alignItems: 'center', marginRight: '15px', marginLeft: '15px' }}
           />
+            
+          <div 
+           style={{display: 'inline-flex', alignItems: 'center', marginRight: '15px' }}
+          >
+            {console.log(professorsOptions)}
+          
+          
+          <Dropdown
+            placeholder='Profesori'
+            className='dropdown1'
+            selection
+            clearable
+            options={professorsOptions ? professorsOptions.map(professor => ({ key: professor.id, text: professor.name, value: professor.id })) : []}
+            onChange={(e, { value }) =>{ clearDropdowns(); handleProfessorSelect(value);}}
+            style={{minWidth: '150px'}}
+            />
+            <Dropdown
+            placeholder='Učionice'
+            className='dropdown2'
+            selection
+            clearable
+            options={classroomsOptions ? classroomsOptions.map(classroom => ({ key: classroom.id, text: classroom.name, value: classroom.id })) : []}
+            onChange={(e, { value }) => {clearDropdowns(); handleClassroomSelect(value);}}
+            style={{minWidth: '150px'}}
+            />
+            <Dropdown
+            placeholder='Smjerovi'
+            className='dropdown3'
+            selection
+            clearable
+            options={studentGroupsOptions ? studentGroupsOptions.map(studentGroup => ({ key: studentGroup.id, text: studentGroup.name, value: studentGroup.id })) : []}
+            onChange={(e, { value }) => {clearDropdowns(); handleStudentGroupSelect(value);}}
+            style={{minWidth: '150px'}}
+            />
         </div>
 
         <Button
+          basic
           color="red"
           onClick={handleDeleteSchedule}
-          style={{ marginTop: '10px' }}
         >
-          Delete Schedule
+          Obriši raspored
         </Button>
+        </div>
       </div>
 
-      <div style={{ marginTop: '20px' }}>{renderSection()}</div>
+      <div style={{ marginTop: '20px' }}><Courses courses={courses}/></div>
     </Container>
   );
 };

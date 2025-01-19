@@ -1,36 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Table, Icon, Input } from 'semantic-ui-react';
-import AddModal from './AddModal';
-import DeleteModal from './DeleteModal';
+import { Table, Input } from 'semantic-ui-react';
 
-const SmallTable = ({ data, buttonName, header, refreshData }) => {
-  const [isBasic, setIsBasic] = useState(true);
-  const [openAddModal, setOpenAddModal] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+const SmallTable = ({ data, header }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [editItem, setEditItem] = useState(null);
-  const [deleteItem, setDeleteItem] = useState(null);
-
-  const openEditModal = (item) => {
-    setEditItem(item);
-    setOpenAddModal(true);
-  };
-
-  const closeAddModal = () => {
-    setOpenAddModal(false);
-    setEditItem(null);
-  };
-
-  const openDeleteModalFunc = (item) => {
-    setDeleteItem(item);
-    setOpenDeleteModal(true);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteItem(null);
-    setOpenDeleteModal(false);
-  };
 
   const displayItem = (element) => {
     switch (header) {
@@ -48,6 +21,7 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
     }
   };
 
+  
   const filteredData = data.filter((element) => {
     switch (header) {
     case 'Dodavanje osoblja':
@@ -65,23 +39,7 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
   });
 
   return (
-    <div style={{ paddingTop: '10px', minWidth: '25%', maxHeight: '800px'}}>
-      <Button
-        basic={isBasic}
-        color="teal"
-        style={{
-          marginBottom: '10px',
-          transition: 'all 0.3s ease',
-        }}
-        onMouseEnter={() => setIsBasic(false)}
-        onMouseLeave={() => setIsBasic(true)}
-        onClick={() => openEditModal(null)}
-        fluid
-      >
-        {buttonName}
-        <Icon name="plus" style={{ marginLeft: '10px' }} />
-      </Button>
-
+    <div style={{ paddingTop: '14px', minWidth: '25%', maxHeight: '800px'}}>
       <Table compact="very" style={{ textAlign: 'center' }}>
         <Table.Header>
           <Table.Row>
@@ -100,20 +58,8 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
           {filteredData.length > 0 ? (
             filteredData.map((element, index) => (
               <Table.Row key={index}>
-                <Table.Cell style={{ textAlign: 'left' }}>
+                <Table.Cell style={{ textAlign: 'center' }}>
                   {displayItem(element)}
-                </Table.Cell>
-                <Table.Cell onClick={() => openEditModal(element)} width='1' style={{ textAlign: 'right', cursor: 'pointer' }}>
-                  <Icon
-                    name="ellipsis vertical"
-                    color="teal"
-                  />
-                </Table.Cell>
-                <Table.Cell onClick={() => openDeleteModalFunc(element)}  width='1' style={{ textAlign: 'right', cursor: 'pointer' }}>
-                  <Icon 
-                    name="trash alternate outline"
-                    color="red"
-                  />
                 </Table.Cell>
               </Table.Row>
             ))
@@ -124,9 +70,6 @@ const SmallTable = ({ data, buttonName, header, refreshData }) => {
           )}
         </Table.Body>
       </Table>
-
-      <AddModal open={openAddModal} onClose={closeAddModal} header={header} editItem={editItem} refreshData={refreshData}/>
-      <DeleteModal open={openDeleteModal} onClose={closeDeleteModal} header={header} deleteItem={deleteItem} refreshData={refreshData}/>
     </div>
   );
 };

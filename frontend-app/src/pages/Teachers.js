@@ -6,6 +6,7 @@ const Teachers = () => {
   const [teachers, setTeachers] = useState([]);
   const content = [[]];
 
+
   const fetchProfessors = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
@@ -26,7 +27,7 @@ const Teachers = () => {
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={teachers} buttonName='Dodaj osoblje' header='Dodavanje osoblja' refreshData={fetchProfessors} />
+      <SmallTable data={teachers} header='Dodavanje osoblja' refreshData={fetchProfessors} />
       <ScheduleTable content={content} />
     </div>
   );
