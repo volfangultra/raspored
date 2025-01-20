@@ -64,7 +64,8 @@ const StudentGroupForm = ({ onChange, editItem }) => {
       const updatedCourses = [...selectedCourses, course];
       setSelectedCourses(updatedCourses);
 
-      setAvailableCourses(availableCourses.filter((c) => c.value !== value));
+      const updatedAvailableCourses = availableCourses.filter((c) => c.value !== value);
+      setAvailableCourses(updatedAvailableCourses);
 
       const updatedGroupTakesCourses = [
         ...formData.GroupTakesCourses,
@@ -132,13 +133,22 @@ const StudentGroupForm = ({ onChange, editItem }) => {
           selection
           options={availableCourses}
           onChange={addCourse}
+          value={null}
           clearable
+          forceSelection={false}
+          selectOnBlur={false}
         />
       </Form>
 
       <Header as="h4">Odabrani predmeti:</Header>
       {selectedCourses.length > 0 ? (
-        <Segment>
+        <Segment
+        style={{
+          maxHeight: '100px',
+          overflowY: 'auto',
+          padding: '10px',
+          marginTop: '10px',
+        }}>
           {selectedCourses.map((course, index) => (
             <div
               key={index}

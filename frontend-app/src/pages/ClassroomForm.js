@@ -50,10 +50,10 @@ const ClassroomForm = ({ onChange, editItem }) => {
     };
 
     fetchCourses();
-  }, []);
+  }, [editItem]);
 
   const handleInputChange = (e, { name, value }) => {
-    if ((name == 'Floor' || name == 'Capacity') && value < 0) {
+    if ((name === 'Floor' || name === 'Capacity') && value < 0) {
       return;
     }
     const updatedForm = { ...formData, [name]: value };
@@ -139,6 +139,9 @@ const ClassroomForm = ({ onChange, editItem }) => {
           options={availableCourses}
           onChange={addCourse}
           clearable
+          forceSelection={false}
+          selectOnBlur={false}
+          value={null}
         />
       </Form>
 
@@ -146,9 +149,10 @@ const ClassroomForm = ({ onChange, editItem }) => {
       {selectedCourses.length > 0 ? (
         <Segment
           style={{
-            maxHeight: '200px',
-            overflowY: 'auto',  
+            maxHeight: '100px',
+            overflowY: 'auto',
             padding: '10px',
+            marginTop: '10px',
           }}
         >
           {selectedCourses.map((course, index) => (
