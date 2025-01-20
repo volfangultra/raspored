@@ -173,7 +173,14 @@ const StudentGroupsPage = () => {
                 fluid
                 selection
                 options={scheduleOptions}
-                onChange={(e, { value }) => setSelectedSchedule(value)}
+                onChange={(e, { value }) => {
+                  setSelectedSchedule(value);
+                  if (value) {
+                    localStorage.setItem('scheduleId', value); // Save to localStorage
+                  } else {
+                    localStorage.removeItem('scheduleId'); // Remove if cleared
+                  }
+                }}
                 value={selectedSchedule}
                 clearable
               />
@@ -259,15 +266,15 @@ const StudentGroupsPage = () => {
                         Godina: {studentgroup.year}
                         <br />
                         Kursevi:{' '}
-                        {studentgroup.groupTakesCourses
-                          .filter((cc) => cc.studentgroup_id === studentgroup.id)
-                          /*.map(
-                            (cc) =>
-                              courses.find(
-                                (course) => course.id === cc.course_id
-                              )?.name
-                          )*/
-                          .join(', ') || 'Nema kurseva'}
+                        <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
+                          {studentgroup.groupTakesCourses
+                            .filter((gc) => gc.studentGroupId === studentgroup.id)
+                            .map((gc) => {
+                              const courseName = courses.find((course) => course.id === gc.courseId)?.name;
+                              return courseName ? <span key={gc.courseId}>{courseName}<br /></span> : null;
+                            })}
+                            {!studentgroup.groupTakesCourses.length ? 'Nema kurseva' : null}
+                        </div>
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
@@ -329,7 +336,7 @@ const StudentGroupsPage = () => {
         onClose={closeModals}
         header={header} 
         deleteItem={currentStudentGroup}
-        refreshData={fetchStudentGroups}
+        refreshData={setData}
         showToast={showToast}
       />
 

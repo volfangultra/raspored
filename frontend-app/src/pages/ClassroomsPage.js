@@ -180,7 +180,14 @@ const ClassroomsPage = () => {
                 fluid
                 selection
                 options={scheduleOptions}
-                onChange={(e, { value }) => setSelectedSchedule(value)}
+                onChange={(e, { value }) => {
+                  setSelectedSchedule(value);
+                  if (value) {
+                    localStorage.setItem('scheduleId', value); 
+                  } else {
+                    localStorage.removeItem('scheduleId');
+                  }
+                }}
                 value={selectedSchedule}
                 clearable
               />
@@ -349,7 +356,7 @@ const ClassroomsPage = () => {
         onClose={closeModals}
         header={header} 
         deleteItem={currentClassroom}
-        refreshData={fetchClassrooms}
+        refreshData={setData}
         showToast={showToast}
       />
 
