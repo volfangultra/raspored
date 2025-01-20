@@ -13,31 +13,14 @@ import {
 import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
+import { fetchSchedules, fetchCourses, fetchStudentGroups } from '../services/apiServices';
 
 const StudentGroupsPage = () => {
   const header = 'Dodavanje smjera';
-  const fetchStudentGroups = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setStudentGroups(data);
-    } catch (error) {
-      console.error('Failed to fetch student groups:', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchStudentGroups();
-  }, []);
-
-  const sortOptions = [
-    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
-    { key: 'yearAsc', text: 'Godina (rast.)', value: 'yearAsc' },
-    { key: 'yearDesc', text: 'Godina (opad.)', value: 'yearDesc' },
-  ];
+  const userId = localStorage.getItem('userId');
+  const [courses, setCourses] = useState([]);
+  const [scheduleOptions, setScheduleOptions] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   const [searchText, setSearchText] = useState('');
   const [filterYear, setFilterYear] = useState('');
@@ -50,17 +33,51 @@ const StudentGroupsPage = () => {
   const [currentStudentGroup, setCurrentStudentGroup] = useState(null);
   const [studentgroups, setStudentGroups] = useState([]);
 
-  const yearOptions = [...new Set(studentgroups.map(({ year }) => year))]
-  .map((year) => ({ year }));
-
-  console.log(yearOptions);
-
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
     setToast({ message, type, visible: true });
   
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
+
+  const setData = async () => {
+    try {
+      const schedules = await fetchSchedules(userId);
+      setScheduleOptions(schedules);
+      const allStudentGroups = [],
+        allCourses = [];
+      for (const schedule of schedules) {
+        const studentGroupsData = await fetchStudentGroups(schedule.key);
+        studentGroupsData.forEach((group) => {
+          allStudentGroups.push({ ...group, scheduleId: schedule.key });
+        });
+
+        const coursesData = await fetchCourses(schedule.key);
+        allCourses.push(...coursesData);
+      }
+      setStudentGroups(allStudentGroups);
+      setCourses(allCourses);
+    } catch (error) {
+      console.error('Failed to fetch schedules or classrooms:', error);
+    }
+  };
+  
+  useEffect(() => {
+    setData();
+  }, [userId]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [searchText, filterYear, sortOption, selectedSchedule]);
+
+  const sortOptions = [
+    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
+    { key: 'yearAsc', text: 'Godina (rast.)', value: 'yearAsc' },
+    { key: 'yearDesc', text: 'Godina (opad.)', value: 'yearDesc' },
+  ];
+
+  const yearOptions = [...new Set(studentgroups.map(({ year }) => year))]
+  .map((year) => ({ year }));
   
   const sortStudentGroups = (studentgroups) => {
     switch (sortOption) {
@@ -84,6 +101,9 @@ const StudentGroupsPage = () => {
         return false;
       }
       if (filterYear && studentgroup.year !== filterYear) {
+        return false;
+      }
+      if (selectedSchedule && studentgroup.scheduleId !== selectedSchedule) {
         return false;
       }
       return true;
@@ -148,6 +168,17 @@ const StudentGroupsPage = () => {
         <Grid.Row>
           <Grid.Column width={4}>
             <div style={{ marginBottom: '20px' }}>
+              <Dropdown
+                placeholder="Odaberite raspored za pregled grupa"
+                fluid
+                selection
+                options={scheduleOptions}
+                onChange={(e, { value }) => setSelectedSchedule(value)}
+                value={selectedSchedule}
+                clearable
+              />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
               <Button
                 basic
                 color="teal"
@@ -159,6 +190,7 @@ const StudentGroupsPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
+                disabled={selectedSchedule ? false : true}
               >
                 Dodaj novi smjer
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -306,7 +338,7 @@ const StudentGroupsPage = () => {
         onClose={closeModals} 
         header={header} 
         editItem={currentStudentGroup} 
-        refreshData={fetchStudentGroups}
+        refreshData={setData}
         showToast={showToast}
       />
 

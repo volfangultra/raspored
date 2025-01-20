@@ -53,10 +53,29 @@ export const fetchCourses = async (scheduleId = null) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (error) {
     console.error('Failed to fetch courses:', error);
+    return [];
+  }
+};
+
+export const fetchStudentGroups = async (scheduleId = null) => {
+  try {
+    const scheduleQuery = scheduleId
+      ? `?scheduleId=${scheduleId}`
+      : `?scheduleId=${localStorage.getItem('scheduleId')}`;
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/student-groups${scheduleQuery}`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch student groups:', error);
     return [];
   }
 };

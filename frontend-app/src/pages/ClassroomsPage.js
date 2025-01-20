@@ -53,14 +53,10 @@ const ClassroomsPage = () => {
         });
         
         const coursesData = await fetchCourses(schedule.key);
-        console.log(schedule.key);
-        console.log(coursesData);
         allCourses.push(...coursesData);
       }
       setClassrooms(allClassrooms);
       setCourses(allCourses);
-      console.log(allClassrooms);
-      console.log(allCourses);
     } catch (error) {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
