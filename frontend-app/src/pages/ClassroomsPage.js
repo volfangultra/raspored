@@ -176,7 +176,7 @@ const ClassroomsPage = () => {
           <Grid.Column width={4}>
             <div style={{ marginBottom: '20px' }}>
               <Dropdown
-                placeholder="Odaberite raspored za pregled kurseva"
+                placeholder="Odaberite raspored za pregled učionica"
                 fluid
                 selection
                 options={scheduleOptions}

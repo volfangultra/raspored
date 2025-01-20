@@ -79,3 +79,21 @@ export const fetchStudentGroups = async (scheduleId = null) => {
     return [];
   }
 };
+
+export const fetchProfessors = async (scheduleId = null) => {
+    try {
+      const scheduleQuery = scheduleId
+        ? `?scheduleId=${scheduleId}`
+        : `?scheduleId=${localStorage.getItem('scheduleId')}`;      
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors${scheduleQuery}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch professors:', error);
+      return [];
+    }
+  };
