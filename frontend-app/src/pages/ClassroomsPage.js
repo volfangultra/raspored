@@ -204,7 +204,7 @@ const ClassroomsPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
-                disabled={selectedSchedule ? false : true}
+                disabled={!selectedSchedule}
               >
                 Dodaj novu učionicu
                 <Icon name="plus" style={{ marginLeft: '10px' }} />

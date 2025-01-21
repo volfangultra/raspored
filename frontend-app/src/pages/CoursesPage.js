@@ -217,7 +217,7 @@ const CoursesPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
-                disabled={selectedSchedule ? false : true}
+                disabled={!selectedSchedule}
               >
                 Dodaj novi kurs
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
