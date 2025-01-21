@@ -11,12 +11,19 @@ import {
 } from 'semantic-ui-react';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
+import {
+  fetchSchedules,
+  fetchCourses,
+  fetchProfessors,
+  fetchClassrooms,
+  fetchStudentGroups,
+} from '../services/apiServices';
 
 const CoursesPage = () => {
   const header = 'Dodavanje predmeta';
   const [courses, setCourses] = useState([]);
-  const [filteredCourses, setFilteredCourses] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [sortOption, setSortOption] = useState('nameAsc');
   const [filterProfessor, setFilterProfessor] = useState(null);
   const [filterType, setFilterType] = useState(null);
   const [filterSlotLength, setFilterSlotLength] = useState(null);
@@ -26,7 +33,9 @@ const CoursesPage = () => {
   const [currentCourse, setCurrentCourse] = useState(null);
   const [scheduleOptions, setScheduleOptions] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [professors, setProfessors] = useState({});
+  const [professors, setProfessors] = useState([]);
+  const [classrooms, setClassrooms] = useState([]);
+  const [studentGroups, setStudentGroups] = useState([]);
 
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,125 +44,100 @@ const CoursesPage = () => {
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
     setToast({ message, type, visible: true });
-  
+
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
 
-  const fetchCourses = async (scheduleId = null) => {
+  const setData = async () => {
     try {
-      const scheduleQuery = scheduleId ? `?scheduleId=${scheduleId}` : `?scheduleId=${localStorage.getItem('scheduleId')}`;
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/courses${scheduleQuery}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const schedules = await fetchSchedules(userId);
+      setScheduleOptions(schedules);
+      console.log(schedules);
+      const allCourses = [],
+        allProfessors = [],
+        allClassrooms = [],
+        allStudentGroups = [];
+      for (const schedule of schedules) {
+        const coursesData = await fetchCourses(schedule.key);
+        coursesData.forEach((course) => {
+          allCourses.push({ ...course, scheduleId: schedule.key });
+        });
+        const professorsData = await fetchProfessors(schedule.key);
+        professorsData.forEach((professor) => {
+          allProfessors.push({ ...professor, scheduleId: schedule.key});
+        });
+        const classroomsData = await fetchClassrooms(schedule.key);
+        const studentGroupsData = await fetchStudentGroups(schedule.key);
+        allClassrooms.push(...classroomsData);
+        allStudentGroups.push(...studentGroupsData);
       }
-      const data = await response.json();
-      console.log(data);
-      setCourses(data);
-      setFilteredCourses(data);
+      setCourses(allCourses);
+      setProfessors(allProfessors);
+      setClassrooms(allClassrooms);
+      setStudentGroups(allStudentGroups);
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
-    }
-  };
-
-  const fetchSchedules = async () => {
-    if (!userId) {
-      console.error('UserId not found in localStorage');
-      return;
-    }
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/schedules/user/${userId}`);
-      if (!response.ok) {
-        throw new Error(`Error fetching schedules: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const options = data.map((schedule) => ({
-        key: schedule.id,
-        value: schedule.id,
-        text: schedule.name,
-      }));
-      setScheduleOptions(options);
-    } catch (error) {
-      console.error('Failed to fetch schedules:', error);
-    } 
-  };
-
-  const fetchProfessors = async () => {
-    try {
-      const scheduleId = localStorage.getItem('scheduleId');
-      if (!scheduleId) {
-        console.log('No scheduleId found in localStorage');
-        return;
-      }
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      const professorMap = data.reduce((map, professor) => {
-        map[professor.id] = professor.name;
-        return map;
-      }, {});
-      setProfessors(professorMap);
-      console.log(data);
-      console.log(professorMap);
-    } catch (error) {
-      console.error('Failed to fetch professors:', error);
+      console.error('Failed to fetch schedules or classrooms:', error);
     }
   };
 
   useEffect(() => {
-    fetchSchedules();
-    fetchProfessors();
-  }, [selectedSchedule]);
+    setData();
+  }, [userId]);
 
-  const applyFilters = () => {
-    let filtered = [...courses];
-    if (searchText) {
-      filtered = filtered.filter((course) =>
-        course.name.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-
-    if (filterProfessor) {
-      filtered = filtered.filter((course) => course.professorId == filterProfessor);
-    }
-
-    if (filterType) {
-      filtered = filtered.filter((course) => course.type === filterType);
-    }
-
-    if (filterSlotLength) {
-      filtered = filtered.filter((course) => course.lectureSlotLength === filterSlotLength);
-    }
-
-    setFilteredCourses(filtered);
+  useEffect(() => {
     setCurrentPage(1);
+  }, [
+    searchText,
+    filterProfessor,
+    filterType,
+    filterSlotLength,
+    selectedSchedule,
+  ]);
+
+  const sortOptions = [{ key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' }];
+
+  const sortCourses = (courses) => {
+    switch (sortOption) {
+      case 'nameAsc':
+        return courses.sort((a, b) => a.name.localeCompare(b.name));
+    }
   };
 
-  useEffect(() => {
-    applyFilters();
-  }, [searchText, filterProfessor, filterType, filterSlotLength, courses]);
+  const filteredCourses = sortCourses(
+    courses.filter((course) => {
+      if (
+        searchText &&
+        !course.name.toLowerCase().includes(searchText.toLowerCase())
+      ) {
+        return false;
+      }
+      if (filterProfessor && course.professorId !== filterProfessor) {
+        return false;
+      }
+      if (filterType && course.type !== filterType) {
+        return false;
+      }
+      if (filterSlotLength && course.lectureSlotLength !== filterSlotLength) {
+        return false;
+      }
+      if (selectedSchedule && course.scheduleId !== selectedSchedule) {
+        return false;
+      }
+      return true;
+    })
+  );
 
-  const handleSearch = (e) => {
-    const text = e.target.value;
-    setSearchText(text);
-    const filtered = courses.filter((course) =>
-      course.name.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredCourses(filtered);
-    setCurrentPage(1); 
-  };
+  const filteredProfessors = selectedSchedule
+    ? professors.filter(
+        (professor) => professor.scheduleId === selectedSchedule
+      )
+    : professors;
 
-  const handleFilterBySchedule = (e, { value }) => {
-    setSelectedSchedule(value);
-    setSearchText('');
-    setFilterProfessor(null);
-    setFilterSlotLength(null);
-    setFilterType(null);
-    localStorage.setItem('scheduleId', value);
-    fetchCourses(value);
-  };
+  const professorOptions = filteredProfessors.map((professor) => ({
+    key: professor.id,
+    value: professor.id,
+    text: professor.name,
+  }));
 
   const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
   const paginatedCourses = filteredCourses.slice(
@@ -209,14 +193,22 @@ const CoursesPage = () => {
                 fluid
                 selection
                 options={scheduleOptions}
-                onChange={handleFilterBySchedule}
+                onChange={(e, { value }) => {
+                  setSelectedSchedule(value);
+                  if (value) {
+                    localStorage.setItem('scheduleId', value);
+                  } else {
+                    localStorage.removeItem('scheduleId');
+                  }
+                }}
                 value={selectedSchedule}
+                clearable
               />
             </div>
             <div style={{ marginBottom: '20px' }}>
               <Button
                 basic
-                color='teal'
+                color="teal"
                 style={{
                   marginBottom: '10px',
                   transition: 'all 0.3s ease',
@@ -225,7 +217,7 @@ const CoursesPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
-                disabled={selectedSchedule ? false : true}
+                disabled={!selectedSchedule}
               >
                 Dodaj novi kurs
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -236,8 +228,18 @@ const CoursesPage = () => {
                 icon="search"
                 placeholder="Pretraga..."
                 value={searchText}
-                onChange={handleSearch}
+                onChange={(e) => setSearchText(e.target.value)}
                 fluid
+              />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <h4 className="ui dividing header">Sortiraj po</h4>
+              <Dropdown
+                fluid
+                selection
+                options={sortOptions}
+                value={sortOption}
+                onChange={(e, { value }) => setSortOption(value)}
               />
             </div>
             <div style={{ marginBottom: '20px' }}>
@@ -246,7 +248,7 @@ const CoursesPage = () => {
                 placeholder="Odaberite profesora"
                 fluid
                 selection
-                options={Object.entries(professors).map(([id, name]) => ({ key: id, value: id, text: name }))}
+                options={professorOptions}
                 value={filterProfessor}
                 onChange={(e, { value }) => setFilterProfessor(value)}
                 clearable
@@ -284,61 +286,79 @@ const CoursesPage = () => {
 
           <Grid.Column width={12}>
             <Card.Group itemsPerRow={3}>
-            {paginatedCourses.length > 0 ? (
-              paginatedCourses.map((course) => (
-                <Card key={course.id}>
-                  <Card.Content>
-                    <div
-                      style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      }}
-                    >
-                      <Card.Header>{course.name}</Card.Header>
-                      <Icon
-                        name="edit"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleEditClick(course)}
-                      />
-                    </div>
-                    <Card.Meta>
-                      Profesor: {professors[course.professorId] || "Nepoznato"}
-                    </Card.Meta>
-                    <Card.Description>
-                      Tip: {course.type == "P" ? "Predavanje" : 
-                            course.type == "AV" ? "Auditorne vježbe" :
-                            course.type == "LV" ? "Laboratorijske vježbe" : "N/A"} <br />
-                      Broj časova: {course.lectureSlotLength || "N/A"} <br />
-                      {course.courseCanUseClassrooms
-                          .filter((cc) => cc.classroom_id === course.id)
-                          .map(
-                            (cc) =>
-                              courses.find(
-                                (course) => course.id === cc.course_id
-                              )?.name
-                          )
-                          .join(', ') || 'Nema učionica'}
-                    </Card.Description>
-                  </Card.Content>
-                  <Card.Content extra>
-                    <Button
-                      basic
-                      color="red"
-                      onClick={() => handleDeleteClick(course)}
-                      onMouseEnter={(e) => e.target.classList.remove('basic')}
-                      onMouseLeave={(e) => e.target.classList.add('basic')}
-                    >
-                      Obriši
-                    </Button>
-                  </Card.Content>
-                </Card>
-              ))
-            ) : (
-              <div className="ui message">
-                Nema rezultata.
-              </div>
-            )}
+              {paginatedCourses.length > 0 ? (
+                paginatedCourses.map((course) => (
+                  <Card key={course.id}>
+                    <Card.Content>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Card.Header>{course.name}</Card.Header>
+                        <Icon
+                          name="edit"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleEditClick(course)}
+                        />
+                      </div>
+                      <Card.Meta>
+                        Profesor:{' '}
+                        {filteredProfessors.find((prof) => prof.id === course.professorId)?.name || "Nepoznato"}
+                      </Card.Meta>
+                      <Card.Description>
+                        Tip:{' '}
+                        {course.type == 'P'
+                          ? 'Predavanje'
+                          : course.type == 'AV'
+                            ? 'Auditorne vježbe'
+                            : course.type == 'LV'
+                              ? 'Laboratorijske vježbe'
+                              : 'N/A'}{' '}
+                        <br />
+                        Broj časova: {course.lectureSlotLength || 'N/A'} 
+                        <br /> <br />
+                        Učionice:{' '}
+                        {course.courseCanUseClassrooms.length > 0
+                          ? course.courseCanUseClassrooms
+                              .map(
+                                (cc) =>
+                                  classrooms.find((classroom) => classroom.id === cc.classroomId)
+                                    ?.name || 'Nepoznato'
+                              )
+                              .join(', ')
+                          : 'Nema dostupnih učionica'}
+                        <br />
+                        Studentske grupe:{' '} 
+                        {course.groupTakesCourses.length > 0
+                          ? course.groupTakesCourses
+                              .map(
+                                (sg) =>
+                                  studentGroups.find((group) => group.id === sg.studentGroupId)
+                                    ?.name || 'Nepoznato'
+                              )
+                              .join(', ')
+                          : 'Nema studentskih grupa'}
+                      </Card.Description>
+                    </Card.Content>
+                    <Card.Content extra>
+                      <Button
+                        basic
+                        color="red"
+                        onClick={() => handleDeleteClick(course)}
+                        onMouseEnter={(e) => e.target.classList.remove('basic')}
+                        onMouseLeave={(e) => e.target.classList.add('basic')}
+                      >
+                        Obriši
+                      </Button>
+                    </Card.Content>
+                  </Card>
+                ))
+              ) : (
+                <div className="ui message">Nema rezultata.</div>
+              )}
             </Card.Group>
             <Pagination
               style={{ marginTop: '20px', textAlign: 'right' }}
@@ -349,24 +369,24 @@ const CoursesPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      <AddModal 
-        open={openAddModal} 
-        onClose={closeModals} 
-        header={header} 
-        editItem={currentCourse} 
-        refreshData={fetchCourses}
+      <AddModal
+        open={openAddModal}
+        onClose={closeModals}
+        header={header}
+        editItem={currentCourse}
+        refreshData={setData}
         showToast={showToast}
       />
       <DeleteModal
         open={openDeleteModal}
         onClose={closeModals}
-        header={header} 
+        header={header}
         deleteItem={currentCourse}
-        refreshData={fetchCourses}
+        refreshData={setData}
         showToast={showToast}
       />
     </Container>
   );
-}
+};
 
 export default CoursesPage;
