@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';  
-import { Container, Button, Input, Segment, Form, Grid, Header, Message, Image } from 'semantic-ui-react';
+import { Container, Button, Input, Segment, Form, Grid, Header, Message, Image, Icon } from 'semantic-ui-react';
 import LoaderComponent from '../components/Loader';
 
-const LoginPage = ( {setToken, setUserRole,setUserId }) => {
+const LoginPage = ( {setToken, setUserRole, setUserId }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate(); 
 
   const handleLogin = async () => {
-    setIsLoggingIn(true);
+    if (!username || !password) {
+      setLoginMessage('Molimo unesite podatke za prijavu.');
+      return;
+    }
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
@@ -27,13 +31,14 @@ const LoginPage = ( {setToken, setUserRole,setUserId }) => {
       } else if (response.status === 400) {
         setLoginMessage('Netačna šifra.');
       } else if (response.ok) {
+        setIsLoggingIn(true);
         const data = await response.json();
         setToken(data.token);
         setUserRole(data.role);
         setUserId(data.id);
         localStorage.setItem('token', data.token);
         localStorage.setItem('userRole', data.role);
-        localStorage.setItem('userId',data.id);
+        localStorage.setItem('userId', data.id);
         navigate('/');  
       } else {
         throw new Error('An unexpected error occurred.');
@@ -84,7 +89,14 @@ const LoginPage = ( {setToken, setUserRole,setUserId }) => {
                   placeholder="Unesite šifru"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'} // Prikaz šifre ovisno o stanju
+                  icon={
+                    <Icon
+                      name={showPassword ? 'eye slash' : 'eye'} // Ikonica za prikaz/skrivanje šifre
+                      link
+                      onClick={() => setShowPassword(!showPassword)} // Promjena stanja
+                    />
+                  }
                   style={{ marginBottom: '5px' }}
                 />
               </Grid.Column>

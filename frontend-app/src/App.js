@@ -17,6 +17,7 @@ function App() {
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
@@ -26,6 +27,7 @@ function App() {
       setToken(savedToken);
       setUserRole(savedRole);
     }
+    setIsLoading(false);
   }, []);
 
   const handleLogout = () => {
@@ -38,6 +40,10 @@ function App() {
     }, 100);
     window.location.pathname = '/';
   };
+
+  if (isLoading) {
+    return <LoaderComponent message='Loading...' />;
+  }
 
   if (isLoggingOut) {
     return <LoaderComponent message='Logging out...' />;
