@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { Table, Modal, Dropdown, Button } from 'semantic-ui-react';
 import axios from 'axios';
 
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 
-const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, courses, content, onDrop, professor, studentGroup, classroom}) => {
+const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, content, onDrop, professor, studentGroup, classroom}) => {
 
   const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
   // slot je sat vremena
@@ -57,7 +57,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
 
   const removeLesson = async(id) => {
       const url = `${process.env.REACT_APP_API_URL}/lessons/${id}`
-      const response = await axios.delete(url);
+      await axios.delete(url);
       await updateContent()
   }
 
@@ -287,7 +287,17 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
 };
 
 ScheduleTable.propTypes = {
-  content: PropTypes.arrayOf(PropTypes.array).isRequired,
+  handleStudentGroupSelect: PropTypes.func.isRequired,
+  onDrop: PropTypes.func.isRequired,
+  handleProfessorSelect: PropTypes.func.isRequired,
+  handleClassroomSelect: PropTypes.func.isRequired,
+  allClassrooms: PropTypes.array.isRequired,
+  allCourses: PropTypes.array.isRequired,
+  professor: PropTypes.object,
+  studentGroup: PropTypes.object,
+  classroom: PropTypes.object,
+  courses:PropTypes.object,
+  content:PropTypes.object,
 };
 
 export default ScheduleTable;
