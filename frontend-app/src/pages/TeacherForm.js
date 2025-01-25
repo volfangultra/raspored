@@ -15,8 +15,8 @@ const TeacherForm = ({ onChange, editItem }) => {
   });
 
   const [restrictions, setRestrictions] = useState(() => {
-    if (editItem?.professorAvailabilities) {
-      return editItem.professorAvailabilities.map((avail) => ({
+    if (editItem?.professorUnavailabilities) {
+      return editItem.professorUnavailabilities.map((avail) => ({
         day: avail.day,
         startTime: avail.startTime,
         endTime: avail.endTime,
@@ -89,10 +89,10 @@ const TeacherForm = ({ onChange, editItem }) => {
       timeTo: '',
     });
 
-    formData.professorAvailabilities = updatedRestrictions;
+    formData.professorUnavailabilities = updatedRestrictions;
   
     if (editItem) {
-      editItem.professorAvailabilities = updatedRestrictions;
+      editItem.professorUnavailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };
@@ -103,7 +103,7 @@ const TeacherForm = ({ onChange, editItem }) => {
     setRestrictions(updatedRestrictions);
   
     if (editItem) {
-      editItem.professorAvailabilities = updatedRestrictions;
+      editItem.professorUnavailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectNamespace.Data;
 
@@ -10,9 +11,11 @@ using ProjectNamespace.Data;
 namespace backend_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250119162426_changedelte")]
+    partial class changedelte
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -75,7 +78,7 @@ namespace backend_api.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("ProjectNamespace.Models.CourseCanNotUseClassroom", b =>
+            modelBuilder.Entity("ProjectNamespace.Models.CourseCanUseClassroom", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,7 +96,7 @@ namespace backend_api.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseCanNotUseClassrooms");
+                    b.ToTable("CourseCanUseClassrooms");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.GroupTakesCourses", b =>
@@ -171,7 +174,7 @@ namespace backend_api.Migrations
                     b.ToTable("Professors");
                 });
 
-            modelBuilder.Entity("ProjectNamespace.Models.ProfessorUnavailability", b =>
+            modelBuilder.Entity("ProjectNamespace.Models.ProfessorAvailability", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -193,7 +196,7 @@ namespace backend_api.Migrations
 
                     b.HasIndex("ProfessorId");
 
-                    b.ToTable("ProfessorUnavailabilities");
+                    b.ToTable("ProfessorAvailabilities");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.Schedule", b =>
@@ -308,16 +311,16 @@ namespace backend_api.Migrations
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("ProjectNamespace.Models.CourseCanNotUseClassroom", b =>
+            modelBuilder.Entity("ProjectNamespace.Models.CourseCanUseClassroom", b =>
                 {
                     b.HasOne("ProjectNamespace.Models.Classroom", "Classroom")
-                        .WithMany("CourseCanNotUseClassrooms")
+                        .WithMany("CourseCanUseClassrooms")
                         .HasForeignKey("ClassroomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ProjectNamespace.Models.Course", "Course")
-                        .WithMany("CourseCanNotUseClassrooms")
+                        .WithMany("CourseCanUseClassrooms")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -376,10 +379,10 @@ namespace backend_api.Migrations
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("ProjectNamespace.Models.ProfessorUnavailability", b =>
+            modelBuilder.Entity("ProjectNamespace.Models.ProfessorAvailability", b =>
                 {
                     b.HasOne("ProjectNamespace.Models.Professor", "Professor")
-                        .WithMany("ProfessorUnavailabilities")
+                        .WithMany("ProfessorAvailabilities")
                         .HasForeignKey("ProfessorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -411,14 +414,14 @@ namespace backend_api.Migrations
 
             modelBuilder.Entity("ProjectNamespace.Models.Classroom", b =>
                 {
-                    b.Navigation("CourseCanNotUseClassrooms");
+                    b.Navigation("CourseCanUseClassrooms");
 
                     b.Navigation("Lessons");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.Course", b =>
                 {
-                    b.Navigation("CourseCanNotUseClassrooms");
+                    b.Navigation("CourseCanUseClassrooms");
 
                     b.Navigation("GroupTakesCourses");
 
@@ -429,7 +432,7 @@ namespace backend_api.Migrations
                 {
                     b.Navigation("Courses");
 
-                    b.Navigation("ProfessorUnavailabilities");
+                    b.Navigation("ProfessorAvailabilities");
                 });
 
             modelBuilder.Entity("ProjectNamespace.Models.Schedule", b =>

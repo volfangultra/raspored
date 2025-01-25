@@ -15,7 +15,7 @@ const CourseForm = ({ onChange, editItem }) => {
     groupTakesCourses: editItem?.groupTakesCourses?.map((groupCourse) => ({
       studentGroupId: groupCourse.studentGroupId,
     })) || [],
-    courseCanUseClassrooms: editItem?.courseCanUseClassrooms?.map((groupCourse) => ({
+    courseCanNotUseClassrooms: editItem?.courseCanNotUseClassrooms?.map((groupCourse) => ({
       classroomId: groupCourse.classroomId,
     })) || [],
   });
@@ -72,7 +72,7 @@ const CourseForm = ({ onChange, editItem }) => {
         }));
 
         const selectedClassroomsMapped =
-          editItem?.courseCanUseClassrooms?.map((groupCourse) =>
+          editItem?.courseCanNotUseClassrooms?.map((groupCourse) =>
             options.find((option) => option.value === groupCourse.classroomId)
           ).filter(Boolean) || [];
 
@@ -106,11 +106,11 @@ const CourseForm = ({ onChange, editItem }) => {
 
       setAvailableClassrooms(availableClassrooms.filter((c) => c.value !== value));
 
-      const updatedCourseCanUseClassrooms = [
-        ...formData.courseCanUseClassrooms,
+      const updatedcourseCanNotUseClassrooms = [
+        ...formData.courseCanNotUseClassrooms,
         { classroomId: classroom.value },
       ];
-      const updatedFormData = { ...formData, courseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanNotUseClassrooms: updatedcourseCanNotUseClassrooms };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -124,10 +124,10 @@ const CourseForm = ({ onChange, editItem }) => {
       setSelectedClassrooms(updatedClassrooms);
       setAvailableClassrooms([...availableClassrooms, removedClassroom]);
 
-      const updatedCourseCanUseClassrooms = formData.courseCanUseClassrooms.filter(
+      const updatedcourseCanNotUseClassrooms = formData.courseCanNotUseClassrooms.filter(
         (c) => c.classroomId !== classroomId
       );
-      const updatedFormData = { ...formData, courseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanNotUseClassrooms: updatedcourseCanNotUseClassrooms };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);

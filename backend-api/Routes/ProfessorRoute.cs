@@ -9,7 +9,7 @@ using ProjectNamespace.Models;
 
 public static class ProfessorRoutes
 {
-    public class ProfessorAvailabilityDTO
+    public class ProfessorUnavailabilityDTO
     {
         public int Day { get; set; }
 
@@ -28,7 +28,7 @@ public static class ProfessorRoutes
 
         public string Rank { get; set; }
 
-        public ICollection<ProfessorAvailabilityDTO> ProfessorAvailabilities { get; set; }
+        public ICollection<ProfessorUnavailabilityDTO> ProfessorUnavailabilities { get; set; }
     }
 
     public static void MapProfessorRoutes(this WebApplication app)
@@ -43,7 +43,7 @@ public static class ProfessorRoutes
                     Name = p.Name,
                     ScheduleId = p.ScheduleId,
                     Rank = p.Rank,
-                    ProfessorAvailabilities = p.ProfessorAvailabilities.Select(pa => new ProfessorAvailabilityDTO
+                    ProfessorUnavailabilities = p.ProfessorUnavailabilities.Select(pa => new ProfessorUnavailabilityDTO
                     {
                         Day = pa.Day,
                         StartTime = pa.StartTime,
@@ -66,7 +66,7 @@ public static class ProfessorRoutes
                     Name = p.Name,
                     ScheduleId = p.ScheduleId,
                     Rank = p.Rank,
-                    ProfessorAvailabilities = p.ProfessorAvailabilities.Select(pa => new ProfessorAvailabilityDTO
+                    ProfessorUnavailabilities = p.ProfessorUnavailabilities.Select(pa => new ProfessorUnavailabilityDTO
                     {
                         Day = pa.Day,
                         StartTime = pa.StartTime,
@@ -101,15 +101,15 @@ public static class ProfessorRoutes
             db.Professors.Update(professor);
             await db.SaveChangesAsync();
 
-            if (updatedProfessor.ProfessorAvailabilities != null)
+            if (updatedProfessor.ProfessorUnavailabilities != null)
             {
-                var existingAvailabilities = await db.ProfessorAvailabilities.Where(pa => pa.ProfessorId == id).ToListAsync();
-                db.ProfessorAvailabilities.RemoveRange(existingAvailabilities);
+                var existingAvailabilities = await db.ProfessorUnavailabilities.Where(pa => pa.ProfessorId == id).ToListAsync();
+                db.ProfessorUnavailabilities.RemoveRange(existingAvailabilities);
 
-                foreach (var availability in updatedProfessor.ProfessorAvailabilities)
+                foreach (var availability in updatedProfessor.ProfessorUnavailabilities)
                 {
                     availability.ProfessorId = id;
-                    db.ProfessorAvailabilities.Add(availability);
+                    db.ProfessorUnavailabilities.Add(availability);
                 }
 
                 await db.SaveChangesAsync();
@@ -121,7 +121,7 @@ public static class ProfessorRoutes
         app.MapDelete("/professors/{id}", async (int id, AppDbContext db) =>
         {
             var professor = await db.Professors
-                .Include(p => p.ProfessorAvailabilities)
+                .Include(p => p.ProfessorUnavailabilities)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (professor is null)
@@ -129,8 +129,8 @@ public static class ProfessorRoutes
                 return Results.NotFound();
             }
 
-            var professorAvailabilities = db.ProfessorAvailabilities.Where(pa => pa.ProfessorId == id);
-            db.ProfessorAvailabilities.RemoveRange(professorAvailabilities);
+            var professorUnavailabilities = db.ProfessorUnavailabilities.Where(pa => pa.ProfessorId == id);
+            db.ProfessorUnavailabilities.RemoveRange(professorUnavailabilities);
 
             db.Professors.Remove(professor);
 
@@ -140,7 +140,7 @@ public static class ProfessorRoutes
         });
 
 
-        app.MapPost("/professors/{professorId}/availabilities", async (int professorId, ProfessorAvailability availability, AppDbContext db) =>
+        app.MapPost("/professors/{professorId}/availabilities", async (int professorId, ProfessorUnavailability availability, AppDbContext db) =>
         {
             var professor = await db.Professors.FindAsync(professorId);
             if (professor is null)
@@ -149,15 +149,15 @@ public static class ProfessorRoutes
             }
 
             availability.ProfessorId = professorId;
-            db.ProfessorAvailabilities.Add(availability);
+            db.ProfessorUnavailabilities.Add(availability);
             await db.SaveChangesAsync();
 
             return Results.Created($"/professors/{professorId}/availabilities/{availability.Id}", availability);
         });
 
-        app.MapPut("/professors/{professorId}/availabilities/{availabilityId}", async (int professorId, int availabilityId, ProfessorAvailability updatedAvailability, AppDbContext db) =>
+        app.MapPut("/professors/{professorId}/availabilities/{availabilityId}", async (int professorId, int availabilityId, ProfessorUnavailability updatedAvailability, AppDbContext db) =>
         {
-            var availability = await db.ProfessorAvailabilities.FindAsync(availabilityId);
+            var availability = await db.ProfessorUnavailabilities.FindAsync(availabilityId);
             if (availability is null || availability.ProfessorId != professorId)
             {
                 return Results.NotFound();
@@ -167,7 +167,7 @@ public static class ProfessorRoutes
             availability.StartTime = updatedAvailability.StartTime;
             availability.EndTime = updatedAvailability.EndTime;
 
-            db.ProfessorAvailabilities.Update(availability);
+            db.ProfessorUnavailabilities.Update(availability);
             await db.SaveChangesAsync();
 
             return Results.NoContent();
@@ -175,13 +175,13 @@ public static class ProfessorRoutes
 
         app.MapDelete("/professors/{professorId}/availabilities/{availabilityId}", async (int professorId, int availabilityId, AppDbContext db) =>
         {
-            var availability = await db.ProfessorAvailabilities.FindAsync(availabilityId);
+            var availability = await db.ProfessorUnavailabilities.FindAsync(availabilityId);
             if (availability is null || availability.ProfessorId != professorId)
             {
                 return Results.NotFound();
             }
 
-            db.ProfessorAvailabilities.Remove(availability);
+            db.ProfessorUnavailabilities.Remove(availability);
             await db.SaveChangesAsync();
 
             return Results.NoContent();

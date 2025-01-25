@@ -60,8 +60,22 @@ const HomePage = () => {
   };
 
   const handleScheduleClick = async(scheduleId) => {
-    localStorage.setItem('scheduleId', scheduleId);
-    navigate('/raspored');
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/get_schedule/${scheduleId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create schedule');
+      }
+
+      const result = await response.json();
+      localStorage.setItem('schedule_data', result);
+      navigate('/raspored');
+    } catch (error) {
+      console.error('Error getting schedule:', error);
+    }
   };
 
   return (

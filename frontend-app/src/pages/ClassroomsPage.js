@@ -247,7 +247,7 @@ const ClassroomsPage = () => {
                         Kapacitet: {classroom.capacity}
                         <br />
                         Kursevi:{' '}
-                        {classroom.courseCanUseClassrooms
+                        {classroom.courseCanNotUseClassrooms
                           .filter((cc) => cc.classroom_id === classroom.id)
                           /*.map(
                             (cc) =>

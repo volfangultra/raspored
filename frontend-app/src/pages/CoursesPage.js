@@ -310,7 +310,7 @@ const CoursesPage = () => {
                             course.type == "AV" ? "Auditorne vježbe" :
                             course.type == "LV" ? "Laboratorijske vježbe" : "N/A"} <br />
                       Broj časova: {course.lectureSlotLength || "N/A"} <br />
-                      {course.courseCanUseClassrooms
+                      {course.courseCanNotUseClassrooms
                           .filter((cc) => cc.classroom_id === course.id)
                           .map(
                             (cc) =>

@@ -163,8 +163,8 @@ public static class ScheduleRoutes
                                                                                               c.Professor.Id,
                                                                                               c.Professor.Name,
                                                                                               c.Professor.Rank,
-                                                                                              // Include ProfessorAvailabilities (Day, StartTime, EndTime)
-                                                                                              ProfessorAvailabilities = c.Professor.ProfessorAvailabilities.Select(pa => new
+                                                                                              // Include professorUnavailabilities (Day, StartTime, EndTime)
+                                                                                              professorUnavailabilities = c.Professor.ProfessorUnavailabilities.Select(pa => new
                                                                                               {
                                                                                                   pa.Day,
                                                                                                   pa.StartTime,
@@ -172,7 +172,7 @@ public static class ScheduleRoutes
                                                                                               })
                                                                                           },
                                                                                           // Include CanUseClassroom (Classroom Id, Name, Floor)
-                                                                                          CanUseClassroom = c.CourseCanUseClassrooms.Select(ccu => new
+                                                                                          CanUseClassroom = c.CourseCanNotUseClassrooms.Select(ccu => new
                                                                                           {
                                                                                               ccu.Classroom.Id,
                                                                                               ccu.Classroom.Name,
