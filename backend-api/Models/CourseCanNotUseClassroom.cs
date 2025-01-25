@@ -2,7 +2,7 @@ namespace ProjectNamespace.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class CourseCanUseClassroom
+public class CourseCanNotUseClassroom
 {
     [Key]
     public int Id { get; set; }

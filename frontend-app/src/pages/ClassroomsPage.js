@@ -274,13 +274,13 @@ const ClassroomsPage = () => {
                         <br />
                         Kursevi:{' '}
                         <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
-                          {classroom.courseCanUseClassrooms
+                          {classroom.courseCanNotUseClassrooms
                             .filter((cc) => cc.classroomId === classroom.id)
                             .map((cc) => {
                               const courseName = courses.find((course) => course.id === cc.courseId)?.name;
                               return courseName ? <span key={cc.courseId}>{courseName}<br /></span> : null;
                             })}
-                          {!classroom.courseCanUseClassrooms.length ? 'Nema kurseva' : null}
+                          {!classroom.courseCanNotUseClassrooms.length ? 'Nema kurseva' : null}
                         </div>
                       </Card.Description>
                     </Card.Content>

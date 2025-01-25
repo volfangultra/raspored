@@ -9,7 +9,7 @@ const ClassroomForm = ({ onChange, editItem }) => {
     Floor: editItem?.floor || '',
     Capacity: editItem?.capacity || '',
     ScheduleId: localStorage.getItem('scheduleId'),
-    CourseCanUseClassrooms: editItem?.courseCanUseClassrooms?.map((groupCourse) => ({
+    courseCanNotUseClassrooms: editItem?.courseCanNotUseClassrooms?.map((groupCourse) => ({
       courseId: groupCourse.courseId,
     })) || [],
   }));
@@ -32,7 +32,7 @@ const ClassroomForm = ({ onChange, editItem }) => {
         }));
 
         const selectedCoursesMapped =
-          editItem?.courseCanUseClassrooms?.map((groupCourse) =>
+          editItem?.courseCanNotUseClassrooms?.map((groupCourse) =>
             options.find((option) => option.value === groupCourse.courseId)
           ).filter(Boolean) || [];
 
@@ -69,11 +69,11 @@ const ClassroomForm = ({ onChange, editItem }) => {
 
       setAvailableCourses(availableCourses.filter((c) => c.value !== value));
 
-      const updatedCourseCanUseClassrooms = [
-        ...formData.CourseCanUseClassrooms,
+      const updated = [
+        ...formData.courseCanNotUseClassrooms,
         { courseId: course.value },
       ];
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanNotUseClassrooms: updated };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);
@@ -87,10 +87,10 @@ const ClassroomForm = ({ onChange, editItem }) => {
       setSelectedCourses(updatedCourses);
       setAvailableCourses([...availableCourses, removedCourse]);
 
-      const updatedCourseCanUseClassrooms = formData.CourseCanUseClassrooms.filter(
+      const updated = formData.courseCanNotUseClassrooms.filter(
         (c) => c.courseId !== courseId
       );
-      const updatedFormData = { ...formData, CourseCanUseClassrooms: updatedCourseCanUseClassrooms };
+      const updatedFormData = { ...formData, courseCanNotUseClassrooms: updated };
 
       setFormData(updatedFormData);
       onChange(updatedFormData);

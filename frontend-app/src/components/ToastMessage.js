@@ -1,3 +1,6 @@
+import PropTypes from 'prop-types';
+import React from 'react';
+
 const ToastMessage = ({ message, type }) => {
   return (
     <div
@@ -16,6 +19,10 @@ const ToastMessage = ({ message, type }) => {
       {message}
     </div>
   );
+};
+ToastMessage.propTypes = {
+  message: PropTypes.object,
+  type: PropTypes.object,
 };
 
 export default ToastMessage;

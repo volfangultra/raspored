@@ -19,6 +19,6 @@ public class Professor
 
     public ICollection<Course> Courses { get; set; }
 
-    public ICollection<ProfessorAvailability> ProfessorAvailabilities { get; set; }
+    public ICollection<ProfessorUnavailability> ProfessorUnavailabilities { get; set; }
 
 }

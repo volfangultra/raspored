@@ -18,11 +18,11 @@ public static class ClassroomRoutes
 
         public int ScheduleId { get; set; }
 
-        public ICollection<CourseCanUseClassroomDTO> CourseCanUseClassrooms { get; set; }
+        public ICollection<CourseCanNotUseClassroomDTO> CourseCanNotUseClassrooms { get; set; }
 
     }
 
-    public class CourseCanUseClassroomDTO
+    public class CourseCanNotUseClassroomDTO
     {
         public int CourseId { get; set; }
 
@@ -41,7 +41,7 @@ public static class ClassroomRoutes
                     Floor = c.Floor,
                     Capacity = c.Capacity,
                     ScheduleId = c.ScheduleId,
-                    CourseCanUseClassrooms = c.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroomDTO
+                    CourseCanNotUseClassrooms = c.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroomDTO
                     {
                         CourseId = cc.CourseId,
                         ClassroomId = cc.ClassroomId,
@@ -60,7 +60,7 @@ public static class ClassroomRoutes
                     Floor = c.Floor,
                     Capacity = c.Capacity,
                     ScheduleId = c.ScheduleId,
-                    CourseCanUseClassrooms = c.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroomDTO
+                    CourseCanNotUseClassrooms = c.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroomDTO
                     {
                         CourseId = cc.CourseId,
                         ClassroomId = cc.ClassroomId,
@@ -79,7 +79,7 @@ public static class ClassroomRoutes
                 Floor = classroomDto.Floor,
                 Capacity = classroomDto.Capacity,
                 ScheduleId = classroomDto.ScheduleId,
-                CourseCanUseClassrooms = classroomDto.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroom
+                CourseCanNotUseClassrooms = classroomDto.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroom
                 {
                     CourseId = cc.CourseId,
                     ClassroomId = cc.ClassroomId,
@@ -95,7 +95,7 @@ public static class ClassroomRoutes
         app.MapPut("/classrooms/{id}", async (int id, ClassroomDTO classroomDto, AppDbContext db) =>
         {
             var classroom = await db.Classrooms
-                .Include(g => g.CourseCanUseClassrooms)
+                .Include(g => g.CourseCanNotUseClassrooms)
                 .FirstOrDefaultAsync(g => g.Id == id);
             if (classroom is null)
             {
@@ -107,11 +107,11 @@ public static class ClassroomRoutes
             classroom.Capacity = classroomDto.Capacity;
             classroom.ScheduleId = classroomDto.ScheduleId;
 
-            if (classroomDto.CourseCanUseClassrooms != null)
+            if (classroomDto.CourseCanNotUseClassrooms != null)
             {
-                db.CourseCanUseClassrooms.RemoveRange(classroom.CourseCanUseClassrooms);
+                db.CourseCanNotUseClassrooms.RemoveRange(classroom.CourseCanNotUseClassrooms);
 
-                classroom.CourseCanUseClassrooms = classroomDto.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroom
+                classroom.CourseCanNotUseClassrooms = classroomDto.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroom
                 {
                     CourseId = cc.CourseId,
                     ClassroomId = cc.ClassroomId,
@@ -132,8 +132,8 @@ public static class ClassroomRoutes
                 return Results.NotFound();
             }
 
-            var relatedEntries = db.CourseCanUseClassrooms.Where(c => c.ClassroomId == id);
-            db.CourseCanUseClassrooms.RemoveRange(relatedEntries);
+            var relatedEntries = db.CourseCanNotUseClassrooms.Where(c => c.ClassroomId == id);
+            db.CourseCanNotUseClassrooms.RemoveRange(relatedEntries);
 
             db.Classrooms.Remove(classroom);
 

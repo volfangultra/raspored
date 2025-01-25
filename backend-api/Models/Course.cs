@@ -23,7 +23,7 @@ public class Course
     [ForeignKey("ProfessorId")]
     public Professor Professor { get; set; }
 
-    public ICollection<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
+    public ICollection<CourseCanNotUseClassroom> CourseCanNotUseClassrooms { get; set; }
 
     public ICollection<GroupTakesCourses> GroupTakesCourses { get; set; }
 

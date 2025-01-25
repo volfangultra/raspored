@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-public class ProfessorAvailability
+public class ProfessorUnavailability
 {
     [Key]
     public int Id { get; set; }

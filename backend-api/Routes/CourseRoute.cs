@@ -6,7 +6,19 @@ using ProjectNamespace.Models;
 
 public static class CourseRoutes
 {
-    public class CourseCanUseClassroomDto
+    public class LessonDto
+    {
+        public int Id { get; set; }
+        public int ClassroomId { get; set; }
+
+        public int Day { get; set; }
+
+        public TimeOnly StartTime { get; set; }
+
+        public TimeOnly EndTime { get; set; }
+
+    }
+    public class CourseCanNotUseClassroomDto
     {
         public int CourseId { get; set; }
 
@@ -34,9 +46,10 @@ public static class CourseRoutes
 
         public int LectureSlotLength { get; set; }
 
-        public ICollection<CourseCanUseClassroomDto> CourseCanUseClassrooms { get; set; }
+        public ICollection<CourseCanNotUseClassroomDto> CourseCanNotUseClassrooms { get; set; }
 
         public ICollection<GroupTakesCoursesDto> GroupTakesCourses { get; set; }
+        public ICollection<LessonDto> Lessons { get; set; }
     }
 
     public static void MapCourseRoutes(this WebApplication app)
@@ -45,7 +58,7 @@ public static class CourseRoutes
         {
             var courses = await db.Courses
                 .Where(c => c.ScheduleId == scheduleId)
-                .Include(c => c.CourseCanUseClassrooms)
+                .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
                 .Select(c => new CourseDto
                 {
@@ -55,7 +68,7 @@ public static class CourseRoutes
                     Name = c.Name,
                     Type = c.Type,
                     LectureSlotLength = c.LectureSlotLength,
-                    CourseCanUseClassrooms = c.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroomDto
+                    CourseCanNotUseClassrooms = c.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroomDto
                     {
                         CourseId = cc.CourseId,
                         ClassroomId = cc.ClassroomId,
@@ -64,6 +77,13 @@ public static class CourseRoutes
                     {
                         CourseId = gt.CourseId,
                         StudentGroupId = gt.StudentGroupId,
+                    }).ToList(),
+                    Lessons = c.Lessons.Select(ls => new LessonDto{
+                        Id = ls.Id,
+                        ClassroomId = ls.ClassroomId,
+                        Day = ls.Day,
+                        StartTime = ls.StartTime,
+                        EndTime = ls.EndTime,
                     }).ToList(),
                 }).ToListAsync();
 
@@ -74,7 +94,7 @@ public static class CourseRoutes
         {
             var course = await db.Courses
                 .Where(c => c.Id == id)
-                .Include(c => c.CourseCanUseClassrooms)
+                .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
                 .Select(c => new CourseDto
                 {
@@ -84,7 +104,7 @@ public static class CourseRoutes
                     Name = c.Name,
                     Type = c.Type,
                     LectureSlotLength = c.LectureSlotLength,
-                    CourseCanUseClassrooms = c.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroomDto
+                    CourseCanNotUseClassrooms = c.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroomDto
                     {
                         CourseId = cc.CourseId,
                         ClassroomId = cc.ClassroomId,
@@ -108,7 +128,7 @@ public static class CourseRoutes
                 Name = courseDto.Name,
                 Type = courseDto.Type,
                 LectureSlotLength = courseDto.LectureSlotLength,
-                CourseCanUseClassrooms = courseDto.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroom
+                CourseCanNotUseClassrooms = courseDto.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroom
                 {
                     CourseId = cc.CourseId,
                     ClassroomId = cc.ClassroomId,
@@ -128,7 +148,7 @@ public static class CourseRoutes
         app.MapPut("/courses/{id}", async (int id, CourseDto updatedCourseDto, AppDbContext db) =>
         {
             var course = await db.Courses
-                .Include(c => c.CourseCanUseClassrooms)
+                .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -143,10 +163,10 @@ public static class CourseRoutes
             course.Type = updatedCourseDto.Type;
             course.LectureSlotLength = updatedCourseDto.LectureSlotLength;
 
-            db.CourseCanUseClassrooms.RemoveRange(course.CourseCanUseClassrooms);
+            db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
             db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
 
-            course.CourseCanUseClassrooms = updatedCourseDto.CourseCanUseClassrooms.Select(cc => new CourseCanUseClassroom
+            course.CourseCanNotUseClassrooms = updatedCourseDto.CourseCanNotUseClassrooms.Select(cc => new CourseCanNotUseClassroom
             {
                 CourseId = cc.CourseId,
                 ClassroomId = cc.ClassroomId,
@@ -165,7 +185,7 @@ public static class CourseRoutes
         app.MapDelete("/courses/{id}", async (int id, AppDbContext db) =>
         {
             var course = await db.Courses
-                .Include(c => c.CourseCanUseClassrooms)
+                .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -174,7 +194,7 @@ public static class CourseRoutes
                 return Results.NotFound();
             }
 
-            db.CourseCanUseClassrooms.RemoveRange(course.CourseCanUseClassrooms);
+            db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
             db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
             db.Courses.Remove(course);
             await db.SaveChangesAsync();

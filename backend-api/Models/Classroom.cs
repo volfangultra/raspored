@@ -18,7 +18,7 @@ public class Classroom
     [ForeignKey("ScheduleId")]
     public Schedule Schedule { get; set; }
 
-    public ICollection<CourseCanUseClassroom> CourseCanUseClassrooms { get; set; }
+    public ICollection<CourseCanNotUseClassroom> CourseCanNotUseClassrooms { get; set; }
 
     public ICollection<Lesson> Lessons { get; set; }
 

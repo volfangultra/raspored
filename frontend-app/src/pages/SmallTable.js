@@ -4,6 +4,10 @@ import { Table, Input } from 'semantic-ui-react';
 
 const SmallTable = ({ data, header }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const handleDragStart = (event, item) => {
+    console.log("Currently dragging", JSON.stringify(item))
+    event.dataTransfer.setData('application/json', JSON.stringify(item)); // Pošalji cijeli objekt
+  };
 
   const displayItem = (element) => {
     switch (header) {
@@ -25,16 +29,16 @@ const SmallTable = ({ data, header }) => {
   const filteredData = data.filter((element) => {
     switch (header) {
     case 'Dodavanje osoblja':
-      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+      return (displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '') && (element.lessons.length == 0);
     case 'Dodavanje prostorije':
-      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+      return (displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '') && (element.lessons.length == 0);
     case 'Dodavanje predmeta':
-      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+      return (displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '') && (element.lessons.length == 0);
     case 'Dodavanje smjera':
-      return displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '';
+      return (displayItem(element).toLowerCase().includes(searchTerm.toLowerCase()) || '') && (element.lessons.length == 0);
     default:
       console.error('Unknown header:', header);
-      return false;
+      return element.lessons.length == 0;
     }
   });
 
@@ -57,7 +61,10 @@ const SmallTable = ({ data, header }) => {
         <Table.Body>
           {filteredData.length > 0 ? (
             filteredData.map((element, index) => (
-              <Table.Row key={index}>
+              <Table.Row  key={index}
+                          draggable
+                          onDragStart={(event) => handleDragStart(event, element)}
+              >
                 <Table.Cell style={{ textAlign: 'center' }}>
                   {displayItem(element)}
                 </Table.Cell>

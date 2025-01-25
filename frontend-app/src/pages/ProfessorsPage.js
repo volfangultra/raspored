@@ -268,9 +268,9 @@ const ProfessorsPage = () => {
                         Zvanje: {professor.rank}
                         <br />
                         <br />
-                        Zabrane: {professor.professorAvailabilities.length > 0 ? (
+                        Zabrane: {professor.professorUnavailabilities.length > 0 ? (
                             <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
-                            {professor.professorAvailabilities
+                            {professor.professorUnavailabilities
                                 .sort((a, b) => {
                                     if (a.day !== b.day) {
                                         return a.day - b.day;

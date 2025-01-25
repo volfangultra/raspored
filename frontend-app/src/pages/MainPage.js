@@ -12,6 +12,12 @@ const MainPage = () => {
   const [classroomsOptions, setClassroomsOptions] = useState(null);
   const [courses, setCourses] = useState([]);
 
+  const [selectedProfessor, setSelectedProfessor] = useState(null);
+  const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [selectedStudentGroup, setSelectedStudentGroup] = useState(null);
+  const [allCourses, setAllCourses] = useState(null);
+
+  "Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))"
   const fetchSchedule = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/schedules/${localStorage.getItem('scheduleId')}`);
@@ -61,6 +67,11 @@ const MainPage = () => {
       console.error('Failed to fetch student groups:', error);
     }
   };
+  const clear_selected = async () => {
+    setSelectedStudentGroup(null)
+    setSelectedProfessor(null)
+    setSelectedClassroom(null)
+  }
 
   useEffect(() => {
     fetchSchedule();
@@ -73,34 +84,45 @@ const MainPage = () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
+      setAllCourses(courses)
       const filteredCourses = courses.filter(course => course.professorId === professorId);
       setCourses(filteredCourses);
     } catch (err) {
       console.error('Failed to fetch courses for professor', err);
     }
+    const professor = professorsOptions.find(professor => professor.id === professorId);
+    clear_selected()
+    setSelectedProfessor(professor)
   };
 
   const handleClassroomSelect = async (classroomId) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
-
-      const filteredCourses = courses.filter(course => course.courseCanUseClassrooms.some(ccc => ccc.classroomId === classroomId));
+      setAllCourses(courses)
+      const filteredCourses = courses.filter(course => course.courseCanNotUseClassrooms.some(ccc => ccc.classroomId === classroomId));
       setCourses(filteredCourses);
     } catch (err) {
       console.error('Failed to fetch courses for professor', err);
     }
+    const classroom = classroomsOptions.find(classroom => classroom.id == classroomId)
+    clear_selected()
+    setSelectedClassroom(classroom)
   };
 
   const handleStudentGroupSelect = async (studentGroupId) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
+      setAllCourses(courses)
       const filteredCourses = courses.filter(course => course.groupTakesCourses.some(gtc => gtc.studentGroupId === studentGroupId));
       setCourses(filteredCourses);
     } catch (err) {
       console.error('Failed to fetch courses for professor', err);
     }
+    const studentGroup = studentGroupsOptions.find(studentGroup=>studentGroup.id == studentGroupId)
+    clear_selected()
+    setSelectedStudentGroup(studentGroup)
   };
 
   const handleSemesterChange = async (e, { value }) => {
@@ -215,7 +237,7 @@ const MainPage = () => {
           <div 
            style={{display: 'inline-flex', alignItems: 'center', marginRight: '15px' }}
           >
-            {console.log(professorsOptions)}
+
           
           
           <Dropdown
@@ -256,8 +278,7 @@ const MainPage = () => {
         </Button>
         </div>
       </div>
-
-      <div style={{ marginTop: '20px' }}><Courses courses={courses}/></div>
+      <div style={{ marginTop: '20px' }}><Courses handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions}/></div>
     </Container>
   );
 };
