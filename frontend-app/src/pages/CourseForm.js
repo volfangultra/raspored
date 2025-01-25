@@ -206,6 +206,8 @@ const CourseForm = ({ onChange, editItem }) => {
               value={formData.type}
               onChange={handleInputChange}
               name="type"
+              forceSelection={false}
+              selectOnBlur={false}
             />
           </Grid.Column>
         </Grid.Row>
@@ -231,6 +233,8 @@ const CourseForm = ({ onChange, editItem }) => {
                   onChange(updatedFormData);
                 }}
                 error={error ? true : false}
+                forceSelection={false}
+                selectOnBlur={false}
               />
               {error && <div style={{ color: 'red' }}>{error}</div>}
             </Form.Field>
@@ -260,10 +264,19 @@ const CourseForm = ({ onChange, editItem }) => {
               selection
               options={availableStudentGroups}
               onChange={addStudentGroup}
+              forceSelection={false}
+              selectOnBlur={false}
+              value={null}
             />
             <Header as="h4">Odabrane studentske grupe:</Header>
             {selectedStudentGroups.length > 0 ? (
-              <Segment>
+              <Segment
+              style={{
+                maxHeight: '100px',
+                overflowY: 'auto',
+                padding: '10px',
+                marginTop: '10px',
+              }}>
                 {selectedStudentGroups.map((group, index) => (
                   <div
                     key={index}
@@ -299,10 +312,19 @@ const CourseForm = ({ onChange, editItem }) => {
               selection
               options={availableClassrooms}
               onChange={addClassroom}
+              forceSelection={false}
+              selectOnBlur={false}
+              value={null}
             />
             <Header as="h4">Odabrane prostorije:</Header>
             {selectedClassrooms.length > 0 ? (
-              <Segment>
+              <Segment
+              style={{
+                maxHeight: '100px',
+                overflowY: 'auto',
+                padding: '10px',
+                marginTop: '10px',
+              }}>
                 {selectedClassrooms.map((classroom, index) => (
                   <div
                     key={index}

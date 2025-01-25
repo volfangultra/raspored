@@ -13,6 +13,8 @@ import {
 import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
+import ToastMessage from '../components/ToastMessage';
+import { fetchSchedules, fetchProfessors } from '../services/apiServices';
 
 const ProfessorsPage = () => {
   const header = 'Dodavanje osoblja';
@@ -24,22 +26,7 @@ const ProfessorsPage = () => {
     { key: 3, value: 'Četvrtak', text: 'Četvrtak' },
     { key: 4, value: 'Petak', text: 'Petak' },
   ];
-  const fetchProfessors = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setProfessors(data);
-    } catch (error) {
-      console.error('Failed to fetch professors:', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchProfessors();
-  }, []);
+  const userId = localStorage.getItem('userId');
 
   const sortOptions = [
     { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
@@ -54,7 +41,9 @@ const ProfessorsPage = () => {
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
+  
+  const [scheduleOptions, setScheduleOptions] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [currentProfessor, setCurrentProfessor] = useState(null);
   const [professors, setProfessors] = useState([]);
 
@@ -64,6 +53,35 @@ const ProfessorsPage = () => {
   
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
+
+  const setData = async () => {
+    try {
+      const schedules = await fetchSchedules(userId);
+      setScheduleOptions(schedules);
+      const allProfessors = [];
+      for (const schedule of schedules) {
+        const professorsData = await fetchProfessors(schedule.key);
+        professorsData.forEach((professor) => {
+        allProfessors.push({ ...professor, scheduleId: schedule.key});          
+        });
+      }
+      setProfessors(allProfessors);
+    } catch (error) {
+      console.error('Failed to fetch schedules or classrooms:', error);
+    }
+  };
+  
+  useEffect(() => {
+    setData();
+  }, [userId]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchText,
+    filterRank,
+    selectedSchedule,
+  ]);
   
   const sortProfessors = (professors) => {
     switch (sortOption) {
@@ -99,6 +117,9 @@ const ProfessorsPage = () => {
         return false;
       }
       if (filterRank === 'Redovni profesor' && professor.rank === 'Redovni profesor') {
+        return false;
+      }
+      if (selectedSchedule && professor.scheduleId !== selectedSchedule) {
         return false;
       }
       return true;
@@ -142,26 +163,30 @@ const ProfessorsPage = () => {
   return (
     <Container style={{ marginTop: '20px' }}>
       {toast.visible && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '50px',
-            right: '20px',
-            background: toast.type === 'success' ? '#21ba45' : '#db2828',
-            color: 'white',
-            padding: '20px 30px',
-            borderRadius: '5px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-            zIndex: 1000,
-          }}
-        >
-          {toast.message}
-        </div>
+        <ToastMessage message={toast.message} type={toast.type} />
       )}
 
       <Grid>
         <Grid.Row>
           <Grid.Column width={4}>
+            <div style={{ marginBottom: '20px' }}>
+              <Dropdown
+                placeholder="Odaberite raspored za pregled osoblja"
+                fluid
+                selection
+                options={scheduleOptions}
+                onChange={(e, { value }) => {
+                  setSelectedSchedule(value);
+                  if (value) {
+                    localStorage.setItem('scheduleId', value);
+                  } else {
+                    localStorage.removeItem('scheduleId');
+                  }
+                }}
+                value={selectedSchedule}
+                clearable
+              />
+            </div>
             <div style={{ marginBottom: '20px' }}>
               <Button
                 basic
@@ -174,6 +199,7 @@ const ProfessorsPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
+                disabled={!selectedSchedule}
               >
                 Dodaj novo osoblje
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -332,7 +358,7 @@ const ProfessorsPage = () => {
         onClose={closeModals}
         header={header} 
         deleteItem={currentProfessor}
-        refreshData={fetchProfessors}
+        refreshData={setData}
         showToast={showToast}
       />
 
@@ -341,7 +367,7 @@ const ProfessorsPage = () => {
         onClose={closeModals} 
         header={header} 
         editItem={currentProfessor} 
-        refreshData={fetchProfessors}
+        refreshData={setData}
         showToast={showToast}
       />
 

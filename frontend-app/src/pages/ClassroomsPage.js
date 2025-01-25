@@ -13,38 +13,13 @@ import {
 import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
+import ToastMessage from '../components/ToastMessage';
+import { fetchSchedules, fetchClassrooms, fetchCourses } from '../services/apiServices';
 
 const ClassroomsPage = () => {
   const header = 'Dodavanje prostorije';
   const floors = [1, 2, 3, 4];
-  const fetchClassrooms = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setClassrooms(data);
-    } catch (error) {
-      console.error('Failed to fetch professors:', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchClassrooms();
-  }, []);
-
-  const sortOptions = [
-    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
-    { key: 'sizeAsc', text: 'Broj mjesta (rast.)', value: 'sizeAsc' },
-    { key: 'sizeDesc', text: 'Broj mjesta (opad.)', value: 'sizeDesc' },
-  ];
-
-  const sizeOptions = [
-    { key: 'greater', text: 'Veći od 50', value: 'greater' },
-    { key: 'smaller', text: 'Manji od 50', value: 'smaller' },
-  ];
-
+  const userId = localStorage.getItem('userId');
   const [searchText, setSearchText] = useState('');
   const [filterFloor, setFilterFloor] = useState('');
   const [filterSize, setFilterSize] = useState('');
@@ -56,13 +31,55 @@ const ClassroomsPage = () => {
 
   const [currentClassroom, setCurrentClassroom] = useState(null);
   const [classrooms, setClassrooms] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [scheduleOptions, setScheduleOptions] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
     setToast({ message, type, visible: true });
-  
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
+  
+  const setData = async () => {
+    try {
+      const schedules = await fetchSchedules(userId);
+      setScheduleOptions(schedules);
+
+      const allClassrooms = [], allCourses = [];
+      for (const schedule of schedules) {
+        const classroomsData = await fetchClassrooms(schedule.key);
+        classroomsData.forEach((classroom) => {
+          allClassrooms.push({ ...classroom, scheduleId: schedule.key });
+        });
+        
+        const coursesData = await fetchCourses(schedule.key);
+        allCourses.push(...coursesData);
+      }
+      setClassrooms(allClassrooms);
+      setCourses(allCourses);
+    } catch (error) {
+      console.error('Failed to fetch schedules or classrooms:', error);
+    }
+  };
+  useEffect(() => {
+    setData();
+  }, [userId]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [searchText, filterFloor, filterSize, selectedSchedule]);
+
+  const sortOptions = [
+    { key: 'nameAsc', text: 'Ime (A-Z)', value: 'nameAsc' },
+    { key: 'sizeAsc', text: 'Broj mjesta (rast.)', value: 'sizeAsc' },
+    { key: 'sizeDesc', text: 'Broj mjesta (opad.)', value: 'sizeDesc' },
+  ];
+
+  const sizeOptions = [
+    { key: 'greater', text: 'Veći od 50', value: 'greater' },
+    { key: 'smaller', text: 'Manji od 50', value: 'smaller' },
+  ];
   
   const sortClassrooms = (classrooms) => {
     switch (sortOption) {
@@ -92,6 +109,9 @@ const ClassroomsPage = () => {
         return false;
       }
       if (filterSize === 'smaller' && classroom.capacity > 50) {
+        return false;
+      }
+      if (selectedSchedule && classroom.scheduleId !== selectedSchedule) {
         return false;
       }
       return true;
@@ -135,26 +155,30 @@ const ClassroomsPage = () => {
   return (
     <Container style={{ marginTop: '20px' }}>
       {toast.visible && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '50px',
-            right: '20px',
-            background: toast.type === 'success' ? '#21ba45' : '#db2828',
-            color: 'white',
-            padding: '20px 30px',
-            borderRadius: '5px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-            zIndex: 1000,
-          }}
-        >
-          {toast.message}
-        </div>
+        <ToastMessage message={toast.message} type={toast.type} />
       )}
 
       <Grid>
         <Grid.Row>
           <Grid.Column width={4}>
+            <div style={{ marginBottom: '20px' }}>
+              <Dropdown
+                placeholder="Odaberite raspored za pregled učionica"
+                fluid
+                selection
+                options={scheduleOptions}
+                onChange={(e, { value }) => {
+                  setSelectedSchedule(value);
+                  if (value) {
+                    localStorage.setItem('scheduleId', value); 
+                  } else {
+                    localStorage.removeItem('scheduleId');
+                  }
+                }}
+                value={selectedSchedule}
+                clearable
+              />
+            </div>
             <div style={{ marginBottom: '20px' }}>
               <Button
                 basic
@@ -167,6 +191,7 @@ const ClassroomsPage = () => {
                 onMouseLeave={(e) => e.target.classList.add('basic')}
                 onClick={() => setOpenAddModal(true)}
                 fluid
+                disabled={!selectedSchedule}
               >
                 Dodaj novu učionicu
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
@@ -246,16 +271,17 @@ const ClassroomsPage = () => {
                         <br />
                         Kapacitet: {classroom.capacity}
                         <br />
+                        <br />
                         Kursevi:{' '}
-                        {classroom.courseCanNotUseClassrooms
-                          .filter((cc) => cc.classroom_id === classroom.id)
-                          /*.map(
-                            (cc) =>
-                              courses.find(
-                                (course) => course.id === cc.course_id
-                              )?.name
-                          )*/
-                          .join(', ') || 'Nema kurseva'}
+                        <div style={{ maxHeight: '62px', overflowY: 'auto' }}>
+                          {classroom.courseCanNotUseClassrooms
+                            .filter((cc) => cc.classroomId === classroom.id)
+                            .map((cc) => {
+                              const courseName = courses.find((course) => course.id === cc.courseId)?.name;
+                              return courseName ? <span key={cc.courseId}>{courseName}<br /></span> : null;
+                            })}
+                          {!classroom.courseCanNotUseClassrooms.length ? 'Nema kurseva' : null}
+                        </div>
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
@@ -317,7 +343,7 @@ const ClassroomsPage = () => {
         onClose={closeModals}
         header={header} 
         deleteItem={currentClassroom}
-        refreshData={fetchClassrooms}
+        refreshData={setData}
         showToast={showToast}
       />
 
@@ -326,7 +352,7 @@ const ClassroomsPage = () => {
         onClose={closeModals} 
         header={header} 
         editItem={currentClassroom} 
-        refreshData={fetchClassrooms}
+        refreshData={setData}
         showToast={showToast}
       />
 

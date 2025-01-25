@@ -9,7 +9,7 @@ const TeacherForm = ({ onChange, editItem }) => {
       id: editItem?.id || null,
       firstName: firstName,
       lastName: lastName,
-      Rank: editItem?.rank.toLowerCase() || '',
+      Rank: editItem?.rank || '',
       ScheduleId: localStorage.getItem('scheduleId'),
     };
   });
@@ -53,9 +53,8 @@ const TeacherForm = ({ onChange, editItem }) => {
 
   const getDayIndex = (dayName) => {
     const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
-    return days.indexOf(dayName); 
+    return days.indexOf(dayName);
   };
-  
 
   const timeOptions = Array.from({ length: 24 }, (_, hour) => ({
     key: `${hour}:00`,
@@ -78,7 +77,7 @@ const TeacherForm = ({ onChange, editItem }) => {
       startTime: `${formData.timeFrom}:00`,
       endTime: `${formData.timeTo}:00`,
     };
-  
+
     const updatedRestrictions = [...restrictions, newRestriction];
     setRestrictions(updatedRestrictions);
 
@@ -88,26 +87,22 @@ const TeacherForm = ({ onChange, editItem }) => {
       timeFrom: '',
       timeTo: '',
     });
-
     formData.professorUnavailabilities = updatedRestrictions;
-  
     if (editItem) {
       editItem.professorUnavailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };
-  
 
   const deleteRestriction = (index) => {
     const updatedRestrictions = restrictions.filter((_, i) => i !== index);
     setRestrictions(updatedRestrictions);
-  
+
     if (editItem) {
       editItem.professorUnavailabilities = updatedRestrictions;
       onChange(editItem);
     }
   };
-  
 
   return (
     <>
@@ -132,6 +127,10 @@ const TeacherForm = ({ onChange, editItem }) => {
             onChange={handleInputChange}
             options={titleOptions}
             selection
+            style={{ minHeight: 'auto' }}
+            forceSelection={false}
+            selectOnBlur={false}
+            placeholder="Odaberi zvanje"
           />
         </Form.Group>
       </Form>
@@ -146,7 +145,11 @@ const TeacherForm = ({ onChange, editItem }) => {
             value={formData.days}
             onChange={handleInputChange}
             options={daysOptions}
+            placeholder="Odaberi dan"
             selection
+            style={{ minHeight: 'auto' }}
+            forceSelection={false}
+            selectOnBlur={false}
           />
           <Form.Dropdown
             required
@@ -159,6 +162,9 @@ const TeacherForm = ({ onChange, editItem }) => {
             }
             options={timeOptions}
             selection
+            style={{ minHeight: 'auto' }}
+            forceSelection={false}
+            selectOnBlur={false}
           />
           <Form.Dropdown
             required
@@ -171,6 +177,9 @@ const TeacherForm = ({ onChange, editItem }) => {
             }
             options={timeOptions}
             selection
+            style={{ minHeight: 'auto' }}
+            forceSelection={false}
+            selectOnBlur={false}
           />
 
           <Icon
@@ -189,7 +198,7 @@ const TeacherForm = ({ onChange, editItem }) => {
 
       <Header as="h4">Zabrane:</Header>
       {restrictions.length > 0 ? (
-        <Segment>
+        <Segment style={{ maxHeight: '100px', overflowY: 'auto' }}>
           {restrictions.map((restriction, index) => (
             <div
               key={index}
@@ -201,7 +210,8 @@ const TeacherForm = ({ onChange, editItem }) => {
             >
               <span>
                 {getDayName(restriction.day)}{' '}
-                ({formatTimeForFront(restriction.startTime)} - {formatTimeForFront(restriction.endTime)})
+                ({formatTimeForFront(restriction.startTime)} -{' '}
+                {formatTimeForFront(restriction.endTime)})
               </span>
               <Icon
                 name="delete"
