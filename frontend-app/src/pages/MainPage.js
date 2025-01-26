@@ -100,7 +100,7 @@ const MainPage = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
       setAllCourses(courses)
-      const filteredCourses = courses.filter(course => course.courseCanNotUseClassrooms.some(ccc => ccc.classroomId === classroomId));
+      const filteredCourses = courses.filter(course => !course.courseCanNotUseClassrooms.some(ccc => ccc.classroomId === classroomId));
       setCourses(filteredCourses);
     } catch (err) {
       console.error('Failed to fetch courses for professor', err);

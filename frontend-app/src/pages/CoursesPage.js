@@ -166,6 +166,8 @@ const CoursesPage = () => {
     setOpenDeleteModal(false);
   };
 
+  console.log("Thesea are,", classrooms.map((c) => c.name).join(', '))
+
   return (
     <Container style={{ marginTop: '20px' }}>
       {toast.visible && (
@@ -308,15 +310,15 @@ const CoursesPage = () => {
                         Broj časova: {course.lectureSlotLength || 'N/A'} 
                         <br /> <br />
                         Učionice:{' '}
-                        {course.courseCanUseClassrooms.length > 0
-                          ? course.courseCanUseClassrooms
+                        {course.courseCanNotUseClassrooms.length > 0
+                          ? course.courseCanNotUseClassrooms
                               .map(
                                 (cc) =>
-                                  classrooms.find((classroom) => classroom.id === cc.classroomId)
+                                  classrooms.find((classroom) => !(classroom.id === cc.classroomId))
                                     ?.name || 'Nepoznato'
                               )
                               .join(', ')
-                          : 'Nema dostupnih učionica'}
+                          : classrooms.map((c) => c.name).join(', ') || "Nema učionica"}
                         <br />
                         Studentske grupe:{' '} 
                         {course.groupTakesCourses.length > 0

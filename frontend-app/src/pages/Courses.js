@@ -16,7 +16,10 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
   //Povuci sve lessons i popuniti u content sta se treba popunit
   const setupContent = async() => {
     let initContent = Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))
-    const lessons = courses.filter(c=>c.lessons.length > 0).map(c => {return {...c, "startTime":c.lessons[0].startTime, "endTime":c.lessons[0].endTime, "lesson_id":c.lessons[0].id, "day":c.lessons[0].day}})
+    let lessons = courses.filter(c=>c.lessons.length > 0).map(c => {return {...c, "startTime":c.lessons[0].startTime, "endTime":c.lessons[0].endTime, "lesson_id":c.lessons[0].id, "day":c.lessons[0].day}})
+    if (classroom)
+      lessons = lessons.filter((l) => l.lessons[0].classroomId == classroom.id)
+    console.log("Selected", lessons)
     let updatedContent = [...initContent]
     lessons.forEach(l => {
       updatedContent[time_to_index(l.startTime)][l.day] = l
