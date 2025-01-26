@@ -3,6 +3,8 @@
 // </copyright>
 
 namespace ProjectNamespace.Routes;
+
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
@@ -23,6 +25,20 @@ public static class ScheduleRoutes
         public ICollection<Course> Courses { get; set; }
 
         public ICollection<Classroom> Classrooms { get; set; }
+    }
+
+    public class DuplicateRequest
+    {
+        public int ScheduleId { get; set; }
+        public DuplicateOptions DuplicateOptions { get; set; } = new DuplicateOptions();
+    }
+
+    public class DuplicateOptions
+    {
+        public bool Professors { get; set; }
+        public bool StudentGroups { get; set; }
+        public bool Courses { get; set; }
+        public bool Classrooms { get; set; }
     }
 
     public static void MapScheduleRoutes(this WebApplication app)
@@ -114,8 +130,34 @@ public static class ScheduleRoutes
             schedule.Name = updatedScheduleDTO.Name;
             schedule.Semester = updatedScheduleDTO.Semester;
             schedule.UserId = updatedScheduleDTO.UserId;
-            schedule.Courses = updatedScheduleDTO.Courses;
-            schedule.Classrooms = updatedScheduleDTO.Classrooms;
+
+            if (updatedScheduleDTO.Courses != null)
+            {
+                schedule.Courses.Clear();
+                foreach (var course in updatedScheduleDTO.Courses)
+                {
+                    var existingCourse = await db.Courses.FindAsync(course.Id);
+                    if (existingCourse is null)
+                    {
+                        return Results.BadRequest($"Course with ID {course.Id} not found.");
+                    }
+                    schedule.Courses.Add(existingCourse);
+                }
+            }
+
+            if (updatedScheduleDTO.Classrooms != null)
+            {
+                schedule.Classrooms.Clear();
+                foreach (var classroom in updatedScheduleDTO.Classrooms)
+                {
+                    var existingClassroom = await db.Classrooms.FindAsync(classroom.Id);
+                    if (existingClassroom is null)
+                    {
+                        return Results.BadRequest($"Classroom with ID {classroom.Id} not found.");
+                    }
+                    schedule.Classrooms.Add(existingClassroom);
+                }
+            }
 
             await db.SaveChangesAsync();
             return Results.Ok(new ScheduleDTO
@@ -123,11 +165,10 @@ public static class ScheduleRoutes
                 Id = schedule.Id,
                 UserId = schedule.UserId,
                 Name = schedule.Name,
-                Semester = schedule.Semester,
-                Courses = schedule.Courses,
-                Classrooms = schedule.Classrooms
+                Semester = schedule.Semester
             });
         });
+
 
         app.MapDelete("/schedules/{id:int}", async (int id, AppDbContext db) =>
         {
@@ -195,6 +236,191 @@ public static class ScheduleRoutes
 
             await db.SaveChangesAsync();
             return Results.NoContent();
+        });
+
+        app.MapPost("/schedules/duplicate", async ([FromBody] DuplicateRequest request, HttpContext httpContext, AppDbContext db) =>
+        {
+            using var transaction = await db.Database.BeginTransactionAsync();
+
+            try
+            {
+                if (!httpContext.Request.Headers.TryGetValue("Authorization", out var userIdHeader))
+                {
+                    return Results.BadRequest(new { message = "User ID is missing." });
+                }
+
+                if (!int.TryParse(userIdHeader.ToString(), out var userId))
+                {
+                    return Results.BadRequest(new { message = "Invalid User ID format." });
+                }
+
+                var originalSchedule = await db.Schedules
+                    .Where(s => s.Id == request.ScheduleId)
+                    .FirstOrDefaultAsync();
+
+                if (originalSchedule is null)
+                {
+                    return Results.NotFound(new { message = "Original schedule not found." });
+                }
+
+                var newSchedule = new Schedule
+                {
+                    UserId = userId,
+                    Name = $"{originalSchedule.Name} - Copy",
+                    Semester = originalSchedule.Semester,
+                };
+
+                db.Schedules.Add(newSchedule);
+                await db.SaveChangesAsync();
+
+                if (request.DuplicateOptions.Professors)
+                {
+                    var originalProfessors = await db.Professors
+                        .Where(p => p.ScheduleId == originalSchedule.Id)
+                        .Include(p => p.ProfessorUnavailabilities)
+                        .ToListAsync();
+
+                    var duplicatedProfessors = originalProfessors.Select(professor => new Professor
+                    {
+                        Name = professor.Name,
+                        Rank = professor.Rank,
+                        ScheduleId = newSchedule.Id,
+                        ProfessorUnavailabilities = professor.ProfessorUnavailabilities.Select(u => new ProfessorUnavailability
+                        {
+                            StartTime = u.StartTime,
+                            EndTime = u.EndTime,
+                        }).ToList(),
+                    }).ToList();
+
+                    db.Professors.AddRange(duplicatedProfessors);
+                }
+                await db.SaveChangesAsync();
+
+
+                var duplicatedClassrooms = new List<Classroom>();
+                if (request.DuplicateOptions.Classrooms)
+                {
+                    var originalClassrooms = await db.Classrooms
+                       .Where(p => p.ScheduleId == originalSchedule.Id)
+                       .ToListAsync();
+
+                    duplicatedClassrooms = originalClassrooms.Select(classroom => new Classroom
+                    {
+                        Name = classroom.Name,
+                        Floor = classroom.Floor,
+                        Capacity = classroom.Capacity,
+                        ScheduleId = newSchedule.Id,
+                    }).ToList();
+
+                    db.Classrooms.AddRange(duplicatedClassrooms);
+                }
+                await db.SaveChangesAsync();
+
+                var duplicatedCourses = new List<Course>();
+                if (request.DuplicateOptions.Courses)
+                {
+                    var originalCourses = await db.Courses
+                       .Where(p => p.ScheduleId == originalSchedule.Id)
+                       .ToListAsync();
+
+                    duplicatedCourses = originalCourses.Select(course => new Course
+                    {
+                        Name = course.Name,
+                        Type = course.Type,
+                        LectureSlotLength = course.LectureSlotLength,
+                        ScheduleId = newSchedule.Id,
+                        ProfessorId = db.Professors
+                                        .Where(p => p.ScheduleId == newSchedule.Id && p.Name == course.Professor.Name)
+                                        .Select(p => p.Id)
+                                        .FirstOrDefault(),
+                    }).ToList();
+
+                    db.Courses.AddRange(duplicatedCourses);
+                }
+                await db.SaveChangesAsync();
+
+
+                var duplicatedStudentGroups = new List<StudentGroup>();
+                if (request.DuplicateOptions.StudentGroups)
+                {
+                    var originalStudentGroups = await db.StudentGroups
+                        .Where(p => p.ScheduleId == originalSchedule.Id)
+                        .ToListAsync();
+
+                    duplicatedStudentGroups = originalStudentGroups.Select(group => new StudentGroup
+                    {
+                        Major = group.Major,
+                        Year = group.Year,
+                        Name = group.Name,
+                        ScheduleId = newSchedule.Id,
+                    }).ToList();
+
+                    db.StudentGroups.AddRange(duplicatedStudentGroups);
+                }
+                await db.SaveChangesAsync();
+
+                if (request.DuplicateOptions.Courses && request.DuplicateOptions.StudentGroups)
+                {
+                    var originalStudentGroups = await db.StudentGroups
+                        .Where(p => p.ScheduleId == originalSchedule.Id)
+                        .Include(p => p.GroupTakesCourses)
+                        .ToListAsync();
+
+                    var duplicatedGroupTakesCourses = originalStudentGroups
+                        .SelectMany(g => g.GroupTakesCourses)
+                        .Select(originalGroupTakesCourse => new GroupTakesCourses
+                        {
+                            CourseId = db.Courses
+                                        .Where(c => c.Name == originalGroupTakesCourse.Course.Name && c.ScheduleId == newSchedule.Id)
+                                        .Select(c => c.Id)
+                                        .FirstOrDefault(),
+                            StudentGroupId = db.StudentGroups
+                                            .Where(sg => sg.Name == originalGroupTakesCourse.StudentGroup.Name && sg.ScheduleId == newSchedule.Id)
+                                            .Select(sg => sg.Id)
+                                            .FirstOrDefault(),
+                        })
+                        .ToList();
+
+                    db.GroupTakesCourses.AddRange(duplicatedGroupTakesCourses);
+                }
+                await db.SaveChangesAsync();
+
+                if (request.DuplicateOptions.Courses && request.DuplicateOptions.Classrooms)
+                {
+                    var originalClassrooms = db.Classrooms
+                        .Where(c => c.ScheduleId == originalSchedule.Id)
+                        .Include(p => p.CourseCanNotUseClassrooms)
+                        .ToList();
+
+                    var duplicatedCourseCanNotUseClassrooms = originalClassrooms
+                        .SelectMany(g => g.CourseCanNotUseClassrooms)
+                        .Select(cc => new CourseCanNotUseClassroom
+                        {
+                            CourseId = db.Courses
+                                        .Where(c => c.Name == cc.Course.Name && c.ScheduleId == newSchedule.Id)
+                                        .Select(c => c.Id)
+                                        .FirstOrDefault(),
+                            ClassroomId = db.Classrooms
+                                          .Where(cls => cls.Name == cc.Classroom.Name && cls.ScheduleId == newSchedule.Id)
+                                          .Select(cls => cls.Id)
+                                          .FirstOrDefault(),
+                        })
+                        .ToList();
+
+                    db.CourseCanNotUseClassrooms.AddRange(duplicatedCourseCanNotUseClassrooms);
+                }
+
+                await db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Results.Ok(new { message = "Timetable duplicated and saved successfully!" });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Results.Problem($"An error occurred while duplicating the schedule: {ex.Message}");
+            }
         });
 
         app.MapGet("/get_schedule/{id}", async ([FromRoute] int id, AppDbContext dbContext) =>

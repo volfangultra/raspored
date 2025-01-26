@@ -46,6 +46,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
     }
 
     try {
+      console.log(formData)
       if(!editItem){
         const formDataWithoutId = Object.fromEntries(
           Object.entries(formData).filter(([key]) => key !== 'id')
