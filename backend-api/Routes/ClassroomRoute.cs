@@ -126,21 +126,28 @@ public static class ClassroomRoutes
 
         app.MapDelete("/classrooms/{id}", async (int id, AppDbContext db) =>
         {
+            // Find the classroom by its ID
             var classroom = await db.Classrooms.FindAsync(id);
             if (classroom is null)
             {
                 return Results.NotFound();
             }
 
-            var relatedEntries = db.CourseCanNotUseClassrooms.Where(c => c.ClassroomId == id);
-            db.CourseCanNotUseClassrooms.RemoveRange(relatedEntries);
+            // Delete related CourseCanNotUseClassroom entries
+            var relatedCourses = db.CourseCanNotUseClassrooms.Where(c => c.ClassroomId == id);
+            db.CourseCanNotUseClassrooms.RemoveRange(relatedCourses);
 
+            // Delete related Lessons
+            var relatedLessons = db.Lessons.Where(l => l.ClassroomId == id);
+            db.Lessons.RemoveRange(relatedLessons);
+
+            // Delete the classroom itself
             db.Classrooms.Remove(classroom);
 
+            // Save changes to the database
             await db.SaveChangesAsync();
 
             return Results.NoContent();
         });
-
     }
 }

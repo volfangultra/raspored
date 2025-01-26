@@ -127,6 +127,7 @@ public static class StudentGroupRoutes
 
         app.MapDelete("/student-groups/{id}", async (int id, AppDbContext db) =>
         {
+            // Find the student group by its ID and include related entities
             var studentGroup = await db.StudentGroups
                 .Include(g => g.GroupTakesCourses)
                 .FirstOrDefaultAsync(g => g.Id == id);
@@ -136,11 +137,16 @@ public static class StudentGroupRoutes
                 return Results.NotFound();
             }
 
-            var groupsCanTakeCourseEntries = db.GroupTakesCourses.Where(g => g.StudentGroupId == id);
-            db.GroupTakesCourses.RemoveRange(groupsCanTakeCourseEntries);
+            // Check if GroupTakesCourses is not null and remove entries
+            if (studentGroup.GroupTakesCourses is not null && studentGroup.GroupTakesCourses.Any())
+            {
+                db.GroupTakesCourses.RemoveRange(studentGroup.GroupTakesCourses);
+            }
 
+            // Remove the student group itself
             db.StudentGroups.Remove(studentGroup);
 
+            // Save changes to the database
             await db.SaveChangesAsync();
 
             return Results.NoContent();

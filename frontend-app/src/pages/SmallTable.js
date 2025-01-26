@@ -7,6 +7,7 @@ const SmallTable = ({ data, header }) => {
   const handleDragStart = (event, item) => {
     console.log("Currently dragging", JSON.stringify(item))
     event.dataTransfer.setData('application/json', JSON.stringify(item)); // Pošalji cijeli objekt
+
   };
 
   const displayItem = (element) => {

@@ -20,7 +20,25 @@ public static class UserRoutes
 
         app.MapDelete("/delete-user/{id:int}", [Authorize(Roles = "admin")] async (AppDbContext db, int id) =>
         {
-            var user = await db.Users.FindAsync(id);
+            var user = await db.Users
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.Courses)
+                        .ThenInclude(c => c.CourseCanNotUseClassrooms)
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.Courses)
+                        .ThenInclude(c => c.GroupTakesCourses)
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.Courses)
+                        .ThenInclude(c => c.Lessons)
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.Professors)
+                        .ThenInclude(p => p.ProfessorUnavailabilities)
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.Classrooms)
+                .Include(u => u.Schedules)
+                    .ThenInclude(s => s.StudentGroups)
+                        .ThenInclude(g => g.GroupTakesCourses)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
@@ -29,14 +47,66 @@ public static class UserRoutes
 
             try
             {
+                // Remove all schedules and their related data
+                if (user.Schedules != null)
+                {
+                    foreach (var schedule in user.Schedules)
+                    {
+                        if (schedule.Courses != null)
+                        {
+                            foreach (var course in schedule.Courses)
+                            {
+                                if (course.CourseCanNotUseClassrooms != null)
+                                    db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
+
+                                if (course.GroupTakesCourses != null)
+                                    db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
+
+                                if (course.Lessons != null)
+                                    db.Lessons.RemoveRange(course.Lessons);
+                            }
+                            db.Courses.RemoveRange(schedule.Courses);
+                        }
+
+                        if (schedule.Professors != null)
+                        {
+                            foreach (var professor in schedule.Professors)
+                            {
+                                if (professor.ProfessorUnavailabilities != null)
+                                    db.ProfessorUnavailabilities.RemoveRange(professor.ProfessorUnavailabilities);
+                            }
+                            db.Professors.RemoveRange(schedule.Professors);
+                        }
+
+                        if (schedule.Classrooms != null)
+                        {
+                            db.Classrooms.RemoveRange(schedule.Classrooms);
+                        }
+
+                        if (schedule.StudentGroups != null)
+                        {
+                            foreach (var group in schedule.StudentGroups)
+                            {
+                                if (group.GroupTakesCourses != null)
+                                    db.GroupTakesCourses.RemoveRange(group.GroupTakesCourses);
+                            }
+                            db.StudentGroups.RemoveRange(schedule.StudentGroups);
+                        }
+
+                        db.Schedules.Remove(schedule);
+                    }
+                }
+
+                // Remove the user itself
                 db.Users.Remove(user);
+
                 await db.SaveChangesAsync();
-                return Results.Ok(new { Message = "User successfully deleted." });
+                return Results.Ok(new { Message = "User and associated schedules successfully deleted." });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting user: {ex.Message}");
-                return Results.Problem("An error occurred while deleting the user.");
+                return Results.Problem("An error occurred while deleting the user and their schedules.");
             }
         });
 
