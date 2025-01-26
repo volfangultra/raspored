@@ -1,7 +1,10 @@
-import React,  { useState, useEffect } from 'react';
+import React,  { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
+import {Button} from "semantic-ui-react"
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, professor, studentGroup, classroom}) => {
   const start_time = process.env.REACT_APP_START_TIME
@@ -9,6 +12,43 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
   const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
   const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
   const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
+  const scheduleTableRef = useRef();
+  function convertToASCII(str) {
+    return str
+      .normalize('NFD')             // Normalize to decomposed form
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritic marks
+      .replace(/[^\x20-\x7E]/g, '');   // Remove non-ASCII printable characters (excluding control characters)
+  }
+
+  const exportToPDF = async () => {
+    const pdf = new jsPDF();
+    let header = "Raspored"
+    if(professor)
+      header = professor.name; // Custom header text
+    if(classroom)
+      header = classroom.name
+    if(studentGroup)
+      header = studentGroup.name
+    
+    header = convertToASCII(header)
+    // Add the custom header
+    pdf.setFont("Arial");  // Ensure using a font that supports Unicode characters
+    pdf.setFontSize(16);
+    pdf.text(header, 10, 10);  // Adjust text position as needed
+  
+    // Convert ScheduleTable to an image
+    const tableElement = scheduleTableRef.current;
+    const canvas = await html2canvas(tableElement);
+    const imgData = canvas.toDataURL('image/png');
+  
+    // Add the table image to the PDF
+    const imgWidth = 190;  // Adjust width to fit the page
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+  
+    // Save the PDF with the appropriate header
+    pdf.save(`${header}.pdf`);
+  };
 
   const time_to_num = (time) => parseInt(time.split(":")[0])
 
@@ -42,8 +82,37 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
-      <SmallTable data={courses} header='Dodavanje predmeta'/>
-      <ScheduleTable handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} content={content} onDrop={handleDrop} professor={professor} studentGroup={studentGroup} classroom={classroom} allCourses={allCourses} allClassrooms={allClassrooms} allProfessors={allProfessors}/>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <Button
+          basic
+          color="teal"
+          onClick={exportToPDF}
+        >
+          Export to pdf
+        </Button>
+        <SmallTable data={courses} header='Dodavanje predmeta'/>
+      </div>
+      <div
+        ref={scheduleTableRef}
+        style={{
+          flex: 1, 
+          display: 'block',   
+        }}
+      >
+      <ScheduleTable 
+        handleClassroomSelect={handleClassroomSelect} 
+        handleProfessorSelect={handleProfessorSelect} 
+        handleStudentGroupSelect={handleStudentGroupSelect} 
+        content={content} 
+        onDrop={handleDrop} 
+        professor={professor} 
+        studentGroup={studentGroup} 
+        classroom={classroom} 
+        allCourses={allCourses} 
+        allClassrooms={allClassrooms} 
+        allProfessors={allProfessors}
+      />
+    </div>
     </div>
   );
 };

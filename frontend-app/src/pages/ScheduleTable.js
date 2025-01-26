@@ -59,8 +59,9 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   }
 
   const testSpot = (item, rowIndex, colIndex) => {
+    if(item)
+      return true
     console.log("Checking", rowIndex, colIndex)
-    /*
     console.log("Data we have")
     console.log("lesson", item)
     console.log("all courses", allCourses)
@@ -71,7 +72,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     console.log("Professor", professor)
     console.log("Classroom", classroom)
     console.log("StudentGroup", studentGroup)
-    */
+   
     // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
     for (let i = 0; i < item.lectureSlotLength; i++)
       if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
@@ -88,8 +89,8 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       console.log("Nema ucionica")
       return false
     }
-
-    let currentProfessorUnavailabilites = allProfessors.find((p)=> p.id = item.professorId).professorUnavailabilities.filter((a) => a.day == colIndex)
+    //samo ako se profesor selecta ovo radi
+    let currentProfessorUnavailabilites = allProfessors.find((p)=> p.id == item.professorId).professorUnavailabilities.filter((a) => a.day == colIndex)
     if(currentProfessorUnavailabilites){
         console.log(currentProfessorUnavailabilites)
         let a = currentProfessorUnavailabilites.find((p) => isConflict(p.startTime, p.endTime, rowIndex, rowIndex + item.lectureSlotLength))
@@ -115,6 +116,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       await handleClassroomSelect(classroom.id)
     if(studentGroup)
       await handleStudentGroupSelect(studentGroup.id)
+
   }
 
   const addLesson = async (item, rowIndex, colIndex) => {
@@ -313,11 +315,11 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
           />
         </Modal.Content>
         <Modal.Actions>
-          <Button negative onClick={() => setModalOpen(false)}>
-            Cancel
+          <Button basic color="red" onClick={() => setModalOpen(false)}>
+            Otkaži
           </Button>
-          <Button positive onClick={handleModalSubmit}>
-            Submit
+          <Button basic color="teal" onClick={handleModalSubmit}>
+            Postavi
           </Button>
         </Modal.Actions>
       </Modal>
