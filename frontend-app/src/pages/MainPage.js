@@ -184,12 +184,12 @@ const MainPage = () => {
   };
 
   const handleDeleteSchedule = async () => {
-    // try {
-    //   await axios.delete(`${process.env.REACT_APP_API_URL}/schedules/${localStorage.getItem('scheduleId')}`);
-    //   alert('Schedule deleted successfully');
-    // } catch (err) {
-    //   console.error('Failed to delete schedule', err);
-    // }
+   try {
+     await axios.delete(`${process.env.REACT_APP_API_URL}/schedules/${localStorage.getItem('scheduleId')}`);
+     alert('Schedule deleted successfully');
+   } catch (err) {
+     console.error('Failed to delete schedule', err);
+   }
   };
 
   const semesterOptions = [

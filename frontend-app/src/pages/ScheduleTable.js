@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Table, Modal, Dropdown, Button } from 'semantic-ui-react';
 import axios from 'axios';
 
-import { useState} from 'react';
+import { useState, useEffect} from 'react';
 
 const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, content, onDrop, professor, studentGroup, classroom}) => {
 
@@ -17,6 +17,29 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const [currentLesson, setCurrentLesson] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [classroomOptions, setClassroomOptions] = useState([]);
+  const [schedule, setSchedule] = useState([])
+  const [colors, setColors] = useState([])
+
+  useEffect(()=>{
+    let tempSchedule = []
+    const start_time = process.env.REACT_APP_START_TIME
+    const end_time = process.env.REACT_APP_END_TIME
+    const startHour = time_to_num(start_time); // Extract the hour from the start_time
+    const endHour = time_to_num(end_time);     // Extract the hour from the end_time
+    for (let hour = startHour; hour <= endHour; hour++) {
+      tempSchedule.push(`${hour}:00`);
+    }
+    let tempcolors = []
+    for (let day = 0; day < 5; day++){
+      let temp = []
+      for (let hour = startHour; hour <= endHour; hour++) {
+          temp.push(" ")
+      }
+      tempcolors.push(temp)
+    }
+    setSchedule(tempSchedule)
+    setColors(tempcolors)
+  }, [])
 
   const updateContent = async () => {
     if (professor)
@@ -84,15 +107,18 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     setModalOpen(false);
   };
 
-  const schedule = [];
+  
   const start_time = process.env.REACT_APP_START_TIME
-  const end_time = process.env.REACT_APP_END_TIME
-  const startHour = time_to_num(start_time); // Extract the hour from the start_time
-  const endHour = time_to_num(end_time);     // Extract the hour from the end_time
+  const startHour = time_to_num(start_time); // Extract the hour from the start_timez
 
   const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
+    console.log("Trenutna boja", colors[0][0])
+    let temp = colors
+    temp[0][0] = "#000000"
+    setColors(temp)
+
     const cellValue = content[rowIndex][colIndex];
     console.log("I am dragging", cellValue)
     if (!cellValue || cellValue === 'MERGED') {
@@ -207,9 +233,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     event.preventDefault();
   };
 
-  for (let hour = startHour; hour <= endHour; hour++) {
-    schedule.push(`${hour}:00`);
-  }
+  
 
   return (
     <>
@@ -272,7 +296,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
           onDragEnd={isMainCell ? () => console.log("Drag Ended") : null} // Added dragEnd
           style={{
             minHeight: '50px',
-            backgroundColor: cellValue ? '#a1d1d1' : '',
+            backgroundColor: cellValue ? '#a1d1d1' : colors[colIndex][rowIndex],
             textAlign: 'center',
             verticalAlign: 'middle',
           }}
