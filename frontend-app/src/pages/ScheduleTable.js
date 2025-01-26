@@ -18,6 +18,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const [modalOpen, setModalOpen] = useState(false);
   const [classroomOptions, setClassroomOptions] = useState([]);
   const [schedule, setSchedule] = useState([])
+  const [colors, setColors] = useState([])
 
   useEffect(()=>{
     let tempSchedule = []
@@ -28,7 +29,17 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     for (let hour = startHour; hour <= endHour; hour++) {
       tempSchedule.push(`${hour}:00`);
     }
-    setSchedule(tempSchedule)})
+    let tempcolors = []
+    for (let day = 0; day < 5; day++){
+      let temp = []
+      for (let hour = startHour; hour <= endHour; hour++) {
+          temp.push(" ")
+      }
+      tempcolors.push(temp)
+    }
+    setSchedule(tempSchedule)
+    setColors(tempcolors)
+  }, [])
 
   const updateContent = async () => {
     if (professor)
@@ -103,6 +114,11 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
+    console.log("Trenutna boja", colors[0][0])
+    let temp = colors
+    temp[0][0] = "#000000"
+    setColors(temp)
+
     const cellValue = content[rowIndex][colIndex];
     console.log("I am dragging", cellValue)
     if (!cellValue || cellValue === 'MERGED') {
@@ -280,7 +296,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
           onDragEnd={isMainCell ? () => console.log("Drag Ended") : null} // Added dragEnd
           style={{
             minHeight: '50px',
-            backgroundColor: cellValue ? '#a1d1d1' : '',
+            backgroundColor: cellValue ? '#a1d1d1' : colors[colIndex][rowIndex],
             textAlign: 'center',
             verticalAlign: 'middle',
           }}

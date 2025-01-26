@@ -20,4 +20,8 @@ public class Schedule
 
     public ICollection<Classroom> Classrooms { get; set; }
 
+    public ICollection<StudentGroup> StudentGroups { get; set; }
+
+    public ICollection<Professor> Professors { get; set; }
+
 }

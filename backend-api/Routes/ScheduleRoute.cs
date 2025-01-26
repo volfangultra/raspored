@@ -131,11 +131,68 @@ public static class ScheduleRoutes
 
         app.MapDelete("/schedules/{id:int}", async (int id, AppDbContext db) =>
         {
-            var schedule = await db.Schedules.FindAsync(id);
+            var schedule = await db.Schedules
+                .Include(s => s.Courses)
+                    .ThenInclude(c => c.CourseCanNotUseClassrooms)
+                .Include(s => s.Courses)
+                    .ThenInclude(c => c.GroupTakesCourses)
+                .Include(s => s.Courses)
+                    .ThenInclude(c => c.Lessons)
+                .Include(s => s.Professors)
+                    .ThenInclude(p => p.ProfessorUnavailabilities)
+                .Include(s => s.Classrooms)
+                .Include(s => s.StudentGroups)
+                    .ThenInclude(g => g.GroupTakesCourses)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (schedule is null)
                 return Results.NotFound();
+            if (schedule.Courses != null)
+            {
+                foreach (var course in schedule.Courses)
+                {
+                    if (course.CourseCanNotUseClassrooms != null)
+                        db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
 
+                    if (course.GroupTakesCourses != null)
+                        db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
+
+                    if (course.Lessons != null)
+                        db.Lessons.RemoveRange(course.Lessons);
+                }
+                db.Courses.RemoveRange(schedule.Courses);
+            }
+
+            // Remove all professors and their unavailabilities
+            if (schedule.Professors != null)
+            {
+                foreach (var professor in schedule.Professors)
+                {
+                    if (professor.ProfessorUnavailabilities != null)
+                        db.ProfessorUnavailabilities.RemoveRange(professor.ProfessorUnavailabilities);
+                }
+                db.Professors.RemoveRange(schedule.Professors);
+            }
+
+            // Remove all classrooms
+            if (schedule.Classrooms != null)
+            {
+                db.Classrooms.RemoveRange(schedule.Classrooms);
+            }
+
+            // Remove all student groups and their related data
+            if (schedule.StudentGroups != null)
+            {
+                foreach (var group in schedule.StudentGroups)
+                {
+                    if (group.GroupTakesCourses != null)
+                        db.GroupTakesCourses.RemoveRange(group.GroupTakesCourses);
+                }
+                db.StudentGroups.RemoveRange(schedule.StudentGroups);
+            }
+
+            // Finally, remove the schedule itself
             db.Schedules.Remove(schedule);
+
             await db.SaveChangesAsync();
             return Results.NoContent();
         });
