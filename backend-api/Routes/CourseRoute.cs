@@ -184,6 +184,7 @@ public static class CourseRoutes
 
         app.MapDelete("/courses/{id}", async (int id, AppDbContext db) =>
         {
+            // Find the course by its ID and include related entities
             var course = await db.Courses
                 .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
@@ -194,9 +195,22 @@ public static class CourseRoutes
                 return Results.NotFound();
             }
 
-            db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
-            db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
+            // Check if CourseCanNotUseClassrooms is not null and remove entries
+            if (course.CourseCanNotUseClassrooms is not null && course.CourseCanNotUseClassrooms.Any())
+            {
+                db.CourseCanNotUseClassrooms.RemoveRange(course.CourseCanNotUseClassrooms);
+            }
+
+            // Check if GroupTakesCourses is not null and remove entries
+            if (course.GroupTakesCourses is not null && course.GroupTakesCourses.Any())
+            {
+                db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
+            }
+
+            // Remove the course itself
             db.Courses.Remove(course);
+
+            // Save changes to the database
             await db.SaveChangesAsync();
 
             return Results.NoContent();

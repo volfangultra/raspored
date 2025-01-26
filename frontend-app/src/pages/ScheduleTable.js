@@ -99,6 +99,10 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
           return false
         }
       }
+
+    //Provjerait da li profa ne predaje nesto
+
+    //Provjeriti da li grupa nema tada nesto
     
     console.log("Sve dure")
     return true

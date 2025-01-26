@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { elementType } from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
 const SmallTable = ({ data, header }) => {
@@ -7,6 +7,7 @@ const SmallTable = ({ data, header }) => {
   const handleDragStart = (event, item) => {
     console.log("Currently dragging", JSON.stringify(item))
     event.dataTransfer.setData('application/json', JSON.stringify(item)); // Pošalji cijeli objekt
+
   };
 
   const displayItem = (element) => {

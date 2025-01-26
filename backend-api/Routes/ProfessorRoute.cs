@@ -120,6 +120,7 @@ public static class ProfessorRoutes
 
         app.MapDelete("/professors/{id}", async (int id, AppDbContext db) =>
         {
+            // Find the professor by its ID and include related entities
             var professor = await db.Professors
                 .Include(p => p.ProfessorUnavailabilities)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -129,11 +130,16 @@ public static class ProfessorRoutes
                 return Results.NotFound();
             }
 
-            var professorUnavailabilities = db.ProfessorUnavailabilities.Where(pa => pa.ProfessorId == id);
-            db.ProfessorUnavailabilities.RemoveRange(professorUnavailabilities);
+            // Check if ProfessorUnavailabilities is not null and remove entries
+            if (professor.ProfessorUnavailabilities is not null && professor.ProfessorUnavailabilities.Any())
+            {
+                db.ProfessorUnavailabilities.RemoveRange(professor.ProfessorUnavailabilities);
+            }
 
+            // Remove the professor itself
             db.Professors.Remove(professor);
 
+            // Save changes to the database
             await db.SaveChangesAsync();
 
             return Results.NoContent();
