@@ -72,6 +72,7 @@ const HomePage = () => {
 
       const result = await response.json();
       localStorage.setItem('schedule_data', result);
+      localStorage.setItem('scheduleId',scheduleId)
       navigate('/raspored');
     } catch (error) {
       console.error('Error getting schedule:', error);
