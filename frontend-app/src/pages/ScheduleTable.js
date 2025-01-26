@@ -136,6 +136,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
 
     classroomIdsToRemove = [... new Set([...classroomIdsToRemove, ...classroomIdsThatHaveLessons])]
 
+
     classroomIds = classroomIds.filter(x => !classroomIdsToRemove.includes(x));
 
     return allClassrooms.filter((c) => classroomIds.includes(c.id))
@@ -143,8 +144,10 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
 
   const getAvailableClassroomsForGroup = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
     let classroomIds = allClassrooms.map((c)=>c.id)
+    let classroomIdsToRemove = selectedCourse.courseCanNotUseClassrooms.map((c)=>c.classroomId)
+
     let classroomIdsThatHaveLessons = allCourses.filter((c)=>c.lessons.length > 0 && c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, rowIndex + selectedCourse.lectureSlotLength) && c.id != selectedCourse.id).map((c) => c.lessons[0].classroomId)
-    classroomIds = classroomIds.filter(x => !classroomIdsThatHaveLessons.includes(x));
+    classroomIds = classroomIds.filter(x => (!classroomIdsThatHaveLessons.includes(x)) && (!classroomIdsToRemove.includes(x)));
 
     return allClassrooms.filter((c) => classroomIds.includes(c.id))
 
