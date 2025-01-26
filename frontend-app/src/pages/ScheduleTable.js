@@ -19,19 +19,10 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const [classroomOptions, setClassroomOptions] = useState([]);
   const [schedule, setSchedule] = useState([])
   const [colors, setColors] = useState([])
-  const [dragging, setDragging] = useState(false)
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
   const startHour = time_to_num(start_time); // Extract the hour from the start_time
   const endHour = time_to_num(end_time);     // Extract the hour from the end_time
-
-  const handleMouseUp = (event) => {
-    if(dragging){
-      setDragging(false)
-      resetColors()
-    }
-
-  };
 
   const isConflict = (startTime, endTime, startIndex, endIndex) => {
     const startTemp = time_to_index(startTime)
@@ -181,7 +172,6 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
-    setDragging(true)
     const cellValue = content[rowIndex][colIndex];
     console.log("I am dragging", cellValue)
     if (!cellValue || cellValue === 'MERGED') {

@@ -9,7 +9,6 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
   const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
   const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
   const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
-  const [colors, setColors] = useState([])
 
   const time_to_num = (time) => parseInt(time.split(":")[0])
 
