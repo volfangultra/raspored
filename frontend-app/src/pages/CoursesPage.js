@@ -192,6 +192,8 @@ const CoursesPage = () => {
                 }}
                 value={selectedSchedule}
                 clearable
+                forceSelection={false}
+                selectOnBlur={false}
               />
             </div>
             <div style={{ marginBottom: '20px' }}>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Input, Icon, Dropdown, Button } from 'semantic-ui-react'; 
+import { Container, Input, Icon, Dropdown, Button,Checkbox,Modal } from 'semantic-ui-react'; 
 import Courses from './Courses';
 import axios from 'axios';
 
 const MainPage = () => {
-  const [scheduleName, setScheduleName] = useState('Novi raspored');
-  const [semesterType, setSemesterType] = useState('Zimski');
+  const [scheduleName, setScheduleName] = useState('');
+  const [semesterType, setSemesterType] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [professorsOptions, setProfessorsOptions] = useState(null);
   const [studentGroupsOptions, setStudentGroupsOptions] = useState(null);
@@ -16,6 +16,13 @@ const MainPage = () => {
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [selectedStudentGroup, setSelectedStudentGroup] = useState(null);
   const [allCourses, setAllCourses] = useState(null);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [duplicateOptions, setDuplicateOptions] = useState({
+    professors: false,
+    studentGroups: false,
+    courses: false,
+    classrooms: false,
+  });
 
   "Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))"
   const fetchSchedule = async () => {
@@ -138,7 +145,6 @@ const MainPage = () => {
   const clearDropdowns = () => {
     const dropdown1 = document.querySelector('.dropdown1 .clear');
     if(dropdown1){
-      console.log("hej", dropdown1);
       dropdown1.click(); // Clear the input
     }
 
@@ -181,6 +187,30 @@ const MainPage = () => {
         console.error('Failed to save schedule name', err);
       }
     }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/schedules/duplicate`, {
+        scheduleId: localStorage.getItem('scheduleId'),
+        duplicateOptions,
+      }, 
+      {
+        headers: {
+          Authorization: localStorage.getItem('userId'),
+        },
+      });
+      alert('Timetable duplicated successfully!');
+    } catch (err) {
+      console.error('Failed to duplicate timetable', err);
+      alert('Failed to duplicate timetable.');
+    } finally {
+      setIsDuplicateModalOpen(false);
+    }
+  };
+
+  const handleDuplicateCheckboxChange = (option) => {
+    setDuplicateOptions((prev) => ({ ...prev, [option]: !prev[option] }));
   };
 
   const handleDeleteSchedule = async () => {
@@ -248,6 +278,8 @@ const MainPage = () => {
             options={professorsOptions ? professorsOptions.map(professor => ({ key: professor.id, text: professor.name, value: professor.id })) : []}
             onChange={(e, { value }) =>{ clearDropdowns(); handleProfessorSelect(value);}}
             style={{minWidth: '150px'}}
+            forceSelection={false}
+            selectOnBlur={false}
             />
             <Dropdown
             placeholder='Učionice'
@@ -257,6 +289,8 @@ const MainPage = () => {
             options={classroomsOptions ? classroomsOptions.map(classroom => ({ key: classroom.id, text: classroom.name, value: classroom.id })) : []}
             onChange={(e, { value }) => {clearDropdowns(); handleClassroomSelect(value);}}
             style={{minWidth: '150px'}}
+            forceSelection={false}
+            selectOnBlur={false}
             />
             <Dropdown
             placeholder='Smjerovi'
@@ -266,8 +300,17 @@ const MainPage = () => {
             options={studentGroupsOptions ? studentGroupsOptions.map(studentGroup => ({ key: studentGroup.id, text: studentGroup.name, value: studentGroup.id })) : []}
             onChange={(e, { value }) => {clearDropdowns(); handleStudentGroupSelect(value);}}
             style={{minWidth: '150px'}}
+            forceSelection={false}
+            selectOnBlur={false}
             />
         </div>
+        <Button
+            basic
+            color="teal"
+            onClick={() => setIsDuplicateModalOpen(true)}
+          >
+            Dupliciraj raspored
+          </Button>
 
         <Button
           basic
@@ -279,6 +322,42 @@ const MainPage = () => {
         </div>
       </div>
       <div style={{ marginTop: '20px' }}><Courses handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions}/></div>
+    {/* Duplicate Modal */}
+    <Modal open={isDuplicateModalOpen} onClose={() => setIsDuplicateModalOpen(false)} size="tiny">
+        <Modal.Header>Dupliciraj Raspored</Modal.Header>
+        <Modal.Content>
+          <p>Koje elemente želite da duplicirate?</p>
+          <Checkbox
+            label="Profesore"
+            checked={duplicateOptions.professors}
+            onChange={() => handleDuplicateCheckboxChange('professors')}
+          />
+          <br />
+          <Checkbox
+            label="Smjerove"
+            checked={duplicateOptions.studentGroups}
+            onChange={() => handleDuplicateCheckboxChange('studentGroups')}
+          />
+          <br />
+          <Checkbox
+            label="Predmete"
+            checked={duplicateOptions.courses}
+            onChange={() => handleDuplicateCheckboxChange('courses')}
+          />
+          <br />
+          <Checkbox
+            label="Učionice"
+            checked={duplicateOptions.classrooms}
+            onChange={() => handleDuplicateCheckboxChange('classrooms')}
+          />
+        </Modal.Content>
+        <Modal.Actions>
+          <Button basic color= 'red' onClick={() => setIsDuplicateModalOpen(false)}>Odustani</Button>
+          <Button basic color="teal" onClick={handleDuplicate}>
+            Potvrdi
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </Container>
   );
 };
