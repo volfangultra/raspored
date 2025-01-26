@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import { useState, useEffect} from 'react';
 
-const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, content, onDrop, professor, studentGroup, classroom}) => {
+const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, content, onDrop, professor, studentGroup, classroom}) => {
 
   const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
   // slot je sat vremena
@@ -19,16 +19,37 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   const [classroomOptions, setClassroomOptions] = useState([]);
   const [schedule, setSchedule] = useState([])
   const [colors, setColors] = useState([])
+  const [dragging, setDragging] = useState(false)
+  const start_time = process.env.REACT_APP_START_TIME
+  const end_time = process.env.REACT_APP_END_TIME
+  const startHour = time_to_num(start_time); // Extract the hour from the start_time
+  const endHour = time_to_num(end_time);     // Extract the hour from the end_time
+
+  const handleMouseUp = (event) => {
+    if(dragging){
+      setDragging(false)
+      resetColors()
+    }
+
+  };
+
+  const isConflict = (startTime, endTime, startIndex, endIndex) => {
+    const startTemp = time_to_index(startTime)
+    const endTemp = time_to_index(endTime)
+    return (endTemp >= startIndex && endTemp <= endIndex) || (startTemp <= endIndex && startTemp >= startIndex) || (endIndex >= startTemp && endIndex <= endTemp) || (startIndex >= startTemp && startIndex <= endTemp)
+  }
 
   useEffect(()=>{
     let tempSchedule = []
-    const start_time = process.env.REACT_APP_START_TIME
-    const end_time = process.env.REACT_APP_END_TIME
-    const startHour = time_to_num(start_time); // Extract the hour from the start_time
-    const endHour = time_to_num(end_time);     // Extract the hour from the end_time
+    
     for (let hour = startHour; hour <= endHour; hour++) {
       tempSchedule.push(`${hour}:00`);
     }
+    resetColors()
+    setSchedule(tempSchedule)
+  }, [professor])
+
+  const resetColors = () => {
     let tempcolors = []
     for (let day = 0; day < 5; day++){
       let temp = []
@@ -37,9 +58,60 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       }
       tempcolors.push(temp)
     }
-    setSchedule(tempSchedule)
     setColors(tempcolors)
-  }, [])
+  }
+
+  const changeColor = (rowIndex, colIndex) => {
+    let temp = colors
+    temp[colIndex][rowIndex] = "#FFC0CB"
+    setColors(colors)
+  }
+
+  const testSpot = (item, rowIndex, colIndex) => {
+    console.log("Checking", rowIndex, colIndex)
+    /*
+    console.log("Data we have")
+    console.log("lesson", item)
+    console.log("all courses", allCourses)
+    console.log("all Classrooms", allClassrooms)
+    console.log("all Professors", allProfessors)
+    console.log("rowIndex", rowIndex)
+    console.log("colIndex", colIndex)
+    console.log("Professor", professor)
+    console.log("Classroom", classroom)
+    console.log("StudentGroup", studentGroup)
+    */
+    // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
+    for (let i = 0; i < item.lectureSlotLength; i++)
+      if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
+        console.log("Ne moze stati")
+        return false;
+      }
+
+    let classrooms = []
+    if(professor)
+      classrooms = getAvailableClassroomsForProfessor(allCourses, allClassrooms, item, rowIndex, colIndex)
+    if(studentGroup)
+      classrooms = getAvailableClassroomsForGroup(allCourses, allClassrooms, item, rowIndex, colIndex)
+    if (classrooms.length == 0 && !classroom){
+      console.log("Nema ucionica")
+      return false
+    }
+
+    let currentProfessorUnavailabilites = allProfessors.find((p)=> p.id = item.professorId).professorUnavailabilities.filter((a) => a.day == colIndex)
+    if(currentProfessorUnavailabilites){
+        console.log(currentProfessorUnavailabilites)
+        let a = currentProfessorUnavailabilites.find((p) => isConflict(p.startTime, p.endTime, rowIndex, rowIndex + item.lectureSlotLength))
+        console.log(a)
+        if (a){
+          console.log("Profi se poklapa")
+          return false
+        }
+      }
+    
+    console.log("Sve dure")
+    return true
+  }
 
   const updateContent = async () => {
     if (professor)
@@ -59,7 +131,6 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       "StartTime": num_to_time(rowIndex),
       "EndTime": num_to_time(rowIndex + item.lectureSlotLength - 1)
     }
-    console.log("Actualy submited", data)
     const response = await axios.post(url, data);
     if (item.lessons.length == 0){
       item.lessons = [response.data]
@@ -107,18 +178,10 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     setModalOpen(false);
   };
 
-  
-  const start_time = process.env.REACT_APP_START_TIME
-  const startHour = time_to_num(start_time); // Extract the hour from the start_timez
-
   const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
-    console.log("Trenutna boja", colors[0][0])
-    let temp = colors
-    temp[0][0] = "#000000"
-    setColors(temp)
-
+    setDragging(true)
     const cellValue = content[rowIndex][colIndex];
     console.log("I am dragging", cellValue)
     if (!cellValue || cellValue === 'MERGED') {
@@ -133,24 +196,28 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
         updatedContent[rowIndex + i][colIndex] = '';
       }
     }
+    onDrop(updatedContent);
+    let item = {
+      ...cellValue,
+      fromRow: rowIndex,
+      fromCol: colIndex,
+    }
     event.dataTransfer.setData(
       'application/json',
-      JSON.stringify({
-        ...cellValue,
-        fromRow: rowIndex,
-        fromCol: colIndex,
-      })
+      JSON.stringify(item)
     );
-    onDrop(updatedContent);
+    
+    for (let day = 0; day < 5; day++){
+      for (let row = 0; row <= content.length; row++) {
+        if (!testSpot(item, row, day)){
+          changeColor(row, day)
+        }
+      }
+    }
     await removeLesson(cellValue.lessons[0].id)
   };
 
-  const isConflict = (startTime, endTime, startIndex, endIndex) => {
-    const startTemp = time_to_index(startTime)
-    const endTemp = time_to_index(endTime)
-    return (endTemp >= startIndex && endTemp <= endIndex) || (startTemp <= endIndex && startTemp >= startIndex)
 
-  }
 
   const getAvailableClassroomsForProfessor = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
 
@@ -201,8 +268,6 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       return;
     }
 
-    
-  
     // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
     for (let i = 0; i < item.lectureSlotLength; i++) {
       if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
@@ -212,6 +277,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     }
 
     await setCurrentLesson([item, rowIndex, colIndex])
+    
     let classrooms = [classroom]
     if(professor)
       classrooms = getAvailableClassroomsForProfessor(allCourses, allClassrooms, item, rowIndex, colIndex)
@@ -325,6 +391,7 @@ ScheduleTable.propTypes = {
   classroom: PropTypes.object,
   courses:PropTypes.object,
   content:PropTypes.object,
+  allProfessors:PropTypes.object,
 };
 
 export default ScheduleTable;

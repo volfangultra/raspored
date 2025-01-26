@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
 
-const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, professor, studentGroup, classroom}) => {
+const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, professor, studentGroup, classroom}) => {
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
   const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
   const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
   const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
+  const [colors, setColors] = useState([])
 
   const time_to_num = (time) => parseInt(time.split(":")[0])
 
@@ -43,7 +44,7 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <SmallTable data={courses} header='Dodavanje predmeta'/>
-      <ScheduleTable handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} content={content} onDrop={handleDrop} professor={professor} studentGroup={studentGroup} classroom={classroom} allCourses={allCourses} allClassrooms={allClassrooms}/>
+      <ScheduleTable handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} content={content} onDrop={handleDrop} professor={professor} studentGroup={studentGroup} classroom={classroom} allCourses={allCourses} allClassrooms={allClassrooms} allProfessors={allProfessors}/>
     </div>
   );
 };
@@ -58,5 +59,6 @@ Courses.propTypes = {
   studentGroup: PropTypes.object,
   classroom: PropTypes.object,
   courses: PropTypes.object,
+  allProfessors: PropTypes.object
 };
 export default Courses;
