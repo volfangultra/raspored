@@ -12,6 +12,9 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
   const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
   const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
   const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
+  //const [droppedItem, setDroppedItem] = useState(null);
+
+
   const scheduleTableRef = useRef();
   function convertToASCII(str) {
     return str
@@ -80,7 +83,37 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
     setContent(updatedContent);
   };
 
+  
+  const handleDragStart = (event, item) => {
+    console.log("START")
+    event.dataTransfer.setData('application/json', JSON.stringify(item));
+  };
+
+  const handleDropNew = (event) => {
+    // event.preventDefault();
+    // const data = event.dataTransfer.getData("application/json");
+    // const droppedData = JSON.parse(data);
+    console.log("Dropped item:", event);
+    //setDroppedItem(droppedData);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
   return (
+    <div
+        style={{
+          display: 'flex',
+          gap: '20px',
+          flexDirection: 'column',
+          border: '1px solid lightgrey',
+          padding: '10px',
+          backgroundColor: '#f9f9f9'
+        }}
+        onDragOver={handleDragOver}
+        onDrop={handleDropNew}
+      >
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <Button
@@ -90,7 +123,7 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         >
           Export to pdf
         </Button>
-        <SmallTable data={courses} header='Dodavanje predmeta'/>
+        <SmallTable data={courses} header='Dodavanje predmeta' handleDragStart={handleDragStart} handleDrop={handleDropNew}/>
       </div>
       <div
         ref={scheduleTableRef}
@@ -112,6 +145,7 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         allClassrooms={allClassrooms} 
         allProfessors={allProfessors}
       />
+    </div>
     </div>
     </div>
   );

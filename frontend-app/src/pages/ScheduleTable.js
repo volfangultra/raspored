@@ -243,6 +243,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   }
 
   const handleDrop = async (event, rowIndex, colIndex) => {
+    console.log("DROPPPED")
     event.preventDefault();
     const data = event.dataTransfer.getData('application/json');
   
@@ -287,8 +288,6 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       setSelectedClassroom(classroom)
       handleModalSubmit(item, rowIndex, colIndex)
     }
-  
-
   };
   
   const handleDragOver = (event) => {
