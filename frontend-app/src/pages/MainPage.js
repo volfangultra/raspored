@@ -227,8 +227,44 @@ const MainPage = () => {
     { key: 'ljetni', text: 'Ljetni', value: 'Ljetni' },
   ];
 
+  const handleDragStart = (event, item) => {
+    console.log("START")
+    event.dataTransfer.setData('application/json', JSON.stringify(item));
+  };
+
+  const handleDropNew = (event) => {
+    // event.preventDefault();
+    // const data = event.dataTransfer.getData("application/json");
+    // const droppedData = JSON.parse(data);
+    console.log("Dropped item:", event);
+    //setDroppedItem(droppedData);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
   return (
+    <div
+  style={{
+    position: "absolute", // Absolute positioning relative to the container
+    top: "60px", // Adjust based on your navbar height
+    left: "0",
+    right: "0",
+    bottom: "40px", // Stretches the container to occupy the remaining viewport below the navbar
+    //overflow: "auto",
+    backgroundColor: "#f9f9f9",
+    zIndex: 1, // Ensure the drag-and-drop section stays below the navbar
+    display: "flex",
+    flexDirection: "column",
+    border: "1px solid lightgrey",
+    padding: "10px"
+  }}
+  onDragOver={handleDragOver}
+  onDrop={handleDropNew}
+>
     <Container style={{ marginTop: '20px' }}>
+          
       
       <div style={{ display: 'inline-flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'start', marginTop: '10px' }}>
@@ -321,7 +357,7 @@ const MainPage = () => {
         </Button>
         </div>
       </div>
-      <div style={{ marginTop: '20px' }}><Courses handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions}/></div>
+      <div style={{ marginTop: '20px' }}><Courses handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDropNew={handleDropNew}/></div>
     {/* Duplicate Modal */}
     <Modal open={isDuplicateModalOpen} onClose={() => setIsDuplicateModalOpen(false)} size="tiny">
         <Modal.Header>Dupliciraj Raspored</Modal.Header>
@@ -359,6 +395,7 @@ const MainPage = () => {
         </Modal.Actions>
       </Modal>
     </Container>
+    </div>
   );
 };
 

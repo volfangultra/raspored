@@ -6,7 +6,7 @@ import {Button} from "semantic-ui-react"
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, professor, studentGroup, classroom}) => {
+const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, professor, studentGroup, classroom, handleDragStart,handleDropNew,handleDragOver}) => {
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
   const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
@@ -83,37 +83,9 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
     setContent(updatedContent);
   };
 
-  
-  const handleDragStart = (event, item) => {
-    console.log("START")
-    event.dataTransfer.setData('application/json', JSON.stringify(item));
-  };
-
-  const handleDropNew = (event) => {
-    // event.preventDefault();
-    // const data = event.dataTransfer.getData("application/json");
-    // const droppedData = JSON.parse(data);
-    console.log("Dropped item:", event);
-    //setDroppedItem(droppedData);
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
 
   return (
-    <div
-        style={{
-          display: 'flex',
-          gap: '20px',
-          flexDirection: 'column',
-          border: '1px solid lightgrey',
-          padding: '10px',
-          backgroundColor: '#f9f9f9'
-        }}
-        onDragOver={handleDragOver}
-        onDrop={handleDropNew}
-      >
+
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <Button
@@ -144,8 +116,8 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         allCourses={allCourses} 
         allClassrooms={allClassrooms} 
         allProfessors={allProfessors}
+        handleDragOver={handleDragOver}
       />
-    </div>
     </div>
     </div>
   );
@@ -161,6 +133,9 @@ Courses.propTypes = {
   studentGroup: PropTypes.object,
   classroom: PropTypes.object,
   courses: PropTypes.object,
-  allProfessors: PropTypes.object
+  allProfessors: PropTypes.object,
+  handleDragOver: PropTypes.func,
+  handleDragStart: PropTypes.func,
+  handleDropNew: PropTypes.func
 };
 export default Courses;

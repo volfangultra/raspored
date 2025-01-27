@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import { useState, useEffect} from 'react';
 
-const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, content, onDrop, professor, studentGroup, classroom}) => {
+const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, content, onDrop, professor, studentGroup, classroom, handleDragOver}) => {
 
   const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
   // slot je sat vremena
@@ -290,9 +290,9 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     }
   };
   
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
+  // const handleDragOver = (event) => {
+  //   event.preventDefault();
+  // };
 
   
 
@@ -387,6 +387,7 @@ ScheduleTable.propTypes = {
   courses:PropTypes.object,
   content:PropTypes.object,
   allProfessors:PropTypes.object,
+  handleDragOver:PropTypes.func
 };
 
 export default ScheduleTable;
