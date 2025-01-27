@@ -3,32 +3,28 @@ import PropTypes from 'prop-types';
 import { Table, Modal, Dropdown, Button } from 'semantic-ui-react';
 import axios from 'axios';
 
+import {testSpot, getAvailableClassroomsForGroup, getAvailableClassroomsForProfessor, time_to_num, num_to_time} from "../components/Logic"
+
 import { useState, useEffect} from 'react';
 
-const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, content, onDrop, professor, studentGroup, classroom}) => {
+const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, allStudentGroups, content, onDrop, professor, studentGroup, classroom, handleDragOver}) => {
 
   const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
   // slot je sat vremena
-  const num_to_time = (num) => `${startHour + num}:00`
 
-  const time_to_num = (time) => parseInt(time.split(":")[0])
 
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [currentLesson, setCurrentLesson] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [classroomOptions, setClassroomOptions] = useState([]);
   const [schedule, setSchedule] = useState([])
-  const [colors, setColors] = useState([])
+  
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
   const startHour = time_to_num(start_time); // Extract the hour from the start_time
   const endHour = time_to_num(end_time);     // Extract the hour from the end_time
 
-  const isConflict = (startTime, endTime, startIndex, endIndex) => {
-    const startTemp = time_to_index(startTime)
-    const endTemp = time_to_index(endTime)
-    return (endTemp >= startIndex && endTemp <= endIndex) || (startTemp <= endIndex && startTemp >= startIndex) || (endIndex >= startTemp && endIndex <= endTemp) || (startIndex >= startTemp && startIndex <= endTemp)
-  }
+
 
   useEffect(()=>{
     let tempSchedule = []
@@ -36,77 +32,15 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     for (let hour = startHour; hour <= endHour; hour++) {
       tempSchedule.push(`${hour}:00`);
     }
-    resetColors()
     setSchedule(tempSchedule)
   }, [professor])
 
-  const resetColors = () => {
-    let tempcolors = []
-    for (let day = 0; day < 5; day++){
-      let temp = []
-      for (let hour = startHour; hour <= endHour; hour++) {
-          temp.push(" ")
-      }
-      tempcolors.push(temp)
-    }
-    setColors(tempcolors)
-  }
+  
 
   const changeColor = (rowIndex, colIndex) => {
     let temp = colors
     temp[colIndex][rowIndex] = "#FFC0CB"
     setColors(colors)
-  }
-
-  const testSpot = (item, rowIndex, colIndex) => {
-    if(item)
-      return true
-    console.log("Checking", rowIndex, colIndex)
-    console.log("Data we have")
-    console.log("lesson", item)
-    console.log("all courses", allCourses)
-    console.log("all Classrooms", allClassrooms)
-    console.log("all Professors", allProfessors)
-    console.log("rowIndex", rowIndex)
-    console.log("colIndex", colIndex)
-    console.log("Professor", professor)
-    console.log("Classroom", classroom)
-    console.log("StudentGroup", studentGroup)
-   
-    // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
-    for (let i = 0; i < item.lectureSlotLength; i++)
-      if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
-        console.log("Ne moze stati")
-        return false;
-      }
-
-    let classrooms = []
-    if(professor)
-      classrooms = getAvailableClassroomsForProfessor(allCourses, allClassrooms, item, rowIndex, colIndex)
-    if(studentGroup)
-      classrooms = getAvailableClassroomsForGroup(allCourses, allClassrooms, item, rowIndex, colIndex)
-    if (classrooms.length == 0 && !classroom){
-      console.log("Nema ucionica")
-      return false
-    }
-    //samo ako se profesor selecta ovo radi
-    let currentProfessorUnavailabilites = allProfessors.find((p)=> p.id == item.professorId).professorUnavailabilities.filter((a) => a.day == colIndex)
-    if(currentProfessorUnavailabilites){
-        console.log(currentProfessorUnavailabilites)
-        let a = currentProfessorUnavailabilites.find((p) => isConflict(p.startTime, p.endTime, rowIndex, rowIndex + item.lectureSlotLength))
-        console.log(a)
-        if (a){
-          console.log("Profi se poklapa")
-          return false
-        }
-      }
-
-    //Provjerait da li profa ne predaje nesto
-
-    //Provjeriti da li grupa nema tada nesto
-    
-    console.log("Sve dure")
-    return true
   }
 
   const updateContent = async () => {
@@ -175,7 +109,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
     setModalOpen(false);
   };
 
-  const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
+  
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
     const cellValue = content[rowIndex][colIndex];
@@ -202,47 +136,20 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       'application/json',
       JSON.stringify(item)
     );
+    await removeLesson(cellValue.lessons[0].id)
     
     for (let day = 0; day < 5; day++){
       for (let row = 0; row <= content.length; row++) {
-        if (!testSpot(item, row, day)){
+        if (!testSpot(item, row, day, allCourses, allClassrooms, allProfessors, allStudentGroups, professor, classroom, studentGroup, content)){
           changeColor(row, day)
         }
       }
     }
-    await removeLesson(cellValue.lessons[0].id)
+    
   };
 
-
-
-  const getAvailableClassroomsForProfessor = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
-
-    let classroomIdsToRemove = selectedCourse.courseCanNotUseClassrooms.map((c)=>c.classroomId)
-
-    let classroomIds = allClassrooms.map((c)=>c.id)
-
-    let classroomIdsThatHaveLessons = allCourses.filter((c)=>c.lessons.length > 0 && c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, rowIndex + selectedCourse.lectureSlotLength) && c.id != selectedCourse.id).map((c) => c.lessons[0].classroomId)
-
-    classroomIdsToRemove = [... new Set([...classroomIdsToRemove, ...classroomIdsThatHaveLessons])]
-
-
-    classroomIds = classroomIds.filter(x => !classroomIdsToRemove.includes(x));
-
-    return allClassrooms.filter((c) => classroomIds.includes(c.id))
-  }
-
-  const getAvailableClassroomsForGroup = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
-    let classroomIds = allClassrooms.map((c)=>c.id)
-    let classroomIdsToRemove = selectedCourse.courseCanNotUseClassrooms.map((c)=>c.classroomId)
-
-    let classroomIdsThatHaveLessons = allCourses.filter((c)=>c.lessons.length > 0 && c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, rowIndex + selectedCourse.lectureSlotLength) && c.id != selectedCourse.id).map((c) => c.lessons[0].classroomId)
-    classroomIds = classroomIds.filter(x => (!classroomIdsThatHaveLessons.includes(x)) && (!classroomIdsToRemove.includes(x)));
-
-    return allClassrooms.filter((c) => classroomIds.includes(c.id))
-
-  }
-
   const handleDrop = async (event, rowIndex, colIndex) => {
+    console.log("DROPPPED")
     event.preventDefault();
     const data = event.dataTransfer.getData('application/json');
   
@@ -263,14 +170,9 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       console.error('Invalid item dropped.');
       return;
     }
-
-    // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
-    for (let i = 0; i < item.lectureSlotLength; i++) {
-      if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
-        console.error('Nema dovoljno prostora za predmet na novoj poziciji.');
-        return;
-      }
-    }
+    console.log("BOJA", colors[colIndex][rowIndex])
+    if(colors[colIndex][rowIndex] == "#FFC0CB")
+      return
 
     await setCurrentLesson([item, rowIndex, colIndex])
     
@@ -287,13 +189,11 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
       setSelectedClassroom(classroom)
       handleModalSubmit(item, rowIndex, colIndex)
     }
-  
-
   };
   
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
+  // const handleDragOver = (event) => {
+  //   event.preventDefault();
+  // };
 
   
 
@@ -363,7 +263,7 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
             verticalAlign: 'middle',
           }}
         >
-          {isMainCell ? cellValue.name : ''}
+          {isMainCell ? `${cellValue.name} ( ${allClassrooms.find((c)=>c.id == cellValue.lessons[0].classroomId).name} )`  : ''}
         </Table.Cell>
       );
     })}
@@ -388,6 +288,10 @@ ScheduleTable.propTypes = {
   courses:PropTypes.object,
   content:PropTypes.object,
   allProfessors:PropTypes.object,
+  handleDragOver:PropTypes.func,
+  setColors:PropTypes.func,
+  colors: PropTypes.object,
+  allStudentGroups: PropTypes.object
 };
 
 export default ScheduleTable;

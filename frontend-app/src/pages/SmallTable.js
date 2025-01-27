@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
-const SmallTable = ({ data, header }) => {
+const SmallTable = ({ data, header, handleDragStart,handleDrop }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const handleDragStart = (event, item) => {
-    console.log("Currently dragging", JSON.stringify(item))
-    event.dataTransfer.setData('application/json', JSON.stringify(item)); // Pošalji cijeli objekt
-
-  };
 
   const displayItem = (element) => {
     switch (header) {
@@ -65,6 +60,8 @@ const SmallTable = ({ data, header }) => {
               <Table.Row  key={index}
                           draggable
                           onDragStart={(event) => handleDragStart(event, element)}
+                          onDrop={(event) => handleDrop(event)}
+                          onDragOver={(event) => event.preventDefault()}
               >
                 <Table.Cell style={{ textAlign: 'center' }}>
                   {displayItem(element)}
@@ -88,6 +85,8 @@ SmallTable.propTypes = {
   header: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
   refreshData:PropTypes.func,
+  handleDrop:PropTypes.func,
+  handleDragStart:PropTypes.func
 };
 
 export default SmallTable;

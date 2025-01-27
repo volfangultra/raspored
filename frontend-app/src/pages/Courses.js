@@ -1,4 +1,4 @@
-import React,  { useState, useEffect, useRef } from 'react';
+import React,  { useRef } from 'react';
 import PropTypes from 'prop-types';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
@@ -6,12 +6,10 @@ import {Button} from "semantic-ui-react"
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, professor, studentGroup, classroom}) => {
-  const start_time = process.env.REACT_APP_START_TIME
-  const end_time = process.env.REACT_APP_END_TIME
-  const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
-  const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
-  const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
+const Courses = ({colors, setColors, setContent, content, handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, allStudentGroups, professor, studentGroup, classroom, handleDragStart,handleDropNew,handleDragOver}) => {
+  //const [droppedItem, setDroppedItem] = useState(null);
+
+
   const scheduleTableRef = useRef();
   function convertToASCII(str) {
     return str
@@ -19,68 +17,83 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
       .replace(/[\u0300-\u036f]/g, '') // Remove diacritic marks
       .replace(/[^\x20-\x7E]/g, '');   // Remove non-ASCII printable characters (excluding control characters)
   }
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const exportToPDF = async () => {
-    const pdf = new jsPDF();
-    let header = "Raspored"
-    if(professor)
-      header = professor.name; // Custom header text
-    if(classroom)
-      header = classroom.name
-    if(studentGroup)
-      header = studentGroup.name
-    
-    header = convertToASCII(header)
+  const setupPdf = async (pdf, header, isFirstPage = false) => {
+    header = convertToASCII(header);
+  
+    // Add a new page only if it's not the first page
+    if (!isFirstPage) {
+      pdf.addPage();
+    }
+  
     // Add the custom header
-    pdf.setFont("Arial");  // Ensure using a font that supports Unicode characters
+    pdf.setFont("Arial");
     pdf.setFontSize(16);
-    pdf.text(header, 10, 10);  // Adjust text position as needed
+    pdf.text(header, 10, 10);
   
     // Convert ScheduleTable to an image
     const tableElement = scheduleTableRef.current;
     const canvas = await html2canvas(tableElement);
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL("image/png");
   
     // Add the table image to the PDF
-    const imgWidth = 190;  // Adjust width to fit the page
+    const imgWidth = 190; // Adjust width to fit the page
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
-  
-    // Save the PDF with the appropriate header
-    pdf.save(`${header}.pdf`);
+    pdf.addImage(imgData, "PNG", 10, 20, imgWidth, imgHeight);
   };
-
-  const time_to_num = (time) => parseInt(time.split(":")[0])
-
-  const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
-  //Povuci sve lessons i popuniti u content sta se treba popunit
-  const setupContent = async() => {
-    let initContent = Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))
-    let lessons = courses.filter(c=>c.lessons.length > 0).map(c => {return {...c, "startTime":c.lessons[0].startTime, "endTime":c.lessons[0].endTime, "lesson_id":c.lessons[0].id, "day":c.lessons[0].day}})
-    if (classroom)
-      lessons = lessons.filter((l) => l.lessons[0].classroomId == classroom.id)
-    console.log("Selected", lessons)
-    let updatedContent = [...initContent]
-    lessons.forEach(l => {
-      updatedContent[time_to_index(l.startTime)][l.day] = l
-      for(let i = 1; i < l.length; i++)
-        updatedContent[time_to_index(l.startTime) + i][l.day] = "MERGED"
-    })
-    setContent(updatedContent)
-  }
-
   
-  useEffect(() => {
-    if (courses && courses.length > 0) {
-      setupContent();
+  const exportToPDF = async () => {
+    const pdf = new jsPDF();
+  
+    if (professor || classroom || studentGroup) {
+      let header = "";
+      if (professor) header = professor.name; // Custom header text
+      if (classroom) header = classroom.name;
+      if (studentGroup) header = studentGroup.name;
+  
+      // Only one page needed, no new page will be added
+      await setupPdf(pdf, header, true); // Pass `true` for the first page
+      pdf.save(`${header}.pdf`);
+    } else {
+      let isFirstPage = true;
+  
+      for (const p of allProfessors) {
+        await handleProfessorSelect(p.id); // Trigger state update
+        await sleep(20); // Give React time to re-render
+        await setupPdf(pdf, p.name, isFirstPage); // Generate PDF
+        isFirstPage = false; // After first page, add new pages for subsequent professors
+      }
+      await handleProfessorSelect(null); // Reset professor
+  
+      for (const c of allClassrooms) {
+        await handleClassroomSelect(c.id); // Trigger state update
+        await sleep(20); // Give React time to re-render
+        await setupPdf(pdf, c.name, isFirstPage); // Generate PDF
+        isFirstPage = false; // After first page, add new pages for subsequent classrooms
+      }
+      await handleClassroomSelect(null); // Reset classroom
+  
+      for (const g of allStudentGroups) {
+        await handleStudentGroupSelect(g.id); // Trigger state update
+        await sleep(20); // Give React time to re-render
+        await setupPdf(pdf, g.name, isFirstPage); // Generate PDF
+        isFirstPage = false; // After first page, add new pages for subsequent student groups
+      }
+      await handleStudentGroupSelect(null); // Reset student group
+  
+      pdf.save("Raspored.pdf");
     }
-    }, [courses, professor, studentGroup, classroom]);
+  };
+  //Povuci sve lessons i popuniti u content sta se treba popunit
 
   const handleDrop = (updatedContent) => {
     setContent(updatedContent);
   };
 
+
   return (
+
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <Button
@@ -90,7 +103,7 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         >
           Export to pdf
         </Button>
-        <SmallTable data={courses} header='Dodavanje predmeta'/>
+        <SmallTable data={courses} header='Dodavanje predmeta' handleDragStart={handleDragStart} handleDrop={handleDropNew}/>
       </div>
       <div
         ref={scheduleTableRef}
@@ -100,6 +113,8 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         }}
       >
       <ScheduleTable 
+        colors={colors}
+        setColors={setColors}
         handleClassroomSelect={handleClassroomSelect} 
         handleProfessorSelect={handleProfessorSelect} 
         handleStudentGroupSelect={handleStudentGroupSelect} 
@@ -111,6 +126,8 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
         allCourses={allCourses} 
         allClassrooms={allClassrooms} 
         allProfessors={allProfessors}
+        allStudentGroups={allStudentGroups}
+        handleDragOver={handleDragOver}
       />
     </div>
     </div>
@@ -127,6 +144,14 @@ Courses.propTypes = {
   studentGroup: PropTypes.object,
   classroom: PropTypes.object,
   courses: PropTypes.object,
-  allProfessors: PropTypes.object
+  allProfessors: PropTypes.object,
+  handleDragOver: PropTypes.func,
+  handleDragStart: PropTypes.func,
+  handleDropNew: PropTypes.func,
+  setColors: PropTypes.func,
+  setContent: PropTypes.func,
+  colors: PropTypes.object,
+  content: PropTypes.object,
+  allStudentGroups: PropTypes.object
 };
 export default Courses;
