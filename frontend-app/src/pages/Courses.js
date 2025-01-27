@@ -87,8 +87,10 @@ const Courses = ({handleStudentGroupSelect, courses, handleProfessorSelect, hand
           basic
           color="teal"
           onClick={exportToPDF}
+          onMouseEnter={(e) => e.target.classList.remove('basic')}
+          onMouseLeave={(e) => e.target.classList.add('basic')}
         >
-          Export to pdf
+          Preuzmi u PDF-u
         </Button>
         <SmallTable data={courses} header='Dodavanje predmeta'/>
       </div>

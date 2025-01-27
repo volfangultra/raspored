@@ -59,8 +59,8 @@ const ScheduleTable = ({handleStudentGroupSelect, handleProfessorSelect, handleC
   }
 
   const testSpot = (item, rowIndex, colIndex) => {
-    if(item)
-      return true
+    //if(item)
+    //  return true
     console.log("Checking", rowIndex, colIndex)
     console.log("Data we have")
     console.log("lesson", item)

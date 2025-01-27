@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button } from 'semantic-ui-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast}) => {
+  const navigate = useNavigate(); 
   const deleteHandle = async () => {
     let url;
     switch (header) {
@@ -19,6 +21,9 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast
     case 'Dodavanje smjera':
       url = `${process.env.REACT_APP_API_URL}/student-groups`;
       break;
+    case 'Dodavanje rasporeda':
+      url = `${process.env.REACT_APP_API_URL}/schedules`;
+      break;
     default:
       console.error('Unknown header:', header);
       return;
@@ -33,6 +38,10 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast
       showToast('Došlo je do greške pri brisanju stavke.', 'error');
     }
     onClose();
+    if(header=="Dodavanje rasporeda"){
+      setTimeout(() => navigate('/'), 100);
+      
+    }
   };
   
   return (
