@@ -1,11 +1,9 @@
 
 const start_time = process.env.REACT_APP_START_TIME
-const end_time = process.env.REACT_APP_END_TIME
 
 export const time_to_num = (time) => parseInt(time.split(":")[0])
 
 const startHour = time_to_num(start_time); // Extract the hour from the start_time
-const endHour = time_to_num(end_time);     // Extract the hour from the end_time
 export const num_to_time = (num) => `${startHour + num}:00`
 
 

@@ -288,7 +288,10 @@ ScheduleTable.propTypes = {
   courses:PropTypes.object,
   content:PropTypes.object,
   allProfessors:PropTypes.object,
-  handleDragOver:PropTypes.func
+  handleDragOver:PropTypes.func,
+  setColors:PropTypes.func,
+  colors: PropTypes.object,
+  allStudentGroups: PropTypes.object
 };
 
 export default ScheduleTable;

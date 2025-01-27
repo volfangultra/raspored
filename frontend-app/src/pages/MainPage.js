@@ -300,7 +300,7 @@ const MainPage = () => {
     event.dataTransfer.setData('application/json', JSON.stringify(item));
   };
 
-  const handleDropNew = (event) => {
+  const handleDropNew = () => {
     console.log("HEllo BITNAAAA STVAR")
     resetColors()
   };

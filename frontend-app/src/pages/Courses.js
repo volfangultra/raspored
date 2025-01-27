@@ -1,4 +1,4 @@
-import React,  { useState, useEffect, useRef } from 'react';
+import React,  { useRef } from 'react';
 import PropTypes from 'prop-types';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
@@ -18,7 +18,7 @@ const Courses = ({colors, setColors, setContent, content, handleStudentGroupSele
       .replace(/[^\x20-\x7E]/g, '');   // Remove non-ASCII printable characters (excluding control characters)
   }
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  
+
   const setupPdf = async (pdf, header, isFirstPage = false) => {
     header = convertToASCII(header);
   
@@ -147,6 +147,11 @@ Courses.propTypes = {
   allProfessors: PropTypes.object,
   handleDragOver: PropTypes.func,
   handleDragStart: PropTypes.func,
-  handleDropNew: PropTypes.func
+  handleDropNew: PropTypes.func,
+  setColors: PropTypes.func,
+  setContent: PropTypes.func,
+  colors: PropTypes.object,
+  content: PropTypes.object,
+  allStudentGroups: PropTypes.object
 };
 export default Courses;
