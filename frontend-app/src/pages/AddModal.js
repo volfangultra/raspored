@@ -9,7 +9,7 @@ import axios from 'axios';
 import { getHeader } from '../components/Logic';
 
 
-const AddModal = ({ open, onClose, header, editItem, refreshData, showToast, fileInput=false }) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast}) => {
   axios.defaults.headers = {
     ...axios.defaults.headers,
     ...getHeader(),
@@ -53,7 +53,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast, fil
 
     try {
       console.log(formData)
-      if(fileInput || !editItem){
+      if(!editItem){
         const formDataWithoutId = Object.fromEntries(
           Object.entries(formData).filter(([key]) => key !== 'id')
         );        

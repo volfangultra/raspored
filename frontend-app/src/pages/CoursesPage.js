@@ -39,15 +39,9 @@ const CoursesPage = () => {
   const [professors, setProfessors] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [studentGroups, setStudentGroups] = useState([]);
-  const [fileInput, setFileInput] = useState(false);
-
-  const [firstLoad, setFirstLoad] = useState(true);
-  const [worksheet, setWorksheet] = useState([]);
 
   const [xlsxFormData, setXlsxFormData] = useState([]);
   const [openAddXlsxModal, setOpenAddXslxModal] = useState(false);
-
-  const [handleResolve, setHandleResolve] = useState(() => () => {});
 
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,7 +113,7 @@ const CoursesPage = () => {
       setOpenAddXslxModal(true);
     };
     reader.readAsArrayBuffer(file);
-  };
+  };
 
   useEffect(() => {
     setData();
@@ -432,12 +426,11 @@ const CoursesPage = () => {
       </Grid>
       <AddModal
         open={openAddModal}
-        onClose={()=>{closeModals(); handleResolve();}}
+        onClose={closeModals}
         header={header}
         editItem={currentCourse}
         refreshData={setData}
         showToast={showToast}
-        fileInput={fileInput}
       />
       <DeleteModal
         open={openDeleteModal}
@@ -455,7 +448,7 @@ const CoursesPage = () => {
         refreshData={setData}
         showToast={showToast}
         scheduleId={selectedSchedule}
-      />
+      />
     </Container>
   );
 };

@@ -6,11 +6,9 @@ import {
   Grid,
   Card,
   Button,
-  Modal,
   Pagination,
   Icon,
 } from 'semantic-ui-react';
-import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
 import ToastMessage from '../components/ToastMessage';
@@ -30,7 +28,6 @@ const ClassroomsPage = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [worksheet, setWorksheet] = useState([]);
 
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
@@ -174,11 +171,6 @@ const ClassroomsPage = () => {
     setOpenAddModal(true);
   };
 
-  const openScheduleModal = (classroom) => {
-    setCurrentClassroom(classroom);
-    setScheduleModalOpen(true);
-  };
-
   const handleDeleteClick = (classroom) => {
     setCurrentClassroom(classroom);
     setOpenDeleteModal(true);
@@ -186,7 +178,6 @@ const ClassroomsPage = () => {
 
   const closeModals = () => {
     setCurrentClassroom(null);
-    setScheduleModalOpen(false);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
   };

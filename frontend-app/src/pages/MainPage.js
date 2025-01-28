@@ -20,11 +20,6 @@ const MainPage = () => {
   const [classroomsOptions, setClassroomsOptions] = useState(null);
   const [courses, setCourses] = useState([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [toast, setToast] = useState({ message: '', type: '', visible: false });
-  const showToast = (message, type) => {
-    setToast({ message, type, visible: true });
-    setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
-  };
 
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
@@ -510,7 +505,7 @@ const MainPage = () => {
         header={header} 
         deleteItem={{'id':localStorage.getItem('scheduleId')}}
         refreshData={()=>{}}
-        showToast={showToast}
+        showToast={null}
       />
     </Container>
     </div>
