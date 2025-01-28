@@ -1,9 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button } from 'semantic-ui-react';
+import { getHeader } from '../components/Logic';
 import axios from 'axios';
 
+
 const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast}) => {
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const deleteHandle = async () => {
     let url;
     switch (header) {

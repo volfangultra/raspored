@@ -3,6 +3,7 @@ namespace ProjectNamespace.Routes;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Models;
+using Microsoft.AspNetCore.Authorization;
 
 public static class CourseRoutes
 {

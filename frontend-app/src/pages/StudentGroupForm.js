@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment, Header, Icon } from 'semantic-ui-react';
+import { getHeader } from '../components/Logic';
 
 const StudentGroupForm = ({ onChange, editItem }) => {
   const [formData, setFormData] = useState(() => ({
@@ -21,7 +22,10 @@ const StudentGroupForm = ({ onChange, editItem }) => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`
+          `${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                    method:"GET",
+                    headers:getHeader()
+                  }
         );
         const data = await response.json();
 

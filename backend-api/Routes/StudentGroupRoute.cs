@@ -3,6 +3,7 @@ namespace ProjectNamespace.Routes;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Models;
+using Microsoft.AspNetCore.Authorization;
 
 public static class StudentGroupRoutes
 {
@@ -52,7 +53,7 @@ public static class StudentGroupRoutes
             return Results.Ok(studentGroups);
         });
 
-        app.MapGet("/student-groups/{id}", async (int id, AppDbContext db) =>
+        app.MapGet("/student-groups/{id}", [Authorize(Roles = "user")] async (int id, AppDbContext db) =>
         {
             var studentGroup = await db.StudentGroups
                 .Where(group => group.Id == id)
@@ -74,7 +75,7 @@ public static class StudentGroupRoutes
             return studentGroup is not null ? Results.Ok(studentGroup) : Results.NotFound();
         });
 
-        app.MapPost("/student-groups", async (StudentGroupDto groupDto, AppDbContext db) =>
+        app.MapPost("/student-groups", [Authorize(Roles = "user")] async (StudentGroupDto groupDto, AppDbContext db) =>
         {
             var studentGroup = new StudentGroup
             {
@@ -94,7 +95,7 @@ public static class StudentGroupRoutes
             return Results.Created($"/student-groups/{studentGroup.Id}", groupDto);
         });
 
-        app.MapPut("/student-groups/{id}", async (int id, StudentGroupDto updatedGroupDto, AppDbContext db) =>
+        app.MapPut("/student-groups/{id}", [Authorize(Roles = "user")] async (int id, StudentGroupDto updatedGroupDto, AppDbContext db) =>
         {
             var studentGroup = await db.StudentGroups
                 .Include(g => g.GroupTakesCourses)
@@ -125,7 +126,7 @@ public static class StudentGroupRoutes
             return Results.NoContent();
         });
 
-        app.MapDelete("/student-groups/{id}", async (int id, AppDbContext db) =>
+        app.MapDelete("/student-groups/{id}", [Authorize(Roles = "user")] async (int id, AppDbContext db) =>
         {
             // Find the student group by its ID and include related entities
             var studentGroup = await db.StudentGroups

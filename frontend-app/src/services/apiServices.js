@@ -1,3 +1,5 @@
+import { getHeader } from "../components/Logic";
+
 export const fetchSchedules = async (userId) => {
   if (!userId) {
     console.error('UserId not found');
@@ -5,7 +7,10 @@ export const fetchSchedules = async (userId) => {
   }
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/schedules/user/${userId}`
+      `${process.env.REACT_APP_API_URL}/schedules/user/${userId}`,{
+                method:"GET",
+                headers:getHeader()
+              }
     );
     if (!response.ok) {
       throw new Error(`Error fetching schedules: ${response.statusText}`);
@@ -28,7 +33,10 @@ export const fetchClassrooms = async (scheduleId = null) => {
       ? `?scheduleId=${scheduleId}`
       : `?scheduleId=${localStorage.getItem('scheduleId')}`;
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/classrooms${scheduleQuery}`
+      `${process.env.REACT_APP_API_URL}/classrooms${scheduleQuery}`,{
+                method:"GET",
+                headers:getHeader()
+              }
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,7 +55,10 @@ export const fetchCourses = async (scheduleId = null) => {
       ? `?scheduleId=${scheduleId}`
       : `?scheduleId=${localStorage.getItem('scheduleId')}`;
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/courses${scheduleQuery}`
+      `${process.env.REACT_APP_API_URL}/courses${scheduleQuery}`,{
+                method:"GET",
+                headers:getHeader()
+              }
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -67,8 +78,10 @@ export const fetchStudentGroups = async (scheduleId = null) => {
       : `?scheduleId=${localStorage.getItem('scheduleId')}`;
 
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/student-groups${scheduleQuery}`
-    );
+      `${process.env.REACT_APP_API_URL}/student-groups${scheduleQuery}`,{
+                method:"GET",
+                headers:getHeader()
+              })
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -85,7 +98,10 @@ export const fetchProfessors = async (scheduleId = null) => {
       const scheduleQuery = scheduleId
         ? `?scheduleId=${scheduleId}`
         : `?scheduleId=${localStorage.getItem('scheduleId')}`;      
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors${scheduleQuery}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors${scheduleQuery}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
