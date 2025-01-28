@@ -117,6 +117,7 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
   
 
   const handleDragStart = async (event, rowIndex, colIndex) => {
+    console.log(rowIndex,colIndex)
     const cellValue = content[rowIndex][colIndex];
     console.log("I am dragging", cellValue)
     if (!cellValue || cellValue === 'MERGED') {
@@ -124,14 +125,13 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
       return;
     }
 
-    //Remove the lesson on start
     let updatedContent = [...content]
     for (let i = 0; i < cellValue.lectureSlotLength; i++) {
       if (updatedContent[rowIndex + i]) {
         updatedContent[rowIndex + i][colIndex] = '';
       }
     }
-    onDrop(updatedContent);
+    
     let item = {
       ...cellValue,
       fromRow: rowIndex,
@@ -175,7 +175,7 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
       console.error('Invalid item dropped.');
       return;
     }
-    console.log("BOJA", colors[colIndex][rowIndex])
+
     if(colors[colIndex][rowIndex] == "#FFC0CB")
       return
 
@@ -200,8 +200,6 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
   //   event.preventDefault();
   // };
 
-  
-
   return (
     <>
     <Modal open={modalOpen} onClose={() => setModalOpen(false)} size="small">
@@ -217,13 +215,15 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
               text: c.name, // The text displayed in the dropdown
             }))}
             onChange={(e, { value }) => setSelectedClassroom(value)}
+            forceSelection={false}
+            selectOnBlur={false}
           />
         </Modal.Content>
         <Modal.Actions>
           <Button basic color="red" onClick={() => setModalOpen(false)}>
             Otkaži
           </Button>
-          <Button basic color="teal" onClick={handleModalSubmit}>
+          <Button basic color="teal" onClick={handleModalSubmit} disabled={!selectedClassroom}>
             Postavi
           </Button>
         </Modal.Actions>
@@ -242,38 +242,53 @@ const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfe
       </Table.Header>
       <Table.Body>
       {schedule.map((time, rowIndex) => (
-  <Table.Row key={rowIndex}>
-    <Table.Cell>{time}</Table.Cell>
-    {days.map((_, colIndex) => {
-      const cellValue = content[rowIndex] && content[rowIndex][colIndex];
+    <Table.Row key={rowIndex}>
+      <Table.Cell>{time}</Table.Cell>
+      {days.map((_, colIndex) => {
+        const cellValue = content[rowIndex] && content[rowIndex][colIndex];
 
-      if (cellValue === 'MERGED') {
-        return null;
-      }
+        if (cellValue === 'MERGED') {
+          return null;
+        }
 
-      const isMainCell = cellValue && typeof cellValue === 'object' && cellValue.lectureSlotLength;
-      return (
-        <Table.Cell
-          key={colIndex}
-          rowSpan={isMainCell ? cellValue.lectureSlotLength : 1}
-          draggable
-          onDragStart={isMainCell ? (event) => handleDragStart(event, rowIndex, colIndex) : null}
-          onDrop={(event) => handleDrop(event, rowIndex, colIndex)}
-          onDragOver={handleDragOver}
-          onDragEnd={isMainCell ? () => console.log("Drag Ended") : null} // Added dragEnd
-          style={{
-            minHeight: '50px',
-            backgroundColor: cellValue ? '#a1d1d1' : colors[colIndex][rowIndex],
-            textAlign: 'center',
-            verticalAlign: 'middle',
-          }}
-        >
-          {isMainCell ? `${cellValue.name} ( ${allClassrooms.find((c)=>c.id == cellValue.lessons[0].classroomId).name} )`  : ''}
-        </Table.Cell>
-      );
-    })}
-  </Table.Row>
-))}
+        const isMainCell = cellValue && typeof cellValue === 'object' && cellValue.lectureSlotLength;
+
+        let mainCellValue = cellValue;
+        let mainRowIndex = rowIndex;
+        if (!isMainCell) {
+          for (let i = rowIndex - 1; i >= 0; i--) {
+            const potentialMainCell = content[i]?.[colIndex];
+            if (potentialMainCell && potentialMainCell.lectureSlotLength && i + potentialMainCell.lectureSlotLength > rowIndex) {
+              mainCellValue = potentialMainCell;
+              mainRowIndex = i;
+              break;
+            }
+          }
+        }
+
+        return isMainCell || mainRowIndex === rowIndex ? (
+          <Table.Cell
+            key={colIndex}
+            rowSpan={isMainCell ? mainCellValue.lectureSlotLength : 1}
+            draggable
+            onDragStart={(event) => handleDragStart(event, mainRowIndex, colIndex)}
+            onDrop={(event) => handleDrop(event, rowIndex, colIndex)}
+            onDragOver={handleDragOver}
+            style={{
+              minHeight: '50px',
+              backgroundColor: mainCellValue ? '#a1d1d1' : colors[colIndex][rowIndex],
+              textAlign: 'center',
+              verticalAlign: 'middle',
+            }}
+          >
+            {mainCellValue && mainRowIndex === rowIndex
+              ? `${mainCellValue.name} (${allClassrooms.find((c) => c.id === mainCellValue.lessons[0].classroomId).name})`
+              : ''}
+          </Table.Cell>
+        ) : null;
+      })}
+    </Table.Row>
+  ))}
       </Table.Body>
     </Table>
     </>

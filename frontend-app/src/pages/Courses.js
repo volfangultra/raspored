@@ -1,4 +1,4 @@
-import React,  { useRef } from 'react';
+import React,  { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import SmallTable from './SmallTable';
 import ScheduleTable from './ScheduleTable';
@@ -8,6 +8,8 @@ import html2canvas from 'html2canvas';
 
 const Courses = ({colors, setColors, setContent, content, handleStudentGroupSelect, courses, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, allStudentGroups, professor, studentGroup, classroom, handleDragStart,handleDropNew,handleDragOver}) => {
   //const [droppedItem, setDroppedItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // State for loading overlay
+
 
 
   const scheduleTableRef = useRef();
@@ -44,48 +46,47 @@ const Courses = ({colors, setColors, setContent, content, handleStudentGroupSele
   };
   
   const exportToPDF = async () => {
-    const pdf = new jsPDF();
-  
-    if (professor || classroom || studentGroup) {
-      let header = "";
-      if (professor) header = professor.name; // Custom header text
-      if (classroom) header = classroom.name;
-      if (studentGroup) header = studentGroup.name;
-  
-      // Only one page needed, no new page will be added
-      await setupPdf(pdf, header, true); // Pass `true` for the first page
-      pdf.save(`${header}.pdf`);
-    } else {
-      let isFirstPage = true;
-  
-      for (const p of allProfessors) {
-        await handleProfessorSelect(p.id); // Trigger state update
-        await sleep(20); // Give React time to re-render
-        await setupPdf(pdf, p.name, isFirstPage); // Generate PDF
-        isFirstPage = false; // After first page, add new pages for subsequent professors
+    try {
+      const pdf = new jsPDF();
+
+      if (professor || classroom || studentGroup) {
+        let header = professor?.name || classroom?.name || studentGroup?.name;
+        await setupPdf(pdf, header, true);
+        pdf.save(`${header}.pdf`);
+      } else {
+        setIsLoading(true);
+        let isFirstPage = true;
+
+        for (const p of allProfessors) {
+          await handleProfessorSelect(p.id);
+          await sleep(20);
+          await setupPdf(pdf, p.name, isFirstPage);
+          isFirstPage = false;
+        }
+        await handleProfessorSelect(null);
+
+        for (const c of allClassrooms) {
+          await handleClassroomSelect(c.id);
+          await sleep(20);
+          await setupPdf(pdf, c.name, isFirstPage);
+          isFirstPage = false;
+        }
+        await handleClassroomSelect(null);
+
+        for (const g of allStudentGroups) {
+          await handleStudentGroupSelect(g.id);
+          await sleep(20);
+          await setupPdf(pdf, g.name, isFirstPage);
+          isFirstPage = false;
+        }
+        await handleStudentGroupSelect(null);
+
+        pdf.save("Raspored.pdf");
       }
-      await handleProfessorSelect(null); // Reset professor
-  
-      for (const c of allClassrooms) {
-        await handleClassroomSelect(c.id); // Trigger state update
-        await sleep(20); // Give React time to re-render
-        await setupPdf(pdf, c.name, isFirstPage); // Generate PDF
-        isFirstPage = false; // After first page, add new pages for subsequent classrooms
-      }
-      await handleClassroomSelect(null); // Reset classroom
-  
-      for (const g of allStudentGroups) {
-        await handleStudentGroupSelect(g.id); // Trigger state update
-        await sleep(20); // Give React time to re-render
-        await setupPdf(pdf, g.name, isFirstPage); // Generate PDF
-        isFirstPage = false; // After first page, add new pages for subsequent student groups
-      }
-      await handleStudentGroupSelect(null); // Reset student group
-  
-      pdf.save("Raspored.pdf");
+    } finally {
+      setIsLoading(false);
     }
   };
-  //Povuci sve lessons i popuniti u content sta se treba popunit
 
   const handleDrop = (updatedContent) => {
     setContent(updatedContent);
@@ -93,7 +94,44 @@ const Courses = ({colors, setColors, setContent, content, handleStudentGroupSele
 
 
   return (
-
+    <div style={{ position: 'relative' }}>
+    {isLoading && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0, 0, 0, 1)',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <div style={{ color: '#fff', fontSize: '18px', marginBottom: '20px' }}>
+      Generating PDF...
+    </div>
+      <div
+      style={{
+        width: '50px',
+        height: '50px',
+        border: '6px solid rgba(255, 255, 255, 0.3)',
+        borderTopColor: '#fff',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }}
+      ></div>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+    )}
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <Button
@@ -129,6 +167,7 @@ const Courses = ({colors, setColors, setContent, content, handleStudentGroupSele
         allStudentGroups={allStudentGroups}
         handleDragOver={handleDragOver}
       />
+    </div>
     </div>
     </div>
   );

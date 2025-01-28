@@ -242,10 +242,9 @@ public static class ScheduleRoutes
         app.MapPost("/schedules/duplicate", [Authorize(Roles = "user")] async ([FromBody] DuplicateRequest request, HttpContext httpContext, AppDbContext db) =>
         {
             using var transaction = await db.Database.BeginTransactionAsync();
-
             try
             {
-                if (!httpContext.Request.Headers.TryGetValue("Authorization", out var userIdHeader))
+                if (!httpContext.Request.Headers.TryGetValue("User", out var userIdHeader))
                 {
                     return Results.BadRequest(new { message = "User ID is missing." });
                 }
@@ -339,7 +338,6 @@ public static class ScheduleRoutes
                     db.Courses.AddRange(duplicatedCourses);
                 }
                 await db.SaveChangesAsync();
-
 
                 var duplicatedStudentGroups = new List<StudentGroup>();
                 if (request.DuplicateOptions.StudentGroups)

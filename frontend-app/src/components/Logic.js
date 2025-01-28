@@ -7,7 +7,6 @@ const startHour = time_to_num(start_time); // Extract the hour from the start_ti
 export const num_to_time = (num) => `${startHour + num}:00`
 
 export const getHeader = () => {
-  console.log("Pokrenio sam se")
   const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('No token found, user is not authenticated.');

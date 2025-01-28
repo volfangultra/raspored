@@ -280,7 +280,7 @@ const CourseForm = ({ onChange, editItem }) => {
               selectOnBlur={false}
               value={null}
             />
-            <Header as="h4">Odabrane studentske grupe:</Header>
+            <Header as="h4">Odabrane studentske grupe koje slušaju:</Header>
             {selectedStudentGroups.length > 0 ? (
               <Segment
               style={{
@@ -328,7 +328,7 @@ const CourseForm = ({ onChange, editItem }) => {
               selectOnBlur={false}
               value={null}
             />
-            <Header as="h4">Odabrane prostorije:</Header>
+            <Header as="h4">Odabrane prostorije koje nisu mogući:</Header>
             {selectedClassrooms.length > 0 ? (
               <Segment
               style={{

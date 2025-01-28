@@ -79,7 +79,8 @@ public static class CourseRoutes
                         CourseId = gt.CourseId,
                         StudentGroupId = gt.StudentGroupId,
                     }).ToList(),
-                    Lessons = c.Lessons.Select(ls => new LessonDto{
+                    Lessons = c.Lessons.Select(ls => new LessonDto
+                    {
                         Id = ls.Id,
                         ClassroomId = ls.ClassroomId,
                         Day = ls.Day,
@@ -189,6 +190,7 @@ public static class CourseRoutes
             var course = await db.Courses
                 .Include(c => c.CourseCanNotUseClassrooms)
                 .Include(c => c.GroupTakesCourses)
+                .Include(c => c.Lessons)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course is null)
@@ -206,6 +208,11 @@ public static class CourseRoutes
             if (course.GroupTakesCourses is not null && course.GroupTakesCourses.Any())
             {
                 db.GroupTakesCourses.RemoveRange(course.GroupTakesCourses);
+            }
+
+            if (course.Lessons is not null && course.Lessons.Any())
+            {
+                db.Lessons.RemoveRange(course.Lessons);
             }
 
             // Remove the course itself
