@@ -28,6 +28,7 @@ const AddUserModal = ({ fetchUsersFunction, open, onClose }) => {
     return token;
   };
 
+
   const fetchUsernames = async () => {
     try {
       const token = getToken();

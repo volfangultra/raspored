@@ -6,8 +6,14 @@ import ClassroomForm from './ClassroomForm';
 import CourseForm from './CourseForm';
 import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
+import { getHeader } from '../components/Logic';
+
 
 const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) => {
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const [formData, setFormData] = useState({});
 
   const getFormContent = (header) => {

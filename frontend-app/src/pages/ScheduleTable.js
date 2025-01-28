@@ -2,13 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Modal, Dropdown, Button } from 'semantic-ui-react';
 import axios from 'axios';
+import { getHeader } from '../components/Logic';
+
 
 import {testSpot, getAvailableClassroomsForGroup, getAvailableClassroomsForProfessor, time_to_num, num_to_time} from "../components/Logic"
 
 import { useState, useEffect} from 'react';
 
 const ScheduleTable = ({colors, setColors, handleStudentGroupSelect, handleProfessorSelect, handleClassroomSelect, allClassrooms, allCourses, allProfessors, allStudentGroups, content, onDrop, professor, studentGroup, classroom, handleDragOver}) => {
-
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const days = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak'];
   // slot je sat vremena
 

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Button, Segment, Grid, Image, Message } from 'semantic-ui-react';
 import { useNavigate } from 'react-router-dom';  
 import myImage from './Image1.png';
+import { getHeader } from '../components/Logic';
 const HomePage = () => {
+  console.log("Ucitajem home page")
   const [isBasic, setIsBasic] = useState(true);  
   const navigate = useNavigate();  
   const [schedules, setSchedules] = useState([]);
@@ -18,7 +20,10 @@ const HomePage = () => {
       }
 
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/schedules/user/${userId}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/schedules/user/${userId}`,{
+                  method:"GET",
+                  headers:getHeader()
+                });
         if (!response.ok) {
           throw new Error(`Error fetching schedules: ${response.statusText}`);
         }
@@ -39,7 +44,7 @@ const HomePage = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/schedules`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeader(),
         body: JSON.stringify({ 
           name: 'My Schedule',
           semester: 'Zimski',
@@ -63,7 +68,7 @@ const HomePage = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/get_schedule/${scheduleId}`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers:getHeader()
       });
 
       if (!response.ok) {

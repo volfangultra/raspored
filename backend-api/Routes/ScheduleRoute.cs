@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectNamespace.Data;
 using ProjectNamespace.Models;
+using Microsoft.AspNetCore.Authorization;
 
 public static class ScheduleRoutes
 {
@@ -43,7 +44,7 @@ public static class ScheduleRoutes
 
     public static void MapScheduleRoutes(this WebApplication app)
     {
-        app.MapGet("/schedules", async (AppDbContext db) =>
+        app.MapGet("/schedules", [Authorize(Roles = "user")] async (AppDbContext db) =>
         {
             var schedules = await db.Schedules
                 .Include(s => s.Courses)
@@ -61,7 +62,7 @@ public static class ScheduleRoutes
             return Results.Ok(schedules);
         });
 
-        app.MapGet("/schedules/{id:int}", async (int id, AppDbContext db) =>
+        app.MapGet("/schedules/{id:int}", [Authorize(Roles = "user")] async (int id, AppDbContext db) =>
         {
             var schedule = await db.Schedules
                 .Include(s => s.Courses)
@@ -81,7 +82,7 @@ public static class ScheduleRoutes
             return schedule is not null ? Results.Ok(schedule) : Results.NotFound();
         });
 
-        app.MapGet("/schedules/user/{userId:int}", async (int userId, AppDbContext db) =>
+        app.MapGet("/schedules/user/{userId:int}", [Authorize(Roles = "user")] async (int userId, AppDbContext db) =>
         {
             var schedules = await db.Schedules
                 .Include(s => s.Courses)
@@ -101,7 +102,7 @@ public static class ScheduleRoutes
             return schedules.Any() ? Results.Ok(schedules) : Results.NotFound();
         });
 
-        app.MapPost("/schedules", async (ScheduleDTO scheduleDTO, AppDbContext db) =>
+        app.MapPost("/schedules", [Authorize(Roles = "user")] async (ScheduleDTO scheduleDTO, AppDbContext db) =>
         {
             var schedule = new Schedule
             {
@@ -117,7 +118,7 @@ public static class ScheduleRoutes
             return Results.Ok(new { Id = schedule.Id });
         });
 
-        app.MapPut("/schedules/{id:int}", async (int id, ScheduleDTO updatedScheduleDTO, AppDbContext db) =>
+        app.MapPut("/schedules/{id:int}", [Authorize(Roles = "user")] async (int id, ScheduleDTO updatedScheduleDTO, AppDbContext db) =>
         {
             var schedule = await db.Schedules
                 .Include(s => s.Courses)
@@ -170,7 +171,7 @@ public static class ScheduleRoutes
         });
 
 
-        app.MapDelete("/schedules/{id:int}", async (int id, AppDbContext db) =>
+        app.MapDelete("/schedules/{id:int}", [Authorize(Roles = "user")] async (int id, AppDbContext db) =>
         {
             var schedule = await db.Schedules
                 .Include(s => s.Courses)
@@ -238,7 +239,7 @@ public static class ScheduleRoutes
             return Results.NoContent();
         });
 
-        app.MapPost("/schedules/duplicate", async ([FromBody] DuplicateRequest request, HttpContext httpContext, AppDbContext db) =>
+        app.MapPost("/schedules/duplicate", [Authorize(Roles = "user")] async ([FromBody] DuplicateRequest request, HttpContext httpContext, AppDbContext db) =>
         {
             using var transaction = await db.Database.BeginTransactionAsync();
 

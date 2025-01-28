@@ -6,6 +6,21 @@ export const time_to_num = (time) => parseInt(time.split(":")[0])
 const startHour = time_to_num(start_time); // Extract the hour from the start_time
 export const num_to_time = (num) => `${startHour + num}:00`
 
+export const getHeader = () => {
+  console.log("Pokrenio sam se")
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found, user is not authenticated.');
+  }
+
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  }
+
+}
+
+
 
 const isConflict = (startTime, endTime, startIndex, endIndex) => {
     const startTemp = time_to_index(startTime)

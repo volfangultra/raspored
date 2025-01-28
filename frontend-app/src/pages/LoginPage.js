@@ -5,6 +5,7 @@ import { Container, Button, Input, Segment, Form, Grid, Header, Message, Image, 
 import LoaderComponent from '../components/Loader';
 
 const LoginPage = ( {setToken, setUserRole, setUserId }) => {
+  console.log("Ucitajem login PAge")
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

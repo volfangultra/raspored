@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Container, Input, Icon, Dropdown, Button,Checkbox,Modal } from 'semantic-ui-react'; 
 import Courses from './Courses';
 import axios from 'axios';
-import {testSpot} from "../components/Logic"
+import {testSpot, getHeader} from "../components/Logic"
+
 
 const MainPage = () => {
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const [scheduleName, setScheduleName] = useState('');
   const [semesterType, setSemesterType] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -87,7 +92,10 @@ const MainPage = () => {
 
   const fetchProfessors = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -100,7 +108,10 @@ const MainPage = () => {
 
   const fetchClassrooms = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -113,7 +124,10 @@ const MainPage = () => {
 
   const fetchStudentGroups = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
