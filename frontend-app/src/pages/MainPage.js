@@ -4,7 +4,7 @@ import Courses from './Courses';
 import DeleteModal from './DeleteModal';
 import axios from 'axios';
 import {testSpot, getHeader} from "../components/Logic"
-
+import ToastMessage from '../components/ToastMessage';
 
 const MainPage = () => {
   const header = "Dodavanje rasporeda";
@@ -40,6 +40,11 @@ const MainPage = () => {
   });
   const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
   const [colors, setColors] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('#ffffff')))
+  const [toast, setToast] = useState({ message: '', type: '', visible: false });
+    const showToast = (message, type) => {
+      setToast({ message, type, visible: true });
+      setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
+  };
 
   const resetColors = () => {
     let tempcolors = []
@@ -272,10 +277,12 @@ const MainPage = () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      alert('Timetable duplicated successfully!');
+      showToast('Raspored uspješno dupliciran!', 'success');
+      //alert('Timetable duplicated successfully!');
     } catch (err) {
       console.error('Failed to duplicate timetable', err);
-      alert('Failed to duplicate timetable.');
+      showToast('Greška pri dupliciranju rasporeda.', 'error');
+      //alert('Failed to duplicate timetable.');
     } finally {
       setIsDuplicateModalOpen(false);
     }
@@ -346,7 +353,9 @@ const MainPage = () => {
   onDrop={handleDropNew}
 >
     <Container style={{ marginTop: '20px' }}>
-          
+      {toast.visible && (
+        <ToastMessage message={toast.message} type={toast.type} />
+      )}    
       
       <div style={{ display: 'inline-flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'start', marginTop: '10px' }}>
@@ -499,7 +508,7 @@ const MainPage = () => {
         header={header} 
         deleteItem={{'id':localStorage.getItem('scheduleId')}}
         refreshData={()=>{}}
-        showToast={null}
+        showToast={showToast}
       />
     </Container>
     </div>

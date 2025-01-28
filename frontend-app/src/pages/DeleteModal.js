@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button } from 'semantic-ui-react';
 import { getHeader } from '../components/Logic';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
 
 const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast}) => {
   axios.defaults.headers = {
@@ -12,6 +11,7 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast
     ...getHeader(),
   };
   const navigate = useNavigate(); 
+
   const deleteHandle = async () => {
     let url;
     switch (header) {
@@ -45,7 +45,7 @@ const DeleteModal = ({ open, onClose, header, deleteItem, refreshData, showToast
     }
     onClose();
     if(header=="Dodavanje rasporeda"){
-      setTimeout(() => navigate('/'), 100);
+      setTimeout(() => navigate('/', {state: true}), 100);
       
     }
   };

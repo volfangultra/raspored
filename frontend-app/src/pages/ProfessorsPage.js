@@ -12,7 +12,7 @@ import {
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
 import ToastMessage from '../components/ToastMessage';
-import { fetchSchedules, fetchProfessors } from '../services/apiServices';
+import { fetchSchedules, fetchProfessors, fetchCourses } from '../services/apiServices';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 
@@ -48,6 +48,7 @@ const ProfessorsPage = () => {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [currentProfessor, setCurrentProfessor] = useState(null);
   const [professors, setProfessors] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
   const showToast = (message, type) => {
@@ -60,14 +61,19 @@ const ProfessorsPage = () => {
     try {
       const schedules = await fetchSchedules(userId);
       setScheduleOptions(schedules);
-      const allProfessors = [];
+      const allProfessors = [], allCourses = [];
       for (const schedule of schedules) {
-        const professorsData = await fetchProfessors(schedule.key);
+        const professorsData = await fetchProfessors(schedule.key); 
+        const coursesData = await fetchCourses(schedule.key); 
         professorsData.forEach((professor) => {
-        allProfessors.push({ ...professor, scheduleId: schedule.key});          
+          allProfessors.push({ ...professor, scheduleId: schedule.key});  
+        });
+        coursesData.forEach((course) => {
+          allCourses.push({ ...course, scheduleId: schedule.key});  
         });
       }
       setProfessors(allProfessors);
+      setCourses(allCourses);
     } catch (error) {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
@@ -176,7 +182,11 @@ const ProfessorsPage = () => {
   };
 
 
-  const handleDeleteClick = (professor) => {
+  const handleDeleteClick = async (professor) => {
+    if (header=='Dodavanje osoblja' && courses.find(course => course.professorId === professor.id)) {
+      showToast(`Nije moguće obrisati ${professor.name} zbog veze sa kursem.`, 'error');
+      return;
+    }
     setCurrentProfessor(professor);
     setOpenDeleteModal(true);
   };

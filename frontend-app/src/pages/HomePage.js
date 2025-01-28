@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Segment, Grid, Image, Message } from 'semantic-ui-react';
-import { useNavigate } from 'react-router-dom';  
+import { useNavigate, useLocation } from 'react-router-dom';  
 import myImage from './Image1.png';
 import { getHeader } from '../components/Logic';
+import ToastMessage from '../components/ToastMessage';
 const HomePage = () => {
+  const location = useLocation();
+  const [showToast, setShowToast] = useState(location.state);
   console.log("Ucitajem home page")
   const [isBasic, setIsBasic] = useState(true);  
   const navigate = useNavigate();  
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false); 
+      }, 3000); 
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
+
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -86,6 +99,9 @@ const HomePage = () => {
 
   return (
     <div style={{ textAlign: 'center', paddingTop: '50px' }}>
+      {showToast && (
+        <ToastMessage message={'Raspored uspješno obrisan.'} type={'success'} />
+      )}
       <Image src={myImage} size="small" centered style={{ marginBottom: '20px' }} />
 
       <Button
