@@ -29,7 +29,7 @@ const Classrooms = () => {
   const content = [
     [],
   ];
-
+ 
   return (
     <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
       <SmallTable data={classrooms} buttonName='Dodaj prostoriju' header='Dodavanje prostorije' refreshData={fetchClassrooms}/>

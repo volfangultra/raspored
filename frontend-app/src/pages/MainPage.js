@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Input, Icon, Dropdown, Button,Checkbox,Modal } from 'semantic-ui-react'; 
+import { Container, Input, Icon, Dropdown, Button, Checkbox, Modal } from 'semantic-ui-react'; 
 import Courses from './Courses';
+import DeleteModal from './DeleteModal';
 import axios from 'axios';
 import {testSpot, getHeader} from "../components/Logic"
 
 
 const MainPage = () => {
+  const header = "Dodavanje rasporeda";
   axios.defaults.headers = {
     ...axios.defaults.headers,
     ...getHeader(),
@@ -17,6 +19,7 @@ const MainPage = () => {
   const [studentGroupsOptions, setStudentGroupsOptions] = useState(null);
   const [classroomsOptions, setClassroomsOptions] = useState(null);
   const [courses, setCourses] = useState([]);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const start_time = process.env.REACT_APP_START_TIME
   const end_time = process.env.REACT_APP_END_TIME
@@ -73,6 +76,10 @@ const MainPage = () => {
       setupContent();
   }, [courses, selectedProfessor, selectedStudentGroup, selectedClassroom, colors]);
 
+
+  const closeModals = () => {
+    setOpenDeleteModal(false);
+  };
 
   "Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))"
   const fetchSchedule = async () => {
@@ -279,12 +286,14 @@ const MainPage = () => {
   };
 
   const handleDeleteSchedule = async () => {
-   try {
-     await axios.delete(`${process.env.REACT_APP_API_URL}/schedules/${localStorage.getItem('scheduleId')}`);
-     alert('Schedule deleted successfully');
-   } catch (err) {
-     console.error('Failed to delete schedule', err);
-   }
+    setOpenDeleteModal(true);
+    //setTimeout(() => navigate("/"), 500);
+  //  try {
+  //    await axios.delete(`${process.env.REACT_APP_API_URL}/schedules/${localStorage.getItem('scheduleId')}`);
+  //    alert('Schedule deleted successfully');
+  //  } catch (err) {
+  //    console.error('Failed to delete schedule', err);
+   //}
   };
 
   const semesterOptions = [
@@ -341,9 +350,9 @@ const MainPage = () => {
       
       <div style={{ display: 'inline-flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'start', marginTop: '10px' }}>
-          <h2
+          <h3
             onClick={handleTitleClick}
-            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', marginRight: '15px' }}
+            style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', marginRight: '15px', fontSize: '20px' }}
           >
             {isEditing ? (
               <Input
@@ -363,14 +372,14 @@ const MainPage = () => {
                 />
               </>
             )}
-          </h2>
+          </h3>
 
           <Dropdown
             selection
             options={semesterOptions}
             value={semesterType}
             onChange={handleSemesterChange}
-            style={{display: 'inline-flex', alignItems: 'center', marginRight: '15px', marginLeft: '15px' }}
+            style={{display: 'inline-flex', alignItems: 'center', marginRight: '15px', marginLeft: '15px', minWidth: '150px'}}  
           />
             
           <div 
@@ -417,14 +426,19 @@ const MainPage = () => {
             basic
             color="teal"
             onClick={() => setIsDuplicateModalOpen(true)}
+            onMouseEnter={(e) => e.target.classList.remove('basic')}
+            onMouseLeave={(e) => e.target.classList.add('basic')}
+            style={{minWidth: '165px'}}
           >
             Dupliciraj raspored
           </Button>
-
         <Button
           basic
           color="red"
           onClick={handleDeleteSchedule}
+          onMouseEnter={(e) => e.target.classList.remove('basic')}
+          onMouseLeave={(e) => e.target.classList.add('basic')}
+          style={{minWidth: '140px'}}
         >
           Obriši raspored
         </Button>
@@ -461,12 +475,32 @@ const MainPage = () => {
           />
         </Modal.Content>
         <Modal.Actions>
-          <Button basic color= 'red' onClick={() => setIsDuplicateModalOpen(false)}>Odustani</Button>
-          <Button basic color="teal" onClick={handleDuplicate}>
+          <Button 
+                basic 
+                color= 'red' 
+                onMouseEnter={(e) => e.target.classList.remove('basic')}
+                onMouseLeave={(e) => e.target.classList.add('basic')} 
+                onClick={() => setIsDuplicateModalOpen(false)}>
+                Odustani
+          </Button>
+          <Button 
+            basic 
+            color="teal" 
+            onClick={handleDuplicate}
+            onMouseEnter={(e) => e.target.classList.remove('basic')}
+            onMouseLeave={(e) => e.target.classList.add('basic')}>
             Potvrdi
           </Button>
         </Modal.Actions>
       </Modal>
+      <DeleteModal
+        open={openDeleteModal}
+        onClose={closeModals}
+        header={header} 
+        deleteItem={{'id':localStorage.getItem('scheduleId')}}
+        refreshData={()=>{}}
+        showToast={null}
+      />
     </Container>
     </div>
   );

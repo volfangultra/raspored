@@ -6,15 +6,15 @@ import {
   Grid,
   Card,
   Button,
-  Modal,
   Pagination,
   Icon,
 } from 'semantic-ui-react';
-import ScheduleTable from './ScheduleTable';
 import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
 import ToastMessage from '../components/ToastMessage';
 import { fetchSchedules, fetchProfessors } from '../services/apiServices';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const ProfessorsPage = () => {
   const header = 'Dodavanje osoblja';
@@ -38,7 +38,9 @@ const ProfessorsPage = () => {
   const [filterRank, setFilterRank] = useState('');
   const [sortOption, setSortOption] = useState('nameAsc');
 
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [worksheet, setWorksheet] = useState([]);
+
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   
@@ -69,6 +71,48 @@ const ProfessorsPage = () => {
     } catch (error) {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
+  };
+
+  const handleFileInput = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      setWorksheet(XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]));
+      //const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      // Refresh data or notify user after upload
+      // refreshData();
+      // showToast('Classrooms successfully added!', 'success');
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleFileUpload = async () => {
+    for (const row of worksheet) {
+      //if(!(row.Zvanje in ['Asistent', 'Viši asistent', 'Docent', 'Vanredni profesor', 'Redovni profesor'])) { row.Zvanje = ''; }
+      const name = `${row.Ime} ${row.Prezime}`;
+      const professorData = {
+        firstName: String(row.Ime),
+        lastName: String(row.Prezime),
+        Rank: row.Zvanje,
+        ScheduleId: localStorage.getItem('scheduleId'),
+        Name: name,
+        professorUnavailabilities: [],
+      };
+
+      console.log(professorData);
+
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/professors`, professorData);
+      } catch (error) {
+        console.error('Error adding professor:', error);
+      }
+    }
+    setData();
+    showToast('Osoblje uspješno dodano!', 'success');
   };
   
   useEffect(() => {
@@ -131,10 +175,6 @@ const ProfessorsPage = () => {
     setOpenAddModal(true);
   };
 
-  const openScheduleModal = (professor) => {
-    setCurrentProfessor(professor);
-    setScheduleModalOpen(true);
-  };
 
   const handleDeleteClick = (professor) => {
     setCurrentProfessor(professor);
@@ -143,7 +183,6 @@ const ProfessorsPage = () => {
 
   const closeModals = () => {
     setCurrentProfessor(null);
-    setScheduleModalOpen(false);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
   };
@@ -159,6 +198,11 @@ const ProfessorsPage = () => {
 
   const handlePaginationChange = (e, { activePage }) =>
     setCurrentPage(activePage);
+
+  useEffect(() => {
+    if(firstLoad) {setFirstLoad(false); return;}
+    handleFileUpload();
+  }, [worksheet]);
 
   return (
     <Container style={{ marginTop: '20px' }}>
@@ -206,6 +250,36 @@ const ProfessorsPage = () => {
                 Dodaj novo osoblje
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
               </Button>
+              <Button
+                basic
+                as="label"
+                type="button"
+                color="teal"
+                htmlFor="file"
+                fluid
+                disabled={!selectedSchedule}
+                onMouseEnter={(e) => e.target.classList.remove('basic')}
+                onMouseLeave={(e) => e.target.classList.add('basic')}
+                style={{
+                  marginTop: '10px',
+                  transition: 'all 0.3s ease',
+                  opacity: selectedSchedule ? 1 : 0.5,
+                  cursor: selectedSchedule ? 'pointer' : 'not-allowed',
+                }}
+                title='Fajl treba da ima tri kolone [Ime, Prezime, Zavnje], a u redove idu podaci o svakoj učionici. Zabrane za profesore se unose naknadno.'
+              >
+                Učitaj XLSX fajl osoblja
+                <Icon name="upload" style={{ marginLeft: '10px' }} />
+              </Button>
+              <Input
+                type="file"
+                id="file"
+                accept=".xlsx"
+                hidden
+                style={{display: 'none'}}
+                onChange={(e)=>{handleFileInput(e); handleFileUpload();}}
+                disabled={!selectedSchedule}
+              />
             </div>
             <div style={{ marginBottom: '20px' }}>
               <Input
@@ -264,6 +338,7 @@ const ProfessorsPage = () => {
                           name="edit"
                           style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(professor)}
+                          disabled={!selectedSchedule}
                         />
                       </div>
                       <Card.Description>
@@ -304,15 +379,6 @@ const ProfessorsPage = () => {
                     <Card.Content extra>
                       <Button
                         basic
-                        color="teal"
-                        onClick={() => openScheduleModal(professor)}
-                        onMouseEnter={(e) => e.target.classList.remove('basic')}
-                        onMouseLeave={(e) => e.target.classList.add('basic')}
-                      >
-                        Raspored
-                      </Button>
-                      <Button
-                        basic
                         color="red"
                         onClick={() => handleDeleteClick(professor)}
                         onMouseEnter={(e) => e.target.classList.remove('basic')}
@@ -338,22 +404,6 @@ const ProfessorsPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      
-      {currentProfessor && (
-        <Modal open={scheduleModalOpen} onClose={closeModals}>
-          <Modal.Header>Raspored za {currentProfessor.name}</Modal.Header>
-          <Modal.Content>
-            <ScheduleTable
-              content={/* Unesite raspored za ovu učionicu */ []}
-            />
-          </Modal.Content>
-          <Modal.Actions>
-            <Button basic color="teal" onClick={closeModals}>
-              Zatvori
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      )}
 
       <DeleteModal
         open={openDeleteModal}

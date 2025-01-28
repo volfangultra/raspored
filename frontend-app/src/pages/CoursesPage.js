@@ -19,6 +19,8 @@ import {
   fetchClassrooms,
   fetchStudentGroups,
 } from '../services/apiServices';
+import * as XLSX from 'xlsx';
+import AddFromExcelModal from './AddFromExcelModal';
 
 const CoursesPage = () => {
   const header = 'Dodavanje predmeta';
@@ -38,6 +40,9 @@ const CoursesPage = () => {
   const [classrooms, setClassrooms] = useState([]);
   const [studentGroups, setStudentGroups] = useState([]);
 
+  const [xlsxFormData, setXlsxFormData] = useState([]);
+  const [openAddXlsxModal, setOpenAddXslxModal] = useState(false);
+
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const userId = localStorage.getItem('userId');
@@ -53,7 +58,6 @@ const CoursesPage = () => {
     try {
       const schedules = await fetchSchedules(userId);
       setScheduleOptions(schedules);
-      console.log(schedules);
       const allCourses = [],
         allProfessors = [],
         allClassrooms = [],
@@ -79,6 +83,36 @@ const CoursesPage = () => {
     } catch (error) {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
+  };
+
+  const handleFileInput = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      e.target.value = null;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      const formattedData = sheetData.map((row) => ({
+        //id: "",
+        scheduleId: localStorage.getItem("scheduleId"),
+        name: row.Naziv || "",
+        lectureSlotLength: String(row.Trajanje) || "",
+        type: row.Tip || "",
+        professorId: null,
+        groupTakesCourses: [],
+        courseCanNotUseClassrooms: [],
+      }));
+      setXlsxFormData(formattedData);
+      console.log(formattedData)
+      console.log(openAddXlsxModal);
+      setOpenAddXslxModal(true);
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   useEffect(() => {
@@ -164,9 +198,8 @@ const CoursesPage = () => {
     setCurrentCourse(null);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
+    setOpenAddXslxModal(false);
   };
-
-  console.log("Thesea are,", classrooms.map((c) => c.name).join(', '))
 
   return (
     <Container style={{ marginTop: '20px' }}>
@@ -213,6 +246,36 @@ const CoursesPage = () => {
                 Dodaj novi kurs
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
               </Button>
+              <Button
+                basic
+                as="label"
+                type="button"
+                color="teal"
+                htmlFor="file"
+                fluid
+                disabled={!selectedSchedule}
+                onMouseEnter={(e) => e.target.classList.remove('basic')}
+                onMouseLeave={(e) => e.target.classList.add('basic')}
+                style={{
+                  marginTop: '10px',
+                  transition: 'all 0.3s ease',
+                  opacity: selectedSchedule ? 1 : 0.5,
+                  cursor: selectedSchedule ? 'pointer' : 'not-allowed',
+                }}
+                title='Fajl treba da ima tri kolone [Naziv, Trajanje (1, 2, 3...), Tip (P, AV, LV)], a u redove idu podaci o svakoj učionici. Učionice i smjerovi se unose naknadno.'
+              >
+                Učitaj XLSX fajl kurseva
+                <Icon name="upload" style={{ marginLeft: '10px' }} />
+              </Button>
+              <Input
+                type="file"
+                id="file"
+                accept=".xlsx"
+                hidden
+                style={{display: 'none'}}
+                onChange={handleFileInput}
+                disabled={!selectedSchedule}
+              />
             </div>
             <div style={{ marginBottom: '20px' }}>
               <Input
@@ -293,6 +356,7 @@ const CoursesPage = () => {
                           name="edit"
                           style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(course)}
+                          disabled={!selectedSchedule}
                         />
                       </div>
                       <Card.Meta>
@@ -375,6 +439,15 @@ const CoursesPage = () => {
         deleteItem={currentCourse}
         refreshData={setData}
         showToast={showToast}
+      />
+      <AddFromExcelModal
+        open={openAddXlsxModal}
+        onClose={closeModals}
+        xlsxFormData={xlsxFormData}
+        setXlsxFormData={setXlsxFormData}
+        refreshData={setData}
+        showToast={showToast}
+        scheduleId={selectedSchedule}
       />
     </Container>
   );

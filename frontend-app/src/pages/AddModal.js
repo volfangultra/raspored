@@ -9,7 +9,7 @@ import axios from 'axios';
 import { getHeader } from '../components/Logic';
 
 
-const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast}) => {
   axios.defaults.headers = {
     ...axios.defaults.headers,
     ...getHeader(),

@@ -12,6 +12,7 @@ const Header = ({ onLogout }) => {
   };
 
   const handleItemClick = (path, id) => {
+    localStorage.removeItem('scheduleId');
     const items = document.querySelectorAll('.menu .item');
     items.forEach(item => {
       if (item.id === id) {
