@@ -20,6 +20,7 @@ import {
   fetchStudentGroups,
 } from '../services/apiServices';
 import * as XLSX from 'xlsx';
+import AddFromExcelModal from './AddFromExcelModal';
 
 const CoursesPage = () => {
   const header = 'Dodavanje predmeta';
@@ -42,6 +43,9 @@ const CoursesPage = () => {
 
   const [firstLoad, setFirstLoad] = useState(true);
   const [worksheet, setWorksheet] = useState([]);
+
+  const [xlsxFormData, setXlsxFormData] = useState([]);
+  const [openAddXlsxModal, setOpenAddXslxModal] = useState(false);
 
   const [handleResolve, setHandleResolve] = useState(() => () => {});
 
@@ -89,63 +93,33 @@ const CoursesPage = () => {
 
   const handleFileInput = (e) => {
     const file = e.target.files[0];
+    if (file) {
+      e.target.value = null;
+    }
+    
     const reader = new FileReader();
     reader.onload = (event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
-      setWorksheet(XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]));
-      //const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-      // Refresh data or notify user after upload
-      // refreshData();
-      // showToast('Classrooms successfully added!', 'success');
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  const handleFileUpload = async () => {
-    for (const row of worksheet) {
-      const courseData = {
-        id: '',
-        scheduleId: localStorage.getItem('scheduleId'),
-        name: row.Naziv,
-        lectureSlotLength: row.Trajanje,
-        type: row.Tip,
+      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      const formattedData = sheetData.map((row) => ({
+        //id: "",
+        scheduleId: localStorage.getItem("scheduleId"),
+        name: row.Naziv || "",
+        lectureSlotLength: String(row.Trajanje) || "",
+        type: row.Tip || "",
         professorId: null,
         groupTakesCourses: [],
         courseCanNotUseClassrooms: [],
-      };
-  
-      // Postavimo stanje za trenutni red
-      setCurrentCourse(courseData);
-      setFileInput(true);
-      setOpenAddModal(true);
-  
-      // Čekamo dok se modal ne zatvori pre nego što pređemo na sledeći red
-      await new Promise(resolve => {
-        const handleResolve2 = () => {
-          setOpenAddModal(false);
-          resolve();
-        };
-
-        setHandleResolve(() => handleResolve2());
-
-        // Dodajte logiku za dugme unutar modala
-        // Na primer:
-        // <Button onClick={handleConfirm}>Potvrdi</Button>
-      });
-    }
-  
-    setData();
-    showToast('Kursevi uspješno dodani!', 'success');
-  };
-  
-
-  useEffect(() => {
-    if(firstLoad) {setFirstLoad(false); return;}
-    handleFileUpload();
-  }, [worksheet]);
+      }));
+      setXlsxFormData(formattedData);
+      console.log(formattedData)
+      console.log(openAddXlsxModal);
+      setOpenAddXslxModal(true);
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
   useEffect(() => {
     setData();
@@ -230,6 +204,7 @@ const CoursesPage = () => {
     setCurrentCourse(null);
     setOpenAddModal(false);
     setOpenDeleteModal(false);
+    setOpenAddXslxModal(false);
   };
 
   return (
@@ -304,7 +279,7 @@ const CoursesPage = () => {
                 accept=".xlsx"
                 hidden
                 style={{display: 'none'}}
-                onChange={(e)=>{handleFileInput(e); handleFileUpload();}}
+                onChange={handleFileInput}
                 disabled={!selectedSchedule}
               />
             </div>
@@ -387,6 +362,7 @@ const CoursesPage = () => {
                           name="edit"
                           style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(course)}
+                          disabled={!selectedSchedule}
                         />
                       </div>
                       <Card.Meta>
@@ -471,6 +447,15 @@ const CoursesPage = () => {
         refreshData={setData}
         showToast={showToast}
       />
+      <AddFromExcelModal
+        open={openAddXlsxModal}
+        onClose={closeModals}
+        xlsxFormData={xlsxFormData}
+        setXlsxFormData={setXlsxFormData}
+        refreshData={setData}
+        showToast={showToast}
+        scheduleId={selectedSchedule}
+      />
     </Container>
   );
 };

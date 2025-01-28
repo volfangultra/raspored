@@ -328,6 +328,7 @@ const StudentGroupsPage = () => {
                           name="edit"
                           style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(studentgroup)}
+                          disabled={!selectedSchedule}
                         />
                       </div>
                       <Card.Description>
@@ -346,15 +347,6 @@ const StudentGroupsPage = () => {
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                      <Button
-                        basic
-                        color="teal"
-                        onClick={() => openScheduleModal(studentgroup)}
-                        onMouseEnter={(e) => e.target.classList.remove('basic')}
-                        onMouseLeave={(e) => e.target.classList.add('basic')}
-                      >
-                        Raspored
-                      </Button>
                       <Button
                         basic
                         color="red"
@@ -382,22 +374,6 @@ const StudentGroupsPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      
-      {currentStudentGroup && (
-        <Modal open={scheduleModalOpen} onClose={closeModals}>
-          <Modal.Header>Raspored za {currentStudentGroup.name}</Modal.Header>
-          <Modal.Content>
-            <ScheduleTable
-              content={/* Unesite raspored za ovu učionicu */ []}
-            />
-          </Modal.Content>
-          <Modal.Actions>
-            <Button basic color="teal" onClick={closeModals}>
-              Zatvori
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      )}
 
       <DeleteModal
         open={openDeleteModal}

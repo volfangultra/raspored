@@ -347,6 +347,7 @@ const ClassroomsPage = () => {
                           name="edit"
                           style={{ cursor: 'pointer' }}
                           onClick={() => handleEditClick(classroom)}
+                          disabled={!selectedSchedule}
                         />
                       </div>
                       <Card.Description>
@@ -368,15 +369,6 @@ const ClassroomsPage = () => {
                       </Card.Description>
                     </Card.Content>
                     <Card.Content extra>
-                      <Button
-                        basic
-                        color="teal"
-                        onClick={() => openScheduleModal(classroom)}
-                        onMouseEnter={(e) => e.target.classList.remove('basic')}
-                        onMouseLeave={(e) => e.target.classList.add('basic')}
-                      >
-                        Raspored
-                      </Button>
                       <Button
                         basic
                         color="red"
@@ -404,22 +396,6 @@ const ClassroomsPage = () => {
           </Grid.Column>
         </Grid.Row>
       </Grid>
-      
-      {currentClassroom && (
-        <Modal open={scheduleModalOpen} onClose={closeModals}>
-          <Modal.Header>Raspored za {currentClassroom.name}</Modal.Header>
-          <Modal.Content>
-            <ScheduleTable
-              content={/* Unesite raspored za ovu učionicu */ []}
-            />
-          </Modal.Content>
-          <Modal.Actions>
-            <Button basic color="teal" onClick={closeModals}>
-              Zatvori
-            </Button>
-          </Modal.Actions>
-        </Modal>
-      )}
 
       <DeleteModal
         open={openDeleteModal}
