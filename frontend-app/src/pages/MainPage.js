@@ -50,21 +50,17 @@ const MainPage = () => {
     setColors(tempcolors)
   }
 
-  
-
-  
   const time_to_num = (time) => parseInt(time.split(":")[0])
 
   const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
 
 
   const setupContent = async() => {
-    console.log("Pozvano")
     let initContent = Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))
     let lessons = courses.filter(c=>c.lessons.length > 0).map(c => {return {...c, "startTime":c.lessons[0].startTime, "endTime":c.lessons[0].endTime, "lesson_id":c.lessons[0].id, "day":c.lessons[0].day}})
     if (selectedClassroom)
       lessons = lessons.filter((l) => l.lessons[0].classroomId == selectedClassroom.id)
-    console.log("Selected", lessons)
+
     let updatedContent = [...initContent]
     lessons.forEach(l => {
       updatedContent[time_to_index(l.startTime)][l.day] = l
@@ -151,8 +147,6 @@ const MainPage = () => {
   }, []);
   
   const handleProfessorSelect = async (professorId) => {
-    console.log("USAO")
-    console.log(professorId)
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
@@ -266,7 +260,9 @@ const MainPage = () => {
       }, 
       {
         headers: {
-          Authorization: localStorage.getItem('userId'),
+          User: localStorage.getItem('userId'),
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       alert('Timetable duplicated successfully!');
@@ -315,7 +311,6 @@ const MainPage = () => {
   };
 
   const handleDropNew = () => {
-    console.log("HEllo BITNAAAA STVAR")
     resetColors()
   };
 
@@ -331,7 +326,6 @@ const MainPage = () => {
     left: "0",
     right: "0",
     bottom: "40px", // Stretches the container to occupy the remaining viewport below the navbar
-    //overflow: "auto",
     backgroundColor: "#f9f9f9",
     zIndex: 1, // Ensure the drag-and-drop section stays below the navbar
     display: "flex",

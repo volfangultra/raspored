@@ -133,7 +133,7 @@ const ClassroomForm = ({ onChange, editItem }) => {
         </Form.Group>
       </Form>
 
-      <Header as="h4">Dodaj predmete</Header>
+      <Header as="h4">  Dodajte predmete koji nisu mogući</Header>
       <Form widths="equal">
         <Form.Dropdown
           placeholder="Odaberite predmet"

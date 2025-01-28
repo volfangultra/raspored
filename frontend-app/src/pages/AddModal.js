@@ -82,10 +82,10 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
       <Modal.Header>{header}</Modal.Header>
       <Modal.Content>{getFormContent(header)}</Modal.Content>
       <Modal.Actions>
-        <Button color="teal" onClick={handleSave}>
+        <Button basic color="teal" onClick={handleSave}>
           Sačuvaj
         </Button>
-        <Button basic color="teal" onClick={onClose}>
+        <Button basic color="red" onClick={onClose}>
           Odustani
         </Button>
       </Modal.Actions>

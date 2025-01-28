@@ -150,9 +150,9 @@ public static class UserRoutes
         {
             var loginData = await context.Request.ReadFromJsonAsync<User>();
             //Uncomment this and user will be added as you login
-            /*var sql = "INSERT INTO Users (Username, Email, PasswordHash, College, Role) VALUES ({0}, {1}, {2}, {3}, {4})";
+            var sql = "INSERT INTO Users (Username, Email, PasswordHash, College, Role) VALUES ({0}, {1}, {2}, {3}, {4})";
             db.Database.ExecuteSqlRaw(sql, loginData.Username, "emin.mulaimovic2305@gmail.com",
-            BCrypt.Net.BCrypt.HashPassword(loginData.PasswordHash), "PMF", "user");*/
+            BCrypt.Net.BCrypt.HashPassword(loginData.PasswordHash), "PMF", "user");
 
             var user = await db.Users.FirstOrDefaultAsync(u => u.Username == loginData.Username);
 

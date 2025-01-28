@@ -128,7 +128,7 @@ const StudentGroupForm = ({ onChange, editItem }) => {
         </Form.Group>
       </Form>
 
-      <Header as="h4">Dodaj predmete</Header>
+      <Header as="h4">Dodajte predmete koje slušaju</Header>
       <Form widths="equal">
         <Form.Dropdown
           placeholder="Odaberite predmet"
