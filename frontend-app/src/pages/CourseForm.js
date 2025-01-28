@@ -3,8 +3,14 @@ import PropTypes from 'prop-types';
 import { Form, Segment, Grid, Dropdown, Button, Icon, Header } from 'semantic-ui-react';
 import axios from 'axios';
 import AddModal from './AddModal';
+import { getHeader } from '../components/Logic';
+
 
 const CourseForm = ({ onChange, editItem }) => {
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const [formData, setFormData] = useState({
     id: editItem?.id || '',
     scheduleId: localStorage.getItem('scheduleId'),
@@ -38,7 +44,10 @@ const CourseForm = ({ onChange, editItem }) => {
         setProfessors(professorResponse.data);
 
         const studentGroupResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`
+          `${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`, {
+                    method:"GET",
+                    headers:getHeader()
+                  }
         );
         const studentData = await studentGroupResponse.json();
 
@@ -62,7 +71,10 @@ const CourseForm = ({ onChange, editItem }) => {
         );
 
         const classroomResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`
+          `${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                    method:"GET",
+                    headers:getHeader()
+                  }
         );
         const data = await classroomResponse.json();
         const options = data.map((classroom) => ({

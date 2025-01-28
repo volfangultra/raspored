@@ -13,6 +13,7 @@ import ProfessorsPage from './pages/ProfessorsPage';
 import StudentGroupsPage from './pages/StudentGroupsPage';
 
 function App() {
+  console.log("Ucitaje App")
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState(null);

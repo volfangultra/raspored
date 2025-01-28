@@ -1,162 +1,110 @@
-const timeToMinutes = (time) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-};
 
-const isConflict = (start1, end1, start2, end2) => (start1 > start2 && start1 < end2) || (end1 > start1 && end1 < end2);
+const start_time = process.env.REACT_APP_START_TIME
 
-export const AddLesson = (course_id, classroom_id, day, startTime, endTime)=> {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
+export const time_to_num = (time) => parseInt(time.split(":")[0])
 
-  // Validate that course_id exists
-  const course = storedData.courses.find((c) => c.id === course_id);
-  if (!course) 
-    return (false, 'Course with the provided ID does not exist.');
+const startHour = time_to_num(start_time); // Extract the hour from the start_time
+export const num_to_time = (num) => `${startHour + num}:00`
 
-  // Validate that classroom_id exists
-  const classroom = storedData.classrooms.find((c) => c.id === classroom_id);
-  if (!classroom) 
-    return (false, 'Classroom with the provided ID does not exist.');
-    
+export const getHeader = () => {
+  console.log("Pokrenio sam se")
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found, user is not authenticated.');
+  }
 
-  // Validate day is an integer between 0 and 4
-  if (day < 0 || day > 4) 
-    return (false, 'Day must be an integer between 0 and 4.');
-    
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  }
 
-  // Validate startTime and endTime format and values
-  const startMinutes = timeToMinutes(startTime);
-  const endMinutes = timeToMinutes(endTime);
+}
 
 
-  if (startMinutes >= endMinutes) 
-    return (false, 'End time must be later than start time.');
-    
 
-  // Validate lesson length matches the lectureSlotLength
-  const lessonLength = (endMinutes - startMinutes) / 60;
-  if (lessonLength !== course.lectureSlotLength) 
-    return (false, `Lesson length must be ${course.lectureSlotLength} hours.`);
+const isConflict = (startTime, endTime, startIndex, endIndex) => {
+    const startTemp = time_to_index(startTime)
+    const endTemp = time_to_index(endTime)
+    return (endTemp >= startIndex && endTemp <= endIndex) || (startTemp <= endIndex && startTemp >= startIndex) || (endIndex >= startTemp && endIndex <= endTemp) || (startIndex >= startTemp && startIndex <= endTemp)
+}
 
-  // Validate if course already has a lesson
-  if(course.lesson.length > 0)
-    return (false, 'Course may only have one lesson');
 
-    
-  // Validate if professor is available in between startTime and EndTime
-  const professorAvailability = course.professor.professorAvailabilities.find(
-    (pa) => pa.day === day && timeToMinutes(pa.startTime) <= startMinutes && timeToMinutes(pa.endTime) >= endMinutes
+
+export const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
+
+export const getAvailableClassroomsForProfessor = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
+
+  let classroomIdsToRemove = selectedCourse.courseCanNotUseClassrooms.map((c)=>c.classroomId)
+
+  let classroomIds = allClassrooms.map((c)=>c.id)
+
+  let classroomIdsThatHaveLessons = allCourses.filter((c)=>c.lessons.length > 0 && c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, rowIndex + selectedCourse.lectureSlotLength - 1) && c.id != selectedCourse.id).map((c) => c.lessons[0].classroomId)
+
+  classroomIdsToRemove = [... new Set([...classroomIdsToRemove, ...classroomIdsThatHaveLessons])]
+
+
+  classroomIds = classroomIds.filter(x => !classroomIdsToRemove.includes(x));
+
+  return allClassrooms.filter((c) => classroomIds.includes(c.id))
+}
+
+export const getAvailableClassroomsForGroup = (allCourses, allClassrooms, selectedCourse, rowIndex, colIndex)=>{
+  let classroomIds = allClassrooms.map((c)=>c.id)
+  let classroomIdsToRemove = selectedCourse.courseCanNotUseClassrooms.map((c)=>c.classroomId)
+
+  let classroomIdsThatHaveLessons = allCourses.filter((c)=>c.lessons.length > 0 && c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, rowIndex + selectedCourse.lectureSlotLength - 1) && c.id != selectedCourse.id).map((c) => c.lessons[0].classroomId)
+  classroomIds = classroomIds.filter(x => (!classroomIdsThatHaveLessons.includes(x)) && (!classroomIdsToRemove.includes(x)));
+
+  return allClassrooms.filter((c) => classroomIds.includes(c.id))
+
+}
+
+export const groupHasCourses = (allCourses, studentGroup, rowIndex, endIndex, colIndex, item)=>{
+  let courseIds = studentGroup.groupTakesCourses.map((c)=>c.courseId)
+  let courses = allCourses.filter((c) => courseIds.includes(c.id) && c.id != item.id)
+  courses = courses.filter((c) => c.lessons.length > 0)
+  courses = courses.filter((c) => c.lessons[0].day == colIndex && isConflict(c.lessons[0].startTime, c.lessons[0].endTime, rowIndex, endIndex))
+  return courses.length != 0
+}
+
+
+export const testSpot = (item, rowIndex, colIndex, allCourses, allClassrooms, allProfessors, allStudentGroups, professor, classroom, studentGroup, content) => {
+
+  // Provjeri ima li dovoljno prostora za predmet na novoj poziciji
+  for (let i = 0; i < item.lectureSlotLength; i++)
+    if (rowIndex + i >= content.length || content[rowIndex + i][colIndex]) {
+      return false;
+    }
+
+  let classrooms = []
+  if(professor){
+    classrooms = getAvailableClassroomsForProfessor(allCourses, allClassrooms, item, rowIndex, colIndex)
+  }
+  if(studentGroup){
+    classrooms = getAvailableClassroomsForGroup(allCourses, allClassrooms, item, rowIndex, colIndex)
+  }
+  if (classrooms.length == 0 && !classroom){
+    return false
+  }
+  //samo ako se profesor selecta ovo radi
+  if(professor){
+    let currentProfessorUnavailabilites = allProfessors.find((p)=> p.id == item.professorId).professorUnavailabilities.filter((a) => a.day == colIndex)
+    if(currentProfessorUnavailabilites){
+        let a = currentProfessorUnavailabilites.find((p) => isConflict(p.startTime, p.endTime, rowIndex, rowIndex + item.lectureSlotLength - 1))
+        if (a){
+          return false
+        }
+      }
+  }
+
+  let groups = item.groupTakesCourses.map((g) => g.studentGroupId)
+  groups = allStudentGroups.filter((g) => groups.includes(g.id))
+  const result = groups.some((g) => 
+    groupHasCourses(allCourses, g, rowIndex, rowIndex + item.lectureSlotLength - 1, colIndex, item)
   );
-
-  if (!professorAvailability)
-    return (false, 'Professor is not available at this time.');
-
-
-  // Validate if professor doesn't have other lessons between startTime and EndTime
-  const professorLessons = storedData.courses.flatMap((c) =>
-    c.lesson.filter((l) => l.day === day &&
-        c.professor.id === course.professor.id && 
-        isConflict(timeToMinutes(l.startTime), timeToMinutes(l.endTime), startMinutes, endMinutes))
-  );
-
-  if (professorLessons.length != 0)
-    return (false, 'Professor has lessons at that time');
-
-  // Validate if classroom is free between startTime and EndTime
-  const classroomLessons = storedData.courses.flatMap((c) =>
-    c.lesson.filter((l) => l.day === day && 
-        l.classroomId === classroom_id &&
-        isConflict(timeToMinutes(l.startTime), timeToMinutes(l.endTime), startMinutes, endMinutes))
-  );
-
-  if(classroomLessons.length != 0)
-    return (false, 'Classroom is taken at that time');
-
-
-  // Validate if all study groups connected to this course do not have other lessons between startTime and endTime
-  const studyGroups = course.groupTakesCourse.map((gtc) => gtc.studentGroupId);
-  const groupConflicts = storedData.courses.flatMap((c) =>
-    c.lesson.filter(
-      (l) =>
-        l.day === day &&
-                c.groupTakesCourse.some((gtc) => studyGroups.includes(gtc.studentGroupId)) &&
-                isConflict(timeToMinutes(l.startTime), timeToMinutes(l.endTime), startMinutes, endMinutes)
-    )
-  );
-
-  if(groupConflicts.length != 0)
-    return (false, 'Students have a lesson at that time');
-
-  const newLesson = {
-    day,
-    startTime,
-    endTime,
-    classroomId: classroom_id
-  };
-
-  course.lesson.push(newLesson);
-  return (true, 'Lesson inserted');
-
-};
-
-
-export const GetProfessors = () => {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
-  const professors =  storedData.courses.map((c)=>c.professor).
-    filter((item, index, self) => 
-      self.findIndex(other => other.id === item.id) === index
-    );
-  return professors;
-};
-
-
-export const GetClassrooms = () => {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
-  const classrooms = storedData.courses
-    .map((c)=>c.canUseClassroom)
-    .flat()
-    .filter((item, index, self) => 
-      self.findIndex(other => other.id === item.id) === index
-    );
-  return classrooms;
-};
-
-
-export const GetCourses = () => {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
-  return storedData.courses;
-};
-
-
-export const GetStudentGroups = () => {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
-  const studentGroups = storedData.courses
-    .map((c)=>c.groupTakesCourse)
-    .flat()
-    .filter((item, index, self) => 
-      self.findIndex(other => other.id === item.id) === index
-    );
-  return studentGroups;
-};
-
-// Get professor avaliable times
-export const GetProfessorAvailableTimes = (professorId) => {
-  const storedData = JSON.parse(localStorage.getItem('schedule_data'));
-  const professor = storedData.courses.map((c)=>c.professor)
-    .find((professor) => professor.id === professorId);
-  if(!professor)
-    return {};
-
-  const availabilites = professor.professorAvailabilities;
-  const lessons = storedData.courses
-    .filter((c) => (c.professor.id == professorId))
-    .map((c) => c.lesson);
-
-  return {'Availabilities': availabilites, 'Lessons': lessons};
-
-};
-
-// Get Student Groups unavalable times
-//Pitaj kakav format da vracas
-
-// Get Classrooms unavailable times
+  
+  if (result) {
+    return false; // Exit if any group satisfies the condition
+  }
+  return true
+}

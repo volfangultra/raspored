@@ -3,9 +3,14 @@ import { Container, Input, Icon, Dropdown, Button, Checkbox, Modal } from 'seman
 import Courses from './Courses';
 import DeleteModal from './DeleteModal';
 import axios from 'axios';
+import {testSpot, getHeader} from "../components/Logic"
+
 
 const MainPage = () => {
-  const header = 'Dodavanje rasporeda';
+  axios.defaults.headers = {
+    ...axios.defaults.headers,
+    ...getHeader(),
+  };
   const [scheduleName, setScheduleName] = useState('');
   const [semesterType, setSemesterType] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -20,6 +25,12 @@ const MainPage = () => {
     setTimeout(() => setToast({ message: '', type: '', visible: false }), 3000);
   };
 
+  const start_time = process.env.REACT_APP_START_TIME
+  const end_time = process.env.REACT_APP_END_TIME
+  const startHour = parseInt(start_time.split(":")[0]); // Extract the hour from the start_time
+  const endHour = parseInt(end_time.split(":")[0]);     // Extract the hour from the end_time
+
+
   const [selectedProfessor, setSelectedProfessor] = useState(null);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [selectedStudentGroup, setSelectedStudentGroup] = useState(null);
@@ -31,6 +42,48 @@ const MainPage = () => {
     courses: false,
     classrooms: false,
   });
+  const [content, setContent] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')));
+  const [colors, setColors] = useState(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('#ffffff')))
+
+  const resetColors = () => {
+    let tempcolors = []
+    for (let day = 0; day < 5; day++){
+      let temp = []
+      for (let hour = startHour; hour <= endHour; hour++) {
+          temp.push('#ffffff')
+      }
+      tempcolors.push(temp)
+    }
+    setColors(tempcolors)
+  }
+
+  
+
+  
+  const time_to_num = (time) => parseInt(time.split(":")[0])
+
+  const time_to_index = (time) => time_to_num(time) - time_to_num(start_time)
+
+
+  const setupContent = async() => {
+    console.log("Pozvano")
+    let initContent = Array(endHour - startHour + 1).fill().map(() => Array(5).fill(''))
+    let lessons = courses.filter(c=>c.lessons.length > 0).map(c => {return {...c, "startTime":c.lessons[0].startTime, "endTime":c.lessons[0].endTime, "lesson_id":c.lessons[0].id, "day":c.lessons[0].day}})
+    if (selectedClassroom)
+      lessons = lessons.filter((l) => l.lessons[0].classroomId == selectedClassroom.id)
+    console.log("Selected", lessons)
+    let updatedContent = [...initContent]
+    lessons.forEach(l => {
+      updatedContent[time_to_index(l.startTime)][l.day] = l
+      for(let i = 1; i < l.length; i++)
+        updatedContent[time_to_index(l.startTime) + i][l.day] = "MERGED"
+    })
+    setContent(updatedContent)
+  }
+  useEffect(() => {
+      setupContent();
+  }, [courses, selectedProfessor, selectedStudentGroup, selectedClassroom, colors]);
+
 
   const closeModals = () => {
     setOpenDeleteModal(false);
@@ -50,7 +103,10 @@ const MainPage = () => {
 
   const fetchProfessors = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/professors?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -63,7 +119,10 @@ const MainPage = () => {
 
   const fetchClassrooms = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/classrooms?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -76,7 +135,10 @@ const MainPage = () => {
 
   const fetchStudentGroups = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/student-groups?scheduleId=${localStorage.getItem('scheduleId')}`,{
+                method:"GET",
+                headers:getHeader()
+              });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -100,6 +162,8 @@ const MainPage = () => {
   }, []);
   
   const handleProfessorSelect = async (professorId) => {
+    console.log("USAO")
+    console.log(professorId)
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/courses?scheduleId=${localStorage.getItem('scheduleId')}`);
       const courses = response.data;
@@ -169,6 +233,10 @@ const MainPage = () => {
     if(dropdown3){
       dropdown3.click(); // Clear the input
     }
+    /* OVO NE RADI
+    setContent(Array(endHour - startHour + 1).fill().map(() => Array(5).fill('')))
+    console.log(content)
+    */
   };
 
   const handleTitleClick = () => {
@@ -241,8 +309,54 @@ const MainPage = () => {
     { key: 'ljetni', text: 'Ljetni', value: 'Ljetni' },
   ];
 
+  const changeColor = (rowIndex, colIndex) => {
+    let temp = [...colors]
+    temp[colIndex][rowIndex] = "#FFC0CB"
+    setColors(temp)
+  }
+
+  const handleDragStart = (event, item) => {
+    console.log("START")
+    for (let day = 0; day < 5; day++){
+      for (let row = 0; row <= content.length; row++) {
+        if (!testSpot(item, row, day, allCourses, classroomsOptions, professorsOptions, studentGroupsOptions, selectedProfessor, selectedClassroom, selectedStudentGroup, content)){
+          changeColor(row, day)
+        }
+      }
+    }
+    event.dataTransfer.setData('application/json', JSON.stringify(item));
+  };
+
+  const handleDropNew = () => {
+    console.log("HEllo BITNAAAA STVAR")
+    resetColors()
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
   return (
+    <div
+  style={{
+    position: "absolute", // Absolute positioning relative to the container
+    top: "60px", // Adjust based on your navbar height
+    left: "0",
+    right: "0",
+    bottom: "40px", // Stretches the container to occupy the remaining viewport below the navbar
+    //overflow: "auto",
+    backgroundColor: "#f9f9f9",
+    zIndex: 1, // Ensure the drag-and-drop section stays below the navbar
+    display: "flex",
+    flexDirection: "column",
+    border: "1px solid lightgrey",
+    padding: "10px"
+  }}
+  onDragOver={handleDragOver}
+  onDrop={handleDropNew}
+>
     <Container style={{ marginTop: '20px' }}>
+          
       
       <div style={{ display: 'inline-flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'start', marginTop: '10px' }}>
@@ -340,7 +454,7 @@ const MainPage = () => {
         </Button>
         </div>
       </div>
-      <div style={{ marginTop: '20px' }}><Courses handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions} allProfessors={professorsOptions}/></div>
+      <div style={{ marginTop: '20px' }}><Courses colors={colors} setColors={setColors} content={content} setContent={setContent} handleClassroomSelect={handleClassroomSelect} handleProfessorSelect={handleProfessorSelect} handleStudentGroupSelect={handleStudentGroupSelect} courses={courses} professor={selectedProfessor} allProfessors={professorsOptions} allStudentGroups={studentGroupsOptions} classroom={selectedClassroom} studentGroup={selectedStudentGroup} allCourses={allCourses} allClassrooms={classroomsOptions} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDropNew={handleDropNew}/></div>
     {/* Duplicate Modal */}
     <Modal open={isDuplicateModalOpen} onClose={() => setIsDuplicateModalOpen(false)} size="tiny">
         <Modal.Header>Dupliciraj Raspored</Modal.Header>
@@ -398,6 +512,7 @@ const MainPage = () => {
         showToast={showToast}
       />
     </Container>
+    </div>
   );
 };
 

@@ -165,7 +165,6 @@ public static class UserRoutes
             {
                 return Results.BadRequest(new { Message = "Incorrect password." });
             }
-
             var token = GenerateJwtToken(user, validIssuer, allowedOrigin, secretKey);
             return Results.Ok(new { Token = token, Role = user.Role, Id = user.Id });
         });
