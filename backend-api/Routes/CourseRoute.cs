@@ -118,7 +118,7 @@ public static class CourseRoutes
 
             return course is not null ? Results.Ok(course) : Results.NotFound();
         });
-
+        
         app.MapPost("/courses", async (CourseDto courseDto, AppDbContext db) =>
         {
             var course = new Course

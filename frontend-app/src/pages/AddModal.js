@@ -7,7 +7,7 @@ import CourseForm from './CourseForm';
 import StudentGroupForm from './StudentGroupForm';
 import axios from 'axios';
 
-const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) => {
+const AddModal = ({ open, onClose, header, editItem, refreshData, showToast, fileInput=false }) => {
   const [formData, setFormData] = useState({});
 
   const getFormContent = (header) => {
@@ -47,7 +47,7 @@ const AddModal = ({ open, onClose, header, editItem, refreshData, showToast }) =
 
     try {
       console.log(formData)
-      if(!editItem){
+      if(fileInput || !editItem){
         const formDataWithoutId = Object.fromEntries(
           Object.entries(formData).filter(([key]) => key !== 'id')
         );        

@@ -19,6 +19,7 @@ import {
   fetchClassrooms,
   fetchStudentGroups,
 } from '../services/apiServices';
+import * as XLSX from 'xlsx';
 
 const CoursesPage = () => {
   const header = 'Dodavanje predmeta';
@@ -37,6 +38,12 @@ const CoursesPage = () => {
   const [professors, setProfessors] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [studentGroups, setStudentGroups] = useState([]);
+  const [fileInput, setFileInput] = useState(false);
+
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [worksheet, setWorksheet] = useState([]);
+
+  const [handleResolve, setHandleResolve] = useState(() => () => {});
 
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +60,6 @@ const CoursesPage = () => {
     try {
       const schedules = await fetchSchedules(userId);
       setScheduleOptions(schedules);
-      console.log(schedules);
       const allCourses = [],
         allProfessors = [],
         allClassrooms = [],
@@ -80,6 +86,66 @@ const CoursesPage = () => {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
   };
+
+  const handleFileInput = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      setWorksheet(XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]));
+      //const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      // Refresh data or notify user after upload
+      // refreshData();
+      // showToast('Classrooms successfully added!', 'success');
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleFileUpload = async () => {
+    for (const row of worksheet) {
+      const courseData = {
+        id: '',
+        scheduleId: localStorage.getItem('scheduleId'),
+        name: row.Naziv,
+        lectureSlotLength: row.Trajanje,
+        type: row.Tip,
+        professorId: null,
+        groupTakesCourses: [],
+        courseCanNotUseClassrooms: [],
+      };
+  
+      // Postavimo stanje za trenutni red
+      setCurrentCourse(courseData);
+      setFileInput(true);
+      setOpenAddModal(true);
+  
+      // Čekamo dok se modal ne zatvori pre nego što pređemo na sledeći red
+      await new Promise(resolve => {
+        const handleResolve2 = () => {
+          setOpenAddModal(false);
+          resolve();
+        };
+
+        setHandleResolve(() => handleResolve2());
+
+        // Dodajte logiku za dugme unutar modala
+        // Na primer:
+        // <Button onClick={handleConfirm}>Potvrdi</Button>
+      });
+    }
+  
+    setData();
+    showToast('Kursevi uspješno dodani!', 'success');
+  };
+  
+
+  useEffect(() => {
+    if(firstLoad) {setFirstLoad(false); return;}
+    handleFileUpload();
+  }, [worksheet]);
 
   useEffect(() => {
     setData();
@@ -166,8 +232,6 @@ const CoursesPage = () => {
     setOpenDeleteModal(false);
   };
 
-  console.log("Thesea are,", classrooms.map((c) => c.name).join(', '))
-
   return (
     <Container style={{ marginTop: '20px' }}>
       {toast.visible && (
@@ -213,6 +277,36 @@ const CoursesPage = () => {
                 Dodaj novi kurs
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
               </Button>
+              <Button
+                basic
+                as="label"
+                type="button"
+                color="teal"
+                htmlFor="file"
+                fluid
+                disabled={!selectedSchedule}
+                onMouseEnter={(e) => e.target.classList.remove('basic')}
+                onMouseLeave={(e) => e.target.classList.add('basic')}
+                style={{
+                  marginTop: '10px',
+                  transition: 'all 0.3s ease',
+                  opacity: selectedSchedule ? 1 : 0.5,
+                  cursor: selectedSchedule ? 'pointer' : 'not-allowed',
+                }}
+                title='Fajl treba da ima tri kolone [Naziv, Trajanje (1, 2, 3...), Tip (P, AV, LV)], a u redove idu podaci o svakoj učionici. Učionice i smjerovi se unose naknadno.'
+              >
+                Učitaj XLSX fajl kurseva
+                <Icon name="upload" style={{ marginLeft: '10px' }} />
+              </Button>
+              <Input
+                type="file"
+                id="file"
+                accept=".xlsx"
+                hidden
+                style={{display: 'none'}}
+                onChange={(e)=>{handleFileInput(e); handleFileUpload();}}
+                disabled={!selectedSchedule}
+              />
             </div>
             <div style={{ marginBottom: '20px' }}>
               <Input
@@ -362,11 +456,12 @@ const CoursesPage = () => {
       </Grid>
       <AddModal
         open={openAddModal}
-        onClose={closeModals}
+        onClose={()=>{closeModals(); handleResolve();}}
         header={header}
         editItem={currentCourse}
         refreshData={setData}
         showToast={showToast}
+        fileInput={fileInput}
       />
       <DeleteModal
         open={openDeleteModal}

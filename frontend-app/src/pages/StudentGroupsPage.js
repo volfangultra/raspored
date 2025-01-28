@@ -15,6 +15,8 @@ import AddModal from './AddModal';
 import DeleteModal from './DeleteModal';
 import ToastMessage from '../components/ToastMessage';
 import { fetchSchedules, fetchCourses, fetchStudentGroups } from '../services/apiServices';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const StudentGroupsPage = () => {
   const header = 'Dodavanje smjera';
@@ -26,6 +28,9 @@ const StudentGroupsPage = () => {
   const [searchText, setSearchText] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [sortOption, setSortOption] = useState('nameAsc');
+
+  const [firstLoad, setFirstLoad] = useState(true);
+  const [worksheet, setWorksheet] = useState([]);
 
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -62,6 +67,50 @@ const StudentGroupsPage = () => {
       console.error('Failed to fetch schedules or classrooms:', error);
     }
   };
+
+  const handleFileInput = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      setWorksheet(XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]));
+      //const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      // Refresh data or notify user after upload
+      // refreshData();
+      // showToast('Classrooms successfully added!', 'success');
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleFileUpload = async () => {
+    for (const row of worksheet) {
+      const studentGroupData = {
+        Name: String(row.Naziv),
+        Major: '',
+        Year: row.Godina,
+        ScheduleId: localStorage.getItem('scheduleId'),
+        GroupTakesCourses: [],
+      };
+
+      console.log(studentGroupData);
+
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/student-groups`, studentGroupData);
+      } catch (error) {
+        console.error('Error adding student group:', error);
+      }
+    }
+    setData();
+    showToast('Smjerovi uspješno dodani!', 'success');
+  };
+
+  useEffect(() => {
+    if(firstLoad) {setFirstLoad(false); return;}
+    handleFileUpload();
+  }, [worksheet]);
   
   useEffect(() => {
     setData();
@@ -191,6 +240,36 @@ const StudentGroupsPage = () => {
                 Dodaj novi smjer
                 <Icon name="plus" style={{ marginLeft: '10px' }} />
               </Button>
+              <Button
+                basic
+                as="label"
+                type="button"
+                color="teal"
+                htmlFor="file"
+                fluid
+                disabled={!selectedSchedule}
+                onMouseEnter={(e) => e.target.classList.remove('basic')}
+                onMouseLeave={(e) => e.target.classList.add('basic')}
+                style={{
+                  marginTop: '10px',
+                  transition: 'all 0.3s ease',
+                  opacity: selectedSchedule ? 1 : 0.5,
+                  cursor: selectedSchedule ? 'pointer' : 'not-allowed',
+                }}
+                title='Fajl treba da ima dvije kolone [Naziv, Godina], a u redove idu podaci o svakoj učionici. Kursevi za smjerove se unose naknadno.'
+              >
+                Učitaj XLSX fajl smjerova
+                <Icon name="upload" style={{ marginLeft: '10px' }} />
+              </Button>
+              <Input
+                type="file"
+                id="file"
+                accept=".xlsx"
+                hidden
+                style={{display: 'none'}}
+                onChange={(e)=>{handleFileInput(e); handleFileUpload();}}
+                disabled={!selectedSchedule}
+              />
             </div>
             <div style={{ marginBottom: '20px' }}>
               <Input
