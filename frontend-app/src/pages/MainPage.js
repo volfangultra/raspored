@@ -7,6 +7,7 @@ import {testSpot, getHeader} from "../components/Logic"
 
 
 const MainPage = () => {
+  const header = "Dodavanje rasporeda";
   axios.defaults.headers = {
     ...axios.defaults.headers,
     ...getHeader(),
