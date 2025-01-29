@@ -58,11 +58,6 @@ const Header = ({ onLogout }) => {
           pointing="top right"
         >
           <Dropdown.Menu>
-            <Dropdown.Item
-              text="Profil"
-              icon="user"
-              onClick={() => console.log('Navigate to profile')}
-            />
             <Dropdown.Divider />
             <Dropdown.Item
               text="Odjava"
